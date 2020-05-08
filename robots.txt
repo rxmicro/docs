@@ -1,0 +1,3 @@
+Sitemap: https://docs.rxmicro.io/sitemap.xml
+User-Agent: *
+Host: docs.rxmicro.io
