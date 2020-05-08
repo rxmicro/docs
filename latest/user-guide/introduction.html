@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.15">
+<meta name="description" content="A modern, JVM-based, full stack framework designed to develop distributed reactive applications that use a microservice architecture.">
+<meta name="keywords" content="rx, rxmicro, reactive java, reactive jvm, microservice java, reactive microservice, micro service java, reactive micro service">
+<meta name="author" content="nedis">
+<title>Introduction</title>
+<link rel="stylesheet" href="../styles/rxmicro-doc.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body id="introduction-section" class="article toc2 toc-left">
+<div id="header">
+<h1>Introduction</h1>
+<div class="details">
+<span id="author" class="author">nedis</span><br>
+<span id="email" class="email"><a href="mailto:rxmicro.io@gmail.com">rxmicro.io@gmail.com</a></span><br>
+<span id="revnumber">version 0.11,</span>
+<span id="revdate">2022-12-14 20:00:09 UTC</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#rxmicro_features">1. RxMicro Features</a></li>
+<li><a href="#rxmicro_benefits">2. RxMicro Benefits</a></li>
+<li><a href="#requirements">3. Requirements</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="microservice.html#microservice-section"><strong>What are microservices? <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<div class="paragraph">
+<p>&#169; 2019-2022 rxmicro.io.
+Free use of this software is granted under the terms of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/LICENSE" target="_blank" rel="noopener"><code>Apache License 2.0</code></a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Copies of this entity may be made for Your own use and for distribution to others, provided that You do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.</p>
+</div>
+<div class="paragraph">
+<p>If You find errors or omissions in this entity, please don’t hesitate to submit an
+<a href="https://github.com/rxmicro/rxmicro-usage/issues" target="_blank" rel="noopener"><strong>issue</strong></a> or open <a href="https://github.com/rxmicro/rxmicro-usage/pulls" target="_blank" rel="noopener"><strong>a pull request</strong></a> with a fix.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><strong>RxMicro</strong> is a modern, JVM-based, full stack framework designed to develop distributed reactive applications that use a microservice architecture.</p>
+</div>
+<div class="paragraph">
+<p>The RxMicro framework provides developers with a convenient tool to focus on writing an application business logic.
+Meanwhile, routine and standard operations, which are the prerequisite for launching an application, are delegated to the framework.</p>
+</div>
+<div class="paragraph">
+<p>The RxMicro framework is small and lightweight.
+Even though the RxMicro framework is designed to create microservices, a developer can easily use separate <strong>RxMicro</strong> modules to develop any type of application using a reactive approach.</p>
+</div>
+<div class="paragraph">
+<p>The RxMicro framework is a framework that uses <a href="https://en.wikipedia.org/wiki/Reactive_programming" target="_blank" rel="noopener">reactive programming</a> as the main and <strong>only</strong> approach when designing microservices.</p>
+</div>
+<div class="paragraph">
+<p><strong>Any blocking operations are not supported!</strong></p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When developing a project using the RxMicro framework, use only <strong>non-blocking drivers</strong> to interact with databases, network connections and files.
+Otherwise Your project will work <strong>too slow</strong>, and won&#8217;t be able to process a large number of clients' requests.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rxmicro_features"><a class="anchor" href="#rxmicro_features"></a><a class="link" href="#rxmicro_features">1. RxMicro Features</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework provides the following feature set:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Declarative programming using <a href="https://docs.oracle.com/javase/tutorial/java/annotations/" target="_blank" rel="noopener">annotations</a>.</p>
+</li>
+<li>
+<p>Reactive programming using common libraries:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/package-summary.html" target="_blank" rel="noopener"><strong>java.util.concurrent</strong></a>:
+<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletableFuture.html" target="_blank" rel="noopener">CompletableFuture</a>,
+<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletionStage.html" target="_blank" rel="noopener">CompletionStage</a>.</p>
+</li>
+<li>
+<p><a href="https://projectreactor.io/docs/core/release/reference/index.html" target="_blank" rel="noopener"><strong>Project Reactor</strong>: Mono, Flux</a>.</p>
+</li>
+<li>
+<p><a href="https://github.com/ReactiveX/RxJava/blob/3.x/README.md" target="_blank" rel="noopener"><strong>RxJava</strong>: Completable,Single, Maybe, Flowable</a>.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Configuring using java configuration, annotations, files, system properties and environment variables.</p>
+</li>
+<li>
+<p>Declarative handlers of HTTP requests to the microservice.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Request routing based on HTTP method, URL path and HTTP body analysis.</p>
+</li>
+<li>
+<p>HTTP header processing.</p>
+</li>
+<li>
+<p>HTTP parameter processing.</p>
+</li>
+<li>
+<p>Path variable support.</p>
+</li>
+<li>
+<p>Automatic conversion of request data into Java model and vice versa.</p>
+</li>
+<li>
+<p>Built-in validation of requests and responses.</p>
+</li>
+<li>
+<p>Static configuration support.</p>
+</li>
+<li>
+<p>Handler versioning support.</p>
+</li>
+<li>
+<p><a href="https://developer.mozilla.org/ru/docs/Web/HTTP/CORS" target="_blank" rel="noopener"><code>Cross-Origin Resource Sharing (CORS)</code></a> support.</p>
+</li>
+<li>
+<p>Support for request identification during inter-service interaction.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Declarative REST client.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>HTTP header processing.</p>
+</li>
+<li>
+<p>HTTP parameter processing.</p>
+</li>
+<li>
+<p>Path variable support.</p>
+</li>
+<li>
+<p>Automatic conversion of request data into Java model and vice versa.</p>
+</li>
+<li>
+<p>Built-in validation of requests and responses.</p>
+</li>
+<li>
+<p>Static configuration support.</p>
+</li>
+<li>
+<p>REST client versioning support.</p>
+</li>
+<li>
+<p>Request timeout.</p>
+</li>
+<li>
+<p>Automatic redirection support.</p>
+</li>
+<li>
+<p>Customization option for standard client implementation.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Contexts and Dependency Injection (CDI).</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Dependencies can be explicitly managed without using CDI.</p>
+</li>
+<li>
+<p>Dependency injection by fields, methods and constructors.</p>
+</li>
+<li>
+<p>Qualifier support.</p>
+</li>
+<li>
+<p>Factory method support.</p>
+</li>
+<li>
+<p>Post construct method support.</p>
+</li>
+<li>
+<p>Class factory support.</p>
+</li>
+<li>
+<p>Optional injection.</p>
+</li>
+<li>
+<p>Resource injection.</p>
+</li>
+<li>
+<p>Multibinder support.</p>
+</li>
+<li>
+<p>Dependency injection using JEE and Spring style.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Generation of REST-based microservice documentation.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Documenting with annotations.</p>
+</li>
+<li>
+<p><a href="https://asciidoctor.org/" target="_blank" rel="noopener">asciidoc</a> support (widely used and multifunctional documenting format).</p>
+</li>
+<li>
+<p>Configuration of the project documentation standard sections.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Data Repositories.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Postgre SQL Data Repositories.</p>
+<div class="olist lowerroman">
+<ol class="lowerroman" type="i">
+<li>
+<p><code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code> operation support.</p>
+</li>
+<li>
+<p>Auto-generated primary key support.</p>
+</li>
+<li>
+<p>Composite primary key support.</p>
+</li>
+<li>
+<p>Transaction support.</p>
+</li>
+<li>
+<p>Variable support in SQL query.</p>
+</li>
+<li>
+<p>Customized <code>SELECT</code> queries support.</p>
+</li>
+<li>
+<p>Possibility to customize a standard repository implementation.</p>
+</li>
+<li>
+<p>Access to a low-level API.</p>
+</li>
+<li>
+<p>Auto registration of enum codecs.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Mongo Data Repositories.</p>
+<div class="olist lowerroman">
+<ol class="lowerroman" type="i">
+<li>
+<p><code>find</code>, <code>aggregate</code>, <code>distinct</code>, <code>insert</code>, <code>update</code>, <code>delete</code>, <code>countDocuments</code> and <code>estimatedDocumentCount</code> operation support.</p>
+</li>
+<li>
+<p>Auto-generated entity id support.</p>
+</li>
+<li>
+<p>Query parameter logging.</p>
+</li>
+<li>
+<p>Possibility to customize a standard repository implementation.</p>
+</li>
+<li>
+<p>Access to a low-level API.</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Monitoring</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Health checks.</p>
+</li>
+<li>
+<p>Request tracing.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Testing.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Component testing.</p>
+</li>
+<li>
+<p>REST-based microservices testing.</p>
+</li>
+<li>
+<p>Integration testing.</p>
+</li>
+<li>
+<p>Support for alternatives and mocks.</p>
+</li>
+<li>
+<p>Integration with <a href="https://junit.org/junit5/" target="_blank" rel="noopener">JUnit 5</a> and <a href="https://site.mockito.org/" target="_blank" rel="noopener">Mockito</a> frameworks.</p>
+</li>
+<li>
+<p>Integration with <a href="http://dbunit.sourceforge.net/" target="_blank" rel="noopener">DBUnit</a> framework.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Monitoring.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Health checks.</p>
+</li>
+<li>
+<p>Request tracing.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Integration with other Java libraries and frameworks.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><a href="https://www.graalvm.org/docs/reference-manual/native-image/" target="_blank" rel="noopener">A GraalVM native image</a> support.</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rxmicro_benefits"><a class="anchor" href="#rxmicro_benefits"></a><a class="link" href="#rxmicro_benefits">2. RxMicro Benefits</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework provides the following benefits:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Declarative programming using annotations.</p>
+</li>
+<li>
+<p>CDI by demand.</p>
+</li>
+<li>
+<p>Human readable generated code.</p>
+</li>
+<li>
+<p>Verifier of the redundant and inefficient source code.</p>
+</li>
+<li>
+<p>Runtime without <code>reflection</code>.</p>
+</li>
+<li>
+<p>Fast startup time.</p>
+</li>
+<li>
+<p>Reduced memory footprint.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These benefits are gained due to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>using of <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.compiler/javax/annotation/processing/Processor.html" target="_blank" rel="noopener"><strong>Java annotation processors</strong></a>, which generates standard code based on <code>RxMicro Annotations</code>;</p>
+</li>
+<li>
+<p>replacing standard Java libraries that require <code>reflection</code> for their work with analogs that do not need <code>reflection</code>;</p>
+</li>
+<li>
+<p>using of <a href="https://netty.io/" target="_blank" rel="noopener"><strong>Netty</strong></a> as the primary NIO framework for <strong>non-blocking asynchronous IO operations</strong>;</p>
+</li>
+<li>
+<p>generation of low-level code avoiding unnecessary abstractions and proxies.</p>
+</li>
+</ul>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="requirements"><a class="anchor" href="#requirements"></a><a class="link" href="#requirements">3. Requirements</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework requires <a href="https://openjdk.java.net/projects/jdk/11/" target="_blank" rel="noopener">JDK 11 LTS</a> or higher.</p>
+</div>
+<div class="paragraph">
+<p>To succeed in studying this guide, it is assumed that the reader is familiar with the following technologies:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/module-summary.html" target="_blank" rel="noopener"><code>JDK 11 base API</code></a>;</p>
+</li>
+<li>
+<p><a href="https://maven.apache.org/users/index.html" target="_blank" rel="noopener"><code>Apache Maven</code></a>;</p>
+</li>
+<li>
+<p><a href="https://junit.org/junit5/docs/current/user-guide/" target="_blank" rel="noopener"><code>JUnit 5</code></a>;</p>
+</li>
+<li>
+<p><a href="http://dbunit.sourceforge.net/intro.html" target="_blank" rel="noopener"><code>DBUnit</code></a>;</p>
+</li>
+<li>
+<p><a href="https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html" target="_blank" rel="noopener"><code>Mockito</code></a>;</p>
+</li>
+<li>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview" target="_blank" rel="noopener"><code>Hypertext Transfer Protocol (HTTP)</code></a>;</p>
+</li>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/Representational_state_transfer" target="_blank" rel="noopener"><code>Representational state transfer (REST)</code></a>;</p>
+</li>
+<li>
+<p><a href="https://www.docker.com/resources/what-container" target="_blank" rel="noopener"><code>Docker</code></a>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The RxMicro framework uses the following Java modules:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Common module(s):</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/module-summary.html" target="_blank" rel="noopener"><code>java.base</code></a>;</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>The <code>rxmicro.logger</code> module requires the following module(s):</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.logging/module-summary.html" target="_blank" rel="noopener"><code>java.logging</code></a>;</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>REST client and REST based microservice test modules require the following module(s):</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/module-summary.html" target="_blank" rel="noopener"><code>java.net.http</code></a>;</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>The <code>rxmicro.data.r2dbc.postgresql</code> module requires the following module(s):</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.naming/module-summary.html" target="_blank" rel="noopener"><code>java.naming</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.management/module-summary.html" target="_blank" rel="noopener"><code>java.management</code></a>;</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Netty requires the the following module(s):</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>jdk.unsupported</code>.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="microservice.html#microservice-section"><strong>What are microservices? <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-166298262-2"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-166298262-2');
+</script>
+</div>
+</div>
+</div>
+</body>
+</html>

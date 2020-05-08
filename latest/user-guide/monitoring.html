@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.15">
+<meta name="description" content="A modern, JVM-based, full stack framework designed to develop distributed reactive applications that use a microservice architecture.">
+<meta name="keywords" content="rx, rxmicro, reactive java, reactive jvm, microservice java, reactive microservice, micro service java, reactive micro service">
+<meta name="author" content="nedis">
+<title>Monitoring</title>
+<link rel="stylesheet" href="../styles/rxmicro-doc.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body id="monitoring-section" class="article toc2 toc-left">
+<div id="header">
+<h1>Monitoring</h1>
+<div class="details">
+<span id="author" class="author">nedis</span><br>
+<span id="email" class="email"><a href="mailto:rxmicro.io@gmail.com">rxmicro.io@gmail.com</a></span><br>
+<span id="revnumber">version 0.11,</span>
+<span id="revdate">2022-12-14 20:00:09 UTC</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#monitoring-request-id-section">1. Request Id</a>
+<ul class="sectlevel2">
+<li><a href="#basic_rules">1.1. Basic Rules</a></li>
+<li><a href="#supported_generator_providers">1.2. Supported Generator Providers</a></li>
+</ul>
+</li>
+<li><a href="#monitoring-request-tracing-usage-example">2. Request Tracing Usage Example</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="cdi.html#cdi-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> Contexts and Dependency Injection</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="java-integration.html#java-integration-section"><strong>Java EcoSystem Integration  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<div class="paragraph">
+<p>&#169; 2019-2022 rxmicro.io.
+Free use of this software is granted under the terms of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/LICENSE" target="_blank" rel="noopener"><code>Apache License 2.0</code></a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Copies of this entity may be made for Your own use and for distribution to others, provided that You do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.</p>
+</div>
+<div class="paragraph">
+<p>If You find errors or omissions in this entity, please don’t hesitate to submit an
+<a href="https://github.com/rxmicro/rxmicro-usage/issues" target="_blank" rel="noopener"><strong>issue</strong></a> or open <a href="https://github.com/rxmicro/rxmicro-usage/pulls" target="_blank" rel="noopener"><strong>a pull request</strong></a> with a fix.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>TODO</p>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="monitoring-request-id-section"><a class="anchor" href="#monitoring-request-id-section"></a><a class="link" href="#monitoring-request-id-section">1. Request Id</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To track an HTTP request when using a microservice architecture, the RxMicro framework provides an HTTP request identification feature.</p>
+</div>
+<div class="sect2">
+<h3 id="basic_rules"><a class="anchor" href="#basic_rules"></a><a class="link" href="#basic_rules">1.1. Basic Rules</a></h3>
+<div class="paragraph">
+<p>If the current request is identified, the provided unique id is used during the life-cycle of the current request.
+If the request is not identified, the RxMicro framework generates a unique id, which is further used in the life-cycle of the current request.</p>
+</div>
+<div class="paragraph">
+<p>To store the request id, the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-http/src/main/java/io/rxmicro/http/HttpStandardHeaderNames.java#L400" target="_blank" rel="noopener"><code>Request-Id</code></a> HTTP additional header is used.</p>
+</div>
+<div class="paragraph">
+<p>If the HTTP request id is necessary for business logic, a separate field in the HTTP request Java model must be created:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class Request {
+
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    //@Header(HttpHeaders.REQUEST_ID)
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @RequestId
+    String requestId;
+
+    public String getRequestId() {
+        return requestId;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>For convenience, instead of specifying an HTTP header using the <code>@Header</code> annotation and the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-http/src/main/java/io/rxmicro/http/HttpStandardHeaderNames.java#L400" target="_blank" rel="noopener"><code>Request-Id</code></a> name,</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>the special <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/RequestId.java" target="_blank" rel="noopener"><code>@RequestId</code></a> annotation can be used, which is an alternative to the <code>@Header(HttpHeaders.REQUEST_ID)</code> configuration.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Having declared a field in the HTTP request Java model, You can use its value in the handler:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">final class MicroService {
+
+    @GET("/")
+    void handle(final Request request) {
+        System.out.println(request.getRequestId()); <i class="conum" data-value="1"></i><b>(1)</b>
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Displaying the value of the current request id in the console.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The following test describes the basic requirements for the behavior of the request id function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroRestBasedMicroServiceTest(MicroService.class)
+final class MicroServiceTest {
+
+    @WithConfig
+    private static final RestServerConfig CONFIG = new RestServerConfig()
+            .setRequestIdGeneratorProvider(restServerConfig -&gt; () -&gt; "TestRequestId") <i class="conum" data-value="6"></i><b>(6)</b>
+            .setDevelopmentMode(true);
+
+    private BlockingHttpClient blockingHttpClient;
+
+    private SystemOut systemOut;
+
+    @Test
+    void Should_generate_RequestId_automatically() {
+        final ClientHttpResponse response = blockingHttpClient.get("/");
+        assertEquals("TestRequestId", systemOut.asString()); <i class="conum" data-value="1"></i><b>(1)</b>
+        assertEquals("TestRequestId", response.getHeaders().getValue(REQUEST_ID));  <i class="conum" data-value="2"></i><b>(2)</b>
+    }
+
+    @Test
+    void Should_use_provided_RequestId() {
+        final ClientHttpResponse response =
+                blockingHttpClient.get("/", HttpHeaders.of(REQUEST_ID, "Qwerty")); <i class="conum" data-value="3"></i><b>(3)</b>
+
+        assertEquals("Qwerty", systemOut.asString()); <i class="conum" data-value="4"></i><b>(4)</b>
+        assertEquals("Qwerty", response.getHeaders().getValue(REQUEST_ID));  <i class="conum" data-value="5"></i><b>(5)</b>
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>For HTTP requests without id, the RxMicro framework must generate a unique id automatically.
+<em>(This id can be used in the HTTP request handler body.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Each HTTP response must contain the required
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-http/src/main/java/io/rxmicro/http/HttpStandardHeaderNames.java#L400" target="_blank" rel="noopener"><code>Request-Id</code></a>
+HTTP header with the value of the generated request id.<br>
+<em>(If the configuration parameter <code>RestServerConfig.returnGeneratedRequestId = false</code>, the HTTP response will not contain the <code>Request-Id</code> header.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>If the current HTTP request already contains an id, the RxMicro framework must use it instead of generating a new value.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>The id set by the client can be used in the HTTP request handler body.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Each HTTP response must contain the required
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-http/src/main/java/io/rxmicro/http/HttpStandardHeaderNames.java#L400" target="_blank" rel="noopener"><code>Request-Id</code></a>
+HTTP header with a client specified request id value.<br>
+<em>(If the configuration parameter <code>RestServerConfig.returnGeneratedRequestId = false</code>, the HTTP response will not contain the <code>Request-Id</code> header.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>For test purposes it is necessary to set deterministic request id provider with constant value.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-controller/rest-controller-request-id" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-controller/rest-controller-request-id</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="supported_generator_providers"><a class="anchor" href="#supported_generator_providers"></a><a class="link" href="#supported_generator_providers">1.2. Supported Generator Providers</a></h3>
+<div class="paragraph">
+<p>The RxMicro framework provides the following predefined request id generator providers.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Generator name and its implementation class.</caption>
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Type</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Implementation class</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-server/src/main/java/io/rxmicro/rest/server/PredefinedRequestIdGeneratorProvider.java#L54" target="_blank" rel="noopener"><code>UUID_128_BIT</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-server/src/main/java/io/rxmicro/rest/server/feature/request/id/generator/RandomRequestIdGenerator.java" target="_blank" rel="noopener"><code>RandomRequestIdGenerator</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Generates unique 16 bytes (128 bits) request id</strong></p>
+<p class="tableblock">According to specification this generator is similar to the
+<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/UUID.html#randomUUID()" target="_blank" rel="noopener"><code>UUID.randomUUID()</code></a> generation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-server/src/main/java/io/rxmicro/rest/server/PredefinedRequestIdGeneratorProvider.java#L65" target="_blank" rel="noopener"><code>RANDOM_96_BIT</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-server/src/main/java/io/rxmicro/rest/server/feature/request/id/generator/RandomRequestIdGenerator.java" target="_blank" rel="noopener"><code>RandomRequestIdGenerator</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Generates unique 12 bytes (96 bits) request id</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-server/src/main/java/io/rxmicro/rest/server/PredefinedRequestIdGeneratorProvider.java#L75" target="_blank" rel="noopener"><code>PARTLY_RANDOM_96_BIT</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-server/src/main/java/io/rxmicro/rest/server/feature/request/id/generator/PartlyRandom96BitsRequestIdGenerator.java" target="_blank" rel="noopener"><code>PartlyRandom96BitsRequestIdGenerator</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Generates unique 12 bytes (96 bits) request id</strong></p>
+<p class="tableblock">Each request id contains 52 random and 44 deterministic bits.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-server/src/main/java/io/rxmicro/rest/server/PredefinedRequestIdGeneratorProvider.java#L90" target="_blank" rel="noopener"><code>DETERMINISTIC_96_BIT</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-server/src/main/java/io/rxmicro/rest/server/feature/request/id/generator/Deterministic96BitsRequestIdGenerator.java" target="_blank" rel="noopener"><code>Deterministic96BitsRequestIdGenerator</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Generates unique 12 bytes (96 bits) request id</strong></p>
+<p class="tableblock">Each request id contains 44 deterministic bits + 24 incremental counter bits + 28 checksum bits.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-server/src/main/java/io/rxmicro/rest/server/PredefinedRequestIdGeneratorProvider.java#L110" target="_blank" rel="noopener"><code>DEFAULT_96_BIT</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-server/src/main/java/io/rxmicro/rest/server/feature/request/id/generator/PartlyRandom96BitsRequestIdGenerator.java" target="_blank" rel="noopener"><code>PartlyRandom96BitsRequestIdGenerator</code></a>,
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-server/src/main/java/io/rxmicro/rest/server/feature/request/id/generator/Deterministic96BitsRequestIdGenerator.java" target="_blank" rel="noopener"><code>Deterministic96BitsRequestIdGenerator</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Generates unique 12 bytes (96 bits) request id</strong></p>
+<p class="tableblock">This is default request id generator provider.</p>
+<p class="tableblock">By default this request id generator provider tries to use <code>PARTLY_RANDOM_96_BIT</code> request id generator.
+But if during predefined timeout the <code>java.security.SecureRandom</code> instance can&#8217;t generate random bytes, the <code>DETERMINISTIC_96_BIT</code> request id generator will be used.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>To change the request id generator provider, You must use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-server/src/main/java/io/rxmicro/rest/server/RestServerConfig.java" target="_blank" rel="noopener"><code>RestServerConfig</code></a> configuration class:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">new Configs.Builder()
+        .withConfigs(new RestServerConfig()
+                .setRequestIdGeneratorProvider(
+                        PredefinedRequestIdGeneratorProvider.UUID_128_BITS <i class="conum" data-value="1"></i><b>(1)</b>
+                )
+        )
+        .build();</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">export rest-server.requestIdGeneratorProvider=\
+@io.rxmicro.rest.server.PredefinedRequestIdGeneratorProvider:UUID_128_BIT</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or using any other <a href="core.html#core-config-types">supported config types</a></p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>To get additional information about how custom type can be used as valid config parameters read <a href="core.html#core_config_supported_custom_parameter_types">core.html</a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="monitoring-request-tracing-usage-example"><a class="anchor" href="#monitoring-request-tracing-usage-example"></a><a class="link" href="#monitoring-request-tracing-usage-example">2. Request Tracing Usage Example</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following example demonstrates how request tracing feature can be used:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class Request implements RequestIdSupplier { <i class="conum" data-value="1"></i><b>(1)</b>
+
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @RequestId
+    String requestId;
+
+    @PathVariable
+    Long id;
+
+    @Override
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class AccountController {
+
+    @Inject
+    private AccountService accountService;
+
+    @GET("/account/${id}")
+    Mono&lt;Response&gt; findById(final Request request) {
+        return accountService.findById(request);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class AccountService {
+
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccountService.class);
+
+    @Inject
+    private AccountRepository accountRepository;
+
+    public Mono&lt;Response&gt; findById(final Request request) {
+        LOGGER.debug(
+                request, <i class="conum" data-value="2"></i><b>(2)</b>
+                "Finding account by id=?...", request.getId()
+        );
+        return accountRepository.findById(request, request.getId())
+                .switchIfEmpty(Mono.error(() -&gt; {
+                    LOGGER.error(
+                            request, <i class="conum" data-value="3"></i><b>(3)</b>
+                            "Account not found by id=?!", request.getId()
+                    );
+                    return new AccountNotFound404Exception();
+                }))
+                .map(account -&gt; {
+                    LOGGER.debug(
+                            request, <i class="conum" data-value="4"></i><b>(4)</b>
+                            "Account exists by id=?: ?",
+                            request.getId(), account
+                    );
+                    return new Response(
+                            account.getEmail(), account.getFirstName(), account.getLastName()
+                    );
+                });
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+public interface AccountRepository {
+
+    @Select("SELECT * FROM ${table} WHERE ${by-id-filter}")
+    Mono&lt;Account&gt; findById(RequestIdSupplier requestIdSupplier, long id); <i class="conum" data-value="1"></i><b>(1)</b>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The `jul.properties' config classpath resource:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-properties" data-lang="properties"><i class="conum" data-value="1"></i><b>(1)</b>
+io.rxmicro.logger.jul.PatternFormatter.pattern=%date{HH:mm:ss.SSS} {%id} [%level] %logger{0}: %message%n
+
+io.rxmicro.rest.server.level=TRACE
+io.rxmicro.examples.monitoring.request.tracing.level=TRACE</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Invoke the test request:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">:$ curl -v localhost:8080/account/1
+*   Trying 127.0.0.1...
+* TCP_NODELAY set
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+&gt; GET /account/1 HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.58.0
+&gt; Accept: <strong>/</strong>
+&gt;
+&lt; HTTP/1.1 200 OK
+&lt; Content-Length: 88
+&lt; Server: RxMicro-NettyServer/0.7-SNAPSHOT
+&lt; Date: Wed, 25 Nov 2020 17:30:51 GMT
+&lt; Content-Type: application/json
+&lt; Request-Id: AkinnfVzx1752012 <i class="conum" data-value="1"></i><b>(1)</b>
+&lt;
+* Connection #0 to host localhost left intact
+{"email":"richard.hendricks@piedpiper.com","firstName":"Richard","lastName":"Hendricks"}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The log output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">19:30:50.494 {null} [TRACE] NettyClientConnectionController: Client connection created: Channel=eaaf0399, IP=/127.0.0.1:33312
+
+19:30:50.589 {AkinnfVzx1752012} [TRACE] NettyRequestHandler: HTTP request:  (Channel=eaaf0399, IP=/127.0.0.1:33312):
+GET /account/1 HTTP/1.1
+Host: localhost:8080
+User-Agent: curl/7.58.0
+Accept: <strong>/</strong>
+content-length: 0
+
+
+19:30:50.591 {AkinnfVzx1752012} [DEBUG] AccountService: Finding account by id=1...
+
+19:30:50.998 {AkinnfVzx1752012} [TRACE] AccountRepository: Execute SQL 'SELECT id, email, first_name, last_name FROM account WHERE id = $1' with params: [1] using connection: class='PooledConnection', id='c1275307250'...
+
+19:30:51.074 {AkinnfVzx1752012} [TRACE] AccountRepository: SQL 'SELECT id, email, first_name, last_name FROM account WHERE id = $1' with params: [1] executed successful
+
+19:30:51.148 {AkinnfVzx1752012} [DEBUG] AccountService: Account exists by id=1: Account{id=1, email=richard.hendricks@piedpiper.com, firstName=Richard, lastName=Hendricks}
+
+19:30:51.166 {AkinnfVzx1752012} [TRACE] AccountRepository: Connection closed: class='PooledConnection', id='c1275307250', signal='onComplete'
+
+19:30:51.167 {AkinnfVzx1752012} [TRACE] NettyRequestHandler: HTTP response: (Channel=eaaf0399, Duration=588.093042ms):
+HTTP/1.1 200 OK
+Content-Length: 88
+Server: RxMicro-NettyServer/0.7-SNAPSHOT
+Date: Wed, 25 Nov 2020 17:30:51 GMT
+Content-Type: application/json
+Request-Id: AkinnfVzx1752012
+
+{"email":"richard.hendricks@piedpiper.com","firstName":"Richard","lastName":"Hendricks"}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For more information, we recommend that You familiarize yourself with the following examples:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-monitoring/monitoring-request-tracing" target="_blank" rel="noopener"><strong>Request tracing usage example</strong></a>;</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="cdi.html#cdi-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> Contexts and Dependency Injection</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="java-integration.html#java-integration-section"><strong>Java EcoSystem Integration  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-166298262-2"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-166298262-2');
+</script>
+</div>
+</div>
+</div>
+</body>
+</html>

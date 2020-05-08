@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.15">
+<meta name="description" content="A modern, JVM-based, full stack framework designed to develop distributed reactive applications that use a microservice architecture.">
+<meta name="keywords" content="rx, rxmicro, reactive java, reactive jvm, microservice java, reactive microservice, micro service java, reactive micro service">
+<meta name="author" content="nedis">
+<title>Java EcoSystem Integration</title>
+<link rel="stylesheet" href="../styles/rxmicro-doc.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body id="java-integration-section" class="article toc2 toc-left">
+<div id="header">
+<h1>Java EcoSystem Integration</h1>
+<div class="details">
+<span id="author" class="author">nedis</span><br>
+<span id="email" class="email"><a href="mailto:rxmicro.io@gmail.com">rxmicro.io@gmail.com</a></span><br>
+<span id="revnumber">version 0.11,</span>
+<span id="revdate">2022-12-14 20:00:09 UTC</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#java-integration-unnamed-module">1. Unnamed Modules Support</a>
+<ul class="sectlevel2">
+<li><a href="#java-integration-unnamed-module-uber-jar">1.1. Uber Jar</a>
+<ul class="sectlevel3">
+<li><a href="#enable_the_unnamed_module_mode">1.1.1. Enable the <code>unnamed module</code> Mode</a></li>
+<li><a href="#configuration_of_maven_shade_plugin">1.1.2. Configuration of <code>maven-shade-plugin</code></a></li>
+<li><a href="#rebuild_project">1.1.3. Rebuild Project</a></li>
+<li><a href="#run_uber_jar">1.1.4. Run <code>uber.jar</code></a></li>
+</ul>
+</li>
+<li><a href="#java-integration-unnamed-module-module-config">1.2. Module Configuration</a>
+<ul class="sectlevel3">
+<li><a href="#configuration_of_the_code_generation_process_for_rest_controller">1.2.1. Configuration of the Code Generation Process for Rest Controller</a></li>
+<li><a href="#configuration_of_the_code_generation_process_for_rest_client">1.2.2. Configuration of the Code Generation Process for Rest Client</a></li>
+<li><a href="#rest_based_microservice_metadata_configuration">1.2.3. REST-based Microservice Metadata Configuration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#java-integration-graalvm-native-image">2. Using GraalVM to Build a Native Image</a>
+<ul class="sectlevel2">
+<li><a href="#setup_a_graalvm">2.1. Setup a GraalVM</a>
+<ul class="sectlevel3">
+<li><a href="#make_a_graalvm_home_directory">2.1.1. Make a GraalVM Home Directory</a></li>
+<li><a href="#select_a_graalvm_ce_distribution_for_your_platform">2.1.2. Select a GraalVM CE Distribution for Your Platform</a></li>
+<li><a href="#download_the_graalvm_ce_distribution">2.1.3. Download the GraalVM CE Distribution</a></li>
+<li><a href="#unzip_the_graalvm_ce_distribution">2.1.4. Unzip the GraalVM CE Distribution</a></li>
+<li><a href="#set_a_graalvm_home_environment_variable">2.1.5. Set a <code>GRAALVM_HOME</code> Environment Variable</a></li>
+<li><a href="#install_a_native_image_module">2.1.6. Install a Native Image Module</a></li>
+<li><a href="#add_the_native_image_tool_to_path">2.1.7. Add the Native Image Tool to <code>PATH</code></a></li>
+</ul>
+</li>
+<li><a href="#rxmicro_project_configuration">2.2. RxMicro Project Configuration</a>
+<ul class="sectlevel3">
+<li><a href="#setup_pom_xml">2.2.1. Setup <code>pom.xml</code></a></li>
+<li><a href="#microservice_source_code">2.2.2. Microservice Source Code</a></li>
+<li><a href="#classpath_resources">2.2.3. Classpath Resources</a></li>
+</ul>
+</li>
+<li><a href="#creation_of_the_native_image">2.3. Creation of the Native Image</a></li>
+<li><a href="#verification_of_the_native_image">2.4. Verification of the Native Image</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="monitoring.html#monitoring-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> Monitoring</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="testing.html#testing-section"><strong>Testing  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<div class="paragraph">
+<p>&#169; 2019-2022 rxmicro.io.
+Free use of this software is granted under the terms of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/LICENSE" target="_blank" rel="noopener"><code>Apache License 2.0</code></a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Copies of this entity may be made for Your own use and for distribution to others, provided that You do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.</p>
+</div>
+<div class="paragraph">
+<p>If You find errors or omissions in this entity, please don’t hesitate to submit an
+<a href="https://github.com/rxmicro/rxmicro-usage/issues" target="_blank" rel="noopener"><strong>issue</strong></a> or open <a href="https://github.com/rxmicro/rxmicro-usage/pulls" target="_blank" rel="noopener"><strong>a pull request</strong></a> with a fix.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="java-integration-unnamed-module"><a class="anchor" href="#java-integration-unnamed-module"></a><a class="link" href="#java-integration-unnamed-module">1. Unnamed Modules Support</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://openjdk.java.net/projects/jdk9/">On September 21, 2017</a>, Java 9 has introduced <a href="https://www.oracle.com/corporate/features/understanding-java-9-modules.html" target="_blank" rel="noopener"><code>JPMS</code></a>.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>There are four types of modules in the <a href="https://www.oracle.com/corporate/features/understanding-java-9-modules.html" target="_blank" rel="noopener"><code>JPMS</code></a>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>System Modules</strong> - There are the Java SE and JDK modules.<br>
+<em>(For example <code>java.base</code>, <code>java.logging</code>, <code>java.net.http</code>, etc)</em></p>
+</li>
+<li>
+<p><strong>Application Modules</strong> - The default modules, that are built using JPMS.<br>
+They are <code>named</code> and defined in the compiled <code>module-info.class</code> file included in the assembled JAR.</p>
+</li>
+<li>
+<p><strong>Automatic Modules</strong> - The modules that are created automatically from all unmodularized jar files at the module path.
+The name of the modules will be derived from the name of the appropriate JAR files.</p>
+</li>
+<li>
+<p><strong>Unnamed Modules</strong> - The modules that are created automatically if JAR files are loaded onto the classpath instead of the module path.
+Unnamed modules disable the JPMS and allow to run any code that does not support the JPMS on Java 9 or higher.</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Currently, the majority of existing frameworks and libraries are focused on <a href="https://openjdk.java.net/projects/jdk8/">JDK 8</a> and do not support <a href="https://www.oracle.com/corporate/features/understanding-java-9-modules.html" target="_blank" rel="noopener"><code>JPMS</code></a>.</p>
+</div>
+<div class="paragraph">
+<p>To support compatibility with libraries that do not support <a href="https://www.oracle.com/corporate/features/understanding-java-9-modules.html" target="_blank" rel="noopener"><code>JPMS</code></a>, Java 9 provides the <code>unnamed modules</code> mechanism.</p>
+</div>
+<div class="paragraph">
+<p>The feature of this mechanism is that the code written in Java 9 and higher does not use the <code>module-info.java</code> module descriptor, and uses <code>class-path</code> instead of <code>module-path</code>.
+For integration with libraries that do not support <a href="https://www.oracle.com/corporate/features/understanding-java-9-modules.html" target="_blank" rel="noopener"><code>JPMS</code></a>, the RxMicro framework allows You to enable the <code>unnamed module</code> mode for the <code>RxMicro Annotation Processor</code>.</p>
+</div>
+<div class="paragraph">
+<p>To enable this mode, You need to add the <code>RX_MICRO_BUILD_UNNAMED_MODULE</code> configuration parameter to the <code>maven-compiler-plugin</code> settings:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;plugin&gt;
+    &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+    &lt;version&gt;${maven-compiler-plugin.version}&lt;/version&gt;
+    &lt;configuration&gt;
+        &lt;release&gt;11&lt;/release&gt;
+        &lt;!-- ... --&gt;
+        &lt;compilerArgs&gt;
+            &lt;arg&gt;-ARX_MICRO_BUILD_UNNAMED_MODULE=true&lt;/arg&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+        &lt;/compilerArgs&gt;
+    &lt;/configuration&gt;
+    &lt;!-- ... --&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>RxMicro Annotation Processor</code> will use the <code>unnamed module</code> mode for the current microservice project.</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+<div class="sect2">
+<h3 id="java-integration-unnamed-module-uber-jar"><a class="anchor" href="#java-integration-unnamed-module-uber-jar"></a><a class="link" href="#java-integration-unnamed-module-uber-jar">1.1. Uber Jar</a></h3>
+<div class="paragraph">
+<p>An uber JAR (also known as a fat JAR or JAR with dependencies) is a JAR file that contains not only a Java program, but embeds its dependencies as well.
+This means that the JAR functions as an "all-in-one" distribution of the software, without needing any other Java code.</p>
+</div>
+<div class="paragraph">
+<p><em>(You still need a Java runtime, and an underlying operating system, of course.)</em></p>
+</div>
+<div class="paragraph">
+<p>To build a microservice project in the form of <code>uber.jar</code>, You need to enable the <code>unnamed module</code> mode and configure the <code>maven-shade-plugin</code>.</p>
+</div>
+<div class="sect3">
+<h4 id="enable_the_unnamed_module_mode"><a class="anchor" href="#enable_the_unnamed_module_mode"></a><a class="link" href="#enable_the_unnamed_module_mode">1.1.1. Enable the <code>unnamed module</code> Mode</a></h4>
+<div class="paragraph">
+<p>To enable the <code>unnamed module</code> mode, add the <code>RX_MICRO_BUILD_UNNAMED_MODULE</code> compiler option to <code>maven-compiler-plugin</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;plugin&gt;
+    &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+    &lt;version&gt;${maven-compiler-plugin.version}&lt;/version&gt;
+    &lt;configuration&gt;
+        &lt;release&gt;11&lt;/release&gt;
+        &lt;!-- ... --&gt;
+        &lt;compilerArgs&gt;
+            &lt;arg&gt;-ARX_MICRO_BUILD_UNNAMED_MODULE=true&lt;/arg&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+        &lt;/compilerArgs&gt;
+    &lt;/configuration&gt;
+    &lt;!-- ... --&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>RxMicro Annotation Processor</code> will use the <code>unnamed module</code> mode for the current microservice project.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="configuration_of_maven_shade_plugin"><a class="anchor" href="#configuration_of_maven_shade_plugin"></a><a class="link" href="#configuration_of_maven_shade_plugin">1.1.2. Configuration of <code>maven-shade-plugin</code></a></h4>
+<div id="java-integration-unnamed-module-uber-jar-maven-shade-plugin" class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;plugin&gt;
+    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+    &lt;artifactId&gt;maven-shade-plugin&lt;/artifactId&gt;
+    &lt;version&gt;${maven-shade-plugin.version}&lt;/version&gt;
+    &lt;executions&gt;
+        &lt;execution&gt;
+            &lt;phase&gt;package&lt;/phase&gt;
+            &lt;goals&gt;
+                &lt;goal&gt;shade&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+                &lt;createDependencyReducedPom&gt;false&lt;/createDependencyReducedPom&gt;
+                &lt;transformers&gt;
+                    &lt;transformer implementation=
+                                         "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"&gt;
+                        &lt;manifestEntries&gt;
+                            &lt;Main-Class&gt;
+                                io.rxmicro.examples.unnamed.module.uber.jar.HelloWorldMicroService <i class="conum" data-value="1"></i><b>(1)</b>
+                            &lt;/Main-Class&gt;
+                        &lt;/manifestEntries&gt;
+                    &lt;/transformer&gt;
+                &lt;/transformers&gt;
+                &lt;filters&gt;
+                    &lt;filter&gt;
+                        &lt;artifact&gt;*:*&lt;/artifact&gt;
+                        &lt;excludes&gt;
+                            &lt;exclude&gt;ModuleInfo.*&lt;/exclude&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+                        &lt;/excludes&gt;
+                    &lt;/filter&gt;
+                &lt;/filters&gt;
+                &lt;minimizeJar&gt;true&lt;/minimizeJar&gt; <i class="conum" data-value="3"></i><b>(3)</b>
+            &lt;/configuration&gt;
+        &lt;/execution&gt;
+    &lt;/executions&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>It is necessary to specify a class with the <code>main</code> method, which will be used as an entry point into the microservice.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The resulting <code>uber.jar</code> must not contain the module virtual descriptor, as this descriptor is only needed at the compilation level.
+<em>(More information about the virtual descriptor can be found in <a href="#java-integration-unnamed-module-module-config">Section 1.2, &#8220;Module Configuration&#8221;</a>.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The resulting <code>uber.jar</code> can be reduced by excluding unused classes and packages.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The <code>maven-shade-plugin</code> plugin automatically removes all <code>module-info.class</code> from the resulting <code>uber.jar</code>, so all RxMicro modules will work in the <code>unnamed module</code> mode!</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="rebuild_project"><a class="anchor" href="#rebuild_project"></a><a class="link" href="#rebuild_project">1.1.3. Rebuild Project</a></h4>
+<div class="paragraph">
+<p>After <code>pom.xml</code> setting, it is necessary to rebuild the project:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt"><strong>mvn</strong> clean package</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As a result, the <code>uber.jar</code> with all the necessary dependencies will be created:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt">:$ <strong>ls</strong> -lh
+
+-rw-rw-r-- 1 nedis nedis <strong>1,4M</strong> Mar 28 11:03 <strong>unnamed-module-uber-jar-1.0-SNAPSHOT.jar</strong>          <i class="conum" data-value="1"></i><b>(1)</b>
+-rw-rw-r-- 1 nedis nedis <strong>9,8K</strong> Mar 28 11:03 original-unnamed-module-uber-jar-1.0-SNAPSHOT.jar <i class="conum" data-value="2"></i><b>(2)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>uber.jar</code> size is equal to <strong>1,4 MB</strong>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The size of the original jar file is equal to <strong>9.8 KB</strong>.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The <code>uber.jar</code> contains the source code of the microservice project, the code of the RxMicro and the Netty frameworks:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/java-integration/uber-jar-content.jpg" alt="uber jar content">
+</div>
+<div class="title">Figure 1. The <code>uber.jar</code> content for a simple microservice project</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="run_uber_jar"><a class="anchor" href="#run_uber_jar"></a><a class="link" href="#run_uber_jar">1.1.4. Run <code>uber.jar</code></a></h4>
+<div class="paragraph">
+<p>To run <code>uber.jar</code> it is necessary to provider jar file only:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt">&gt; <strong>java</strong> -jar unnamed-module-uber-jar-1.0-SNAPSHOT.jar
+
+2020-02-02 20:14:11.707 [INFO] io.rxmicro.rest.server.netty.internal.component.NettyServer :
+Server started at 0.0.0.0:8080 using NETTY transport in 500 millis <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>Server started in &#8230;&#8203; millis</code> message format means that the RxMicro HTTP server has been successfully started.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>To run a modularized micro service project the java requires more arguments:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt"><strong>java</strong> -p ./classes:lib -m <strong>examples.quick.start/io.rxmicro.examples.quick.start.HelloWorldMicroService</strong></code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-unnamed-module/unnamed-module-uber-jar" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-unnamed-module/unnamed-module-uber-jar</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="java-integration-unnamed-module-module-config"><a class="anchor" href="#java-integration-unnamed-module-module-config"></a><a class="link" href="#java-integration-unnamed-module-module-config">1.2. Module Configuration</a></h3>
+<div class="paragraph">
+<p>Some RxMicro modules allow You to set the common configuration with <code>RxMicro Annotations</code>, which annotate the <code>module-info.java</code> module descriptor.
+But for the <code>unnamed module</code>, the <code>module-info.java</code> module descriptor does not exist!</p>
+</div>
+<div class="paragraph">
+<p>In such cases a virtual descriptor must be created:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Retention(CLASS)
+@Target({})
+public @interface ModuleInfo {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A virtual descriptor is a custom annotation that meets the following requirements:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The name of the virtual descriptor is fixed and equal to: <code>ModuleInfo</code>.</p>
+</li>
+<li>
+<p>The annotation must be contained in the default package (<code>unnamed package</code>).</p>
+</li>
+<li>
+<p>The annotation should be available only during the compilation process: <code>@Retention(CLASS)</code>.</p>
+</li>
+<li>
+<p>The annotation must contain an empty list of targets: <code>@Target({})</code>.</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Since the virtual descriptor is available only during the compilation process, then during the <code>uber.jar</code> build process this annotation can be excluded from the resulting <code>jar</code>.</p>
+</div>
+<div class="paragraph">
+<p>Therefore, <a href="#java-integration-unnamed-module-uber-jar-maven-shade-plugin">when setting the <code>maven-shade-plugin</code>, the following setting was added</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;filters&gt;
+    &lt;filter&gt;
+        &lt;artifact&gt;*:*&lt;/artifact&gt;
+        &lt;excludes&gt;
+            &lt;exclude&gt;ModuleInfo.*&lt;/exclude&gt;
+        &lt;/excludes&gt;
+    &lt;/filter&gt;
+&lt;/filters&gt;</code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="configuration_of_the_code_generation_process_for_rest_controller"><a class="anchor" href="#configuration_of_the_code_generation_process_for_rest_controller"></a><a class="link" href="#configuration_of_the_code_generation_process_for_rest_controller">1.2.1. Configuration of the Code Generation Process for Rest Controller</a></h4>
+<div class="paragraph">
+<p>The RxMicro framework provides the option to configure the code generation process for REST controllers.
+For this purpose, the <code>@RestServerGeneratorConfig</code> annotation should be used to annotate the
+<a href="rest-controller.html#rest-controller-rest-server-generator-config-section"><code>module-info.java</code> module descriptor</a>.</p>
+</div>
+<div class="paragraph">
+<p>For the <code>unnamed module</code> instead of the <code>module-info.java</code> module descriptor, use the <code>ModuleInfo</code> annotation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Retention(CLASS)
+@Target({})
+@RestServerGeneratorConfig(
+        exchangeFormat = ServerExchangeFormatModule.JSON,
+        generateRequestValidators = GenerateOption.DISABLED,
+        generateResponseValidators = GenerateOption.AUTO_DETECT
+)
+public @interface ModuleInfo {
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-unnamed-module/unnamed-module-rest-controller-generator" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-unnamed-module/unnamed-module-rest-controller-generator</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect3">
+<h4 id="configuration_of_the_code_generation_process_for_rest_client"><a class="anchor" href="#configuration_of_the_code_generation_process_for_rest_client"></a><a class="link" href="#configuration_of_the_code_generation_process_for_rest_client">1.2.2. Configuration of the Code Generation Process for Rest Client</a></h4>
+<div class="paragraph">
+<p>The RxMicro framework provides the option to configure the code generation process for REST clients.
+For this purpose, the <code>@RestClientGeneratorConfig</code> annotation should be used to annotate the
+<a href="rest-client.html#rest-client-rest-client-generator-config-section"><code>module-info.java</code> module descriptor</a>.</p>
+</div>
+<div class="paragraph">
+<p>For the <code>unnamed module</code> instead of the <code>module-info.java</code> module descriptor, use the <code>ModuleInfo</code> annotation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Retention(CLASS)
+@Target({})
+@RestClientGeneratorConfig(
+        exchangeFormat = ClientExchangeFormatModule.JSON,
+        generateRequestValidators = GenerateOption.AUTO_DETECT,
+        requestValidationMode = RestClientGeneratorConfig.RequestValidationMode.RETURN_ERROR_SIGNAL,
+        generateResponseValidators = GenerateOption.DISABLED
+)
+public @interface ModuleInfo {
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-unnamed-module/unnamed-module-rest-client-generator" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-unnamed-module/unnamed-module-rest-client-generator</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect3">
+<h4 id="rest_based_microservice_metadata_configuration"><a class="anchor" href="#rest_based_microservice_metadata_configuration"></a><a class="link" href="#rest_based_microservice_metadata_configuration">1.2.3. REST-based Microservice Metadata Configuration</a></h4>
+<div class="paragraph">
+<p>The RxMicro framework provides the option to configure the REST-based microservice documentation generation process, using the annotations.
+These annotations annotate the <a href="project-documentation.html#project-documentation-metadata-annotations-section"><code>module-info.java</code> module descriptor</a>.</p>
+</div>
+<div class="paragraph">
+<p>For the <code>unnamed module</code> instead of the <code>module-info.java</code> module descriptor, use the <code>ModuleInfo</code> annotation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Retention(CLASS)
+@Target({})
+@Title("Metadata Annotations")
+@Description("*Project* _Description_")
+@Author(
+        name = "Richard Hendricks",
+        email = "richard.hendricks@piedpiper.com"
+)
+@Author(
+        name = "Bertram Gilfoyle",
+        email = "bertram.gilfoyle@piedpiper.com"
+)
+@Author(
+        name = "Dinesh Chugtai",
+        email = "dinesh.chugtai@piedpiper.com"
+)
+@BaseEndpoint("https://api.rxmicro.io")
+@License(
+        name = "Apache License 2.0",
+        url = "https://github.com/rxmicro/rxmicro/blob/master/LICENSE"
+)
+@DocumentationDefinition(
+        introduction = @IntroductionDefinition(
+                sectionOrder = {
+                        IntroductionDefinition.Section.BASE_ENDPOINT,
+                        IntroductionDefinition.Section.LICENSES
+                }
+        ),
+        resource = @ResourceDefinition(
+                withInternalErrorResponse = false
+        ),
+        withGeneratedDate = false
+)
+public @interface ModuleInfo {
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-unnamed-module/unnamed-module-documentation-asciidoctor-metadata-annotations" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-unnamed-module/unnamed-module-documentation-asciidoctor-metadata-annotations</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="java-integration-graalvm-native-image"><a class="anchor" href="#java-integration-graalvm-native-image"></a><a class="link" href="#java-integration-graalvm-native-image">2. Using GraalVM to Build a Native Image</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://www.graalvm.org/" target="_blank" rel="noopener">GraalVM</a> is a universal virtual machine for running applications written in different languages.</p>
+</div>
+<div class="paragraph">
+<p>GraalVM contains a <a href="https://www.graalvm.org/docs/reference-manual/native-image/" target="_blank" rel="noopener">Native Image Tool</a>, that allows You to ahead-of-time compile Java code to a standalone executable, called a native image.</p>
+</div>
+<div class="paragraph">
+<p>The GraalVM Native Image Tool can be used to build a native image of any RxMicro microservice project.
+Before build a native image it is necessary to setup a GraalVM developer environment.</p>
+</div>
+<div class="sect2">
+<h3 id="setup_a_graalvm"><a class="anchor" href="#setup_a_graalvm"></a><a class="link" href="#setup_a_graalvm">2.1. Setup a GraalVM</a></h3>
+<div class="paragraph">
+<p>GraalVM is distributed as Community Edition and Enterprise Edition.</p>
+</div>
+<div class="paragraph">
+<p><strong>Current guide describes a use of the GraalVM Community Edition (GraalVM CE)!</strong></p>
+</div>
+<div class="paragraph">
+<p>Setup of the GraalVM CE contains a few simple steps:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Make a GraalVM Home Directory.</p>
+</li>
+<li>
+<p>Select a GraalVM CE Distribution for Your Platform.</p>
+</li>
+<li>
+<p>Download the GraalVM CE Distribution.</p>
+</li>
+<li>
+<p>Unzip the GraalVM CE Distribution.</p>
+</li>
+<li>
+<p>Set a <code>GRAALVM_HOME</code> Environment Variable.</p>
+</li>
+<li>
+<p>Install a Native Image Module.</p>
+</li>
+<li>
+<p>Add the Native Image Tool to <code>PATH</code>.</p>
+</li>
+</ol>
+</div>
+<div class="sect3">
+<h4 id="make_a_graalvm_home_directory"><a class="anchor" href="#make_a_graalvm_home_directory"></a><a class="link" href="#make_a_graalvm_home_directory">2.1.1. Make a GraalVM Home Directory</a></h4>
+<div class="paragraph">
+<p>Make a directory, that will contain a GraalVM distribution:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt"><strong>mkdir</strong> ~/GraalVM</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="select_a_graalvm_ce_distribution_for_your_platform"><a class="anchor" href="#select_a_graalvm_ce_distribution_for_your_platform"></a><a class="link" href="#select_a_graalvm_ce_distribution_for_your_platform">2.1.2. Select a GraalVM CE Distribution for Your Platform</a></h4>
+<div class="paragraph">
+<p>Visit the github release page
+<a href="https://github.com/graalvm/graalvm-ce-builds/releases" target="_blank" rel="noopener"><code>https://github.com/graalvm/graalvm-ce-builds/releases</code></a>
+and select a distribution for Your platform.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><strong>Please select a GraalVM CE based on Java 11!</strong></p>
+</div>
+<div class="paragraph">
+<p><em>A GraalVM CE based on Java 8 is not supported by the RxMicro framework!</em></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="download_the_graalvm_ce_distribution"><a class="anchor" href="#download_the_graalvm_ce_distribution"></a><a class="link" href="#download_the_graalvm_ce_distribution">2.1.3. Download the GraalVM CE Distribution</a></h4>
+<div class="paragraph">
+<p>Download the selected GraalVM CE distribution onto the GraalVM home directory:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt"><strong>wget</strong> -P ~/GraalVM https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-20.0.0/graalvm-ce-java11-linux-amd64-20.0.0.tar.gz</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="unzip_the_graalvm_ce_distribution"><a class="anchor" href="#unzip_the_graalvm_ce_distribution"></a><a class="link" href="#unzip_the_graalvm_ce_distribution">2.1.4. Unzip the GraalVM CE Distribution</a></h4>
+<div class="paragraph">
+<p>Unzip the GraalVM CE distribution onto the GraalVM home directory:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt"><strong>tar</strong> --strip-components=1 -vzxf ~/GraalVM/graalvm-ce-java11-linux-amd64-20.0.0.tar.gz -C ~/GraalVM
+<strong>rm</strong> ~/GraalVM/graalvm-ce-java11-linux-amd64-20.0.0.tar.gz</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="set_a_graalvm_home_environment_variable"><a class="anchor" href="#set_a_graalvm_home_environment_variable"></a><a class="link" href="#set_a_graalvm_home_environment_variable">2.1.5. Set a <code>GRAALVM_HOME</code> Environment Variable</a></h4>
+<div class="paragraph">
+<p>Set a <code>GRAALVM_HOME</code> environment variable:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt"><strong>export</strong> GRAALVM_HOME=~/GraalVM</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>and verify the installation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt"><strong>$GRAALVM_HOME/bin/java</strong> -version
+
+openjdk version <strong>"11.0.6"</strong> 2020-01-14
+OpenJDK Runtime Environment <strong>GraalVM CE</strong> 20.0.0 (build 11.0.6+9-jvmci-20.0-b02)
+OpenJDK 64-Bit Server VM <strong>GraalVM CE</strong> 20.0.0 (build 11.0.6+9-jvmci-20.0-b02, mixed mode, sharing)</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If You would use the GraalVM CE only, You can add the <code>$GRAALVM_HOME/bin</code> path to the <code>PATH</code> variable!</p>
+</div>
+<div class="paragraph">
+<p>If You use any other version of JDK, add only the separate utils to <code>PATH</code> variable.
+For example only <code>gu</code> or <code>native-image</code>!</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="install_a_native_image_module"><a class="anchor" href="#install_a_native_image_module"></a><a class="link" href="#install_a_native_image_module">2.1.6. Install a Native Image Module</a></h4>
+<div class="paragraph">
+<p>Starting from GraalVM 19.0, Native Image was extracted from the base distribution.
+So the <strong>Native Image Tool</strong> must be installed to GraalVM using a GraalVM Updater utility:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt"><strong>$GRAALVM_HOME/bin/gu</strong> install native-image
+
+Downloading: Component catalog from www.graalvm.org
+Processing Component: Native Image
+Downloading: Component native-image: Native Image  from github.com
+Installing new component: Native Image (org.graalvm.native-image, version 20.0.0)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To verify the installation show a version of the native Native Image Tool:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt"><strong>$GRAALVM_HOME/bin/native-image</strong> --version
+
+GraalVM Version 20.0.0 CE</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="add_the_native_image_tool_to_path"><a class="anchor" href="#add_the_native_image_tool_to_path"></a><a class="link" href="#add_the_native_image_tool_to_path">2.1.7. Add the Native Image Tool to <code>PATH</code></a></h4>
+<div class="paragraph">
+<p>In order not to indicate the folder where the <strong>Native Image Tool</strong> was installed, add the <strong>Native Image Tool</strong> to the <code>PATH</code> variable:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt"><strong>ln</strong> -s $GRAALVM_HOME/bin/native-image ~/bin</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After that logout and login to the system again.
+The <strong>Native Image Tool</strong> must be available at the terminal:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt"><strong>native-image</strong> --version
+
+GraalVM Version 20.0.0 CE</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="rxmicro_project_configuration"><a class="anchor" href="#rxmicro_project_configuration"></a><a class="link" href="#rxmicro_project_configuration">2.2. RxMicro Project Configuration</a></h3>
+<div class="paragraph">
+<p>The first release of GraalVM based on Java 11 is <a href="https://www.graalvm.org/docs/release-notes/19_3/#1930" target="_blank" rel="noopener"><strong>19.3.0</strong> (2019-11-19)</a>.
+But unfortunately the GraalVM Native Image Tool does not support <a href="https://www.oracle.com/corporate/features/understanding-java-9-modules.html" target="_blank" rel="noopener"><code>JPMS</code></a> yet.</p>
+</div>
+<div class="paragraph">
+<p>Thus we need to use the <code>unnamed module</code> mode for RxMicro project.</p>
+</div>
+<div class="sect3">
+<h4 id="setup_pom_xml"><a class="anchor" href="#setup_pom_xml"></a><a class="link" href="#setup_pom_xml">2.2.1. Setup <code>pom.xml</code></a></h4>
+<div class="sect4">
+<h5 id="using_rx_micro_build_unnamed_module_option"><a class="anchor" href="#using_rx_micro_build_unnamed_module_option"></a><a class="link" href="#using_rx_micro_build_unnamed_module_option">2.2.1.1. Using <code>RX_MICRO_BUILD_UNNAMED_MODULE</code> Option</a></h5>
+<div class="paragraph">
+<p>To enable the <code>unnamed module</code> mode, it is necessary to add <code>RX_MICRO_BUILD_UNNAMED_MODULE</code> option to the <code>maven-compiler-plugin</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;plugin&gt;
+    &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+    &lt;configuration&gt;
+        &lt;!-- ... --&gt;
+        &lt;compilerArgs&gt;
+            &lt;arg&gt;-ARX_MICRO_BUILD_UNNAMED_MODULE=true&lt;/arg&gt;
+        &lt;/compilerArgs&gt;
+    &lt;/configuration&gt;
+    &lt;!-- ... --&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="maven_shade_plugin_configuration"><a class="anchor" href="#maven_shade_plugin_configuration"></a><a class="link" href="#maven_shade_plugin_configuration">2.2.1.2. <code>Maven-shade-plugin</code> Configuration</a></h5>
+<div class="paragraph">
+<p>To build a native image we need a <code>uber jar</code>.
+For that it is necessary to add <code>maven-shade-plugin</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;plugin&gt;
+    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+    &lt;artifactId&gt;maven-shade-plugin&lt;/artifactId&gt;
+    &lt;version&gt;${maven-shade-plugin.version}&lt;/version&gt;
+    &lt;executions&gt;
+        &lt;execution&gt;
+            &lt;phase&gt;package&lt;/phase&gt;
+            &lt;goals&gt;
+                &lt;goal&gt;shade&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+                &lt;createDependencyReducedPom&gt;false&lt;/createDependencyReducedPom&gt;
+                &lt;transformers&gt;
+                    &lt;transformer implementation=
+                        "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"&gt;
+                        &lt;manifestEntries&gt;
+                            &lt;Main-Class&gt;
+                        io.rxmicro.examples.graalvm.nativeimage.quick.start.HelloWorldMicroService
+                            &lt;/Main-Class&gt;
+                        &lt;/manifestEntries&gt;
+                    &lt;/transformer&gt;
+                &lt;/transformers&gt;
+            &lt;/configuration&gt;
+        &lt;/execution&gt;
+    &lt;/executions&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="exec_maven_plugin_configuration"><a class="anchor" href="#exec_maven_plugin_configuration"></a><a class="link" href="#exec_maven_plugin_configuration">2.2.1.3. <code>Exec-maven-plugin</code> Configuration</a></h5>
+<div class="paragraph">
+<p>To build a native image from <code>maven</code> it is necessary to use <code>exec-maven-plugin</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;plugin&gt;
+    &lt;groupId&gt;org.codehaus.mojo&lt;/groupId&gt;
+    &lt;artifactId&gt;exec-maven-plugin&lt;/artifactId&gt;
+    &lt;version&gt;${exec-maven-plugin.version}&lt;/version&gt;
+    &lt;executions&gt;
+        &lt;execution&gt;
+            &lt;phase&gt;package&lt;/phase&gt;
+            &lt;goals&gt;
+                &lt;goal&gt;exec&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+                &lt;executable&gt;native-image&lt;/executable&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+                &lt;arguments&gt;
+                    &lt;argument&gt;--verbose&lt;/argument&gt;
+                    &lt;argument&gt;-jar&lt;/argument&gt;
+                    &lt;argument&gt;--install-exit-handlers&lt;/argument&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+                    &lt;argument&gt;${project.build.directory}/${project.build.finalName}.jar&lt;/argument&gt;
+                &lt;/arguments&gt;
+            &lt;/configuration&gt;
+        &lt;/execution&gt;
+    &lt;/executions&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>An executable will be the <code>native-image</code> tool with specified arguments.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>This option adds the exit handler for native image.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The Native Image Tool (<code>native-image</code>) must be available via <code>PATH</code> variable!</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="microservice_source_code"><a class="anchor" href="#microservice_source_code"></a><a class="link" href="#microservice_source_code">2.2.2. Microservice Source Code</a></h4>
+<div class="paragraph">
+<p>A microservice source code contains two classes only:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">final class Response {
+
+    final String message;
+
+    Response(final String message) {
+        this.message = requireNonNull(message);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class HelloWorldMicroService {
+
+    @GET("/")
+    CompletableFuture&lt;Response&gt; sayHelloWorld() {
+        return CompletableFuture.supplyAsync(() -&gt;
+                new Response("Hello World!"));
+    }
+
+    public static void main(final String[] args) {
+        new Configs.Builder()
+                .withContainerConfigSources() <i class="conum" data-value="1"></i><b>(1)</b>
+                .build();
+        RxMicroRestServer.startRestServer(HelloWorldMicroService.class);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Docker based configuration activates the configuration via annotations and environment variables only.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="classpath_resources"><a class="anchor" href="#classpath_resources"></a><a class="link" href="#classpath_resources">2.2.3. Classpath Resources</a></h4>
+<div class="paragraph">
+<p>A RxMicro logger is configured using <code>jul.properties</code> classpath resource.</p>
+</div>
+<div class="paragraph">
+<p><code>jul.properties</code> contains the following content:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-properties" data-lang="properties">io.rxmicro.rest.server.level=TRACE</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A native image is configured using <code>META-INF/native-image</code> classpath directory with two files:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>native-image.properties</code></p>
+</li>
+<li>
+<p><code>resource-config.json</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><em>(Read more about native image configuration: <a href="https://www.graalvm.org/docs/reference-manual/native-image/#native-image-configuration" target="_blank" rel="noopener">https://www.graalvm.org/docs/reference-manual/native-image/#native-image-configuration</a>)</em></p>
+</div>
+<div class="paragraph">
+<p><code>native-image.properties</code> contains the following content:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-properties" data-lang="properties">Args = --no-fallback \
+       --allow-incomplete-classpath \
+       -H:ResourceConfigurationResources=${.}/resource-config.json</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>resource-config.json</code> contains the following content:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+  "resources":[
+    {"pattern":"\\Qjul.properties\\E"}
+  ],
+  "bundles":[]
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="creation_of_the_native_image"><a class="anchor" href="#creation_of_the_native_image"></a><a class="link" href="#creation_of_the_native_image">2.3. Creation of the Native Image</a></h3>
+<div class="paragraph">
+<p>To build a native image run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt"><strong>mvn</strong> clean package</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The built native image executable will be available at the project home directory:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt"><strong>ls</strong> -lh
+
+drwxrwxr-x 5 nedis nedis 4,0K Mar 25 20:44 <strong>src</strong>
+drwxrwxr-x 8 nedis nedis 4,0K Mar 28 21:30 <strong>target</strong>
+-rw-rw-r-- 1 nedis nedis 8,8K Mar 28 21:02 <strong>pom.xml</strong>
+<strong>-rwxrwxr-x 1 nedis nedis  17M Mar 28 21:32 HelloWorldMicroService</strong> <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The built native image executable</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="verification_of_the_native_image"><a class="anchor" href="#verification_of_the_native_image"></a><a class="link" href="#verification_of_the_native_image">2.4. Verification of the Native Image</a></h3>
+<div class="paragraph">
+<p>To verify the built native image run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt"><strong>./HelloWorldMicroService</strong></code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-graalvm/graalvm-native-image-quick-start" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-graalvm/graalvm-native-image-quick-start</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="monitoring.html#monitoring-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> Monitoring</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="testing.html#testing-section"><strong>Testing  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-166298262-2"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-166298262-2');
+</script>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

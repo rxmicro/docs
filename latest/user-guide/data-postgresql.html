@@ -1,0 +1,3105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.15">
+<meta name="description" content="A modern, JVM-based, full stack framework designed to develop distributed reactive applications that use a microservice architecture.">
+<meta name="keywords" content="rx, rxmicro, reactive java, reactive jvm, microservice java, reactive microservice, micro service java, reactive micro service">
+<meta name="author" content="nedis">
+<title>Postgre SQL Data Repositories</title>
+<link rel="stylesheet" href="../styles/rxmicro-doc.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body id="data-postgresql-section" class="article toc2 toc-left">
+<div id="header">
+<h1>Postgre SQL Data Repositories</h1>
+<div class="details">
+<span id="author" class="author">nedis</span><br>
+<span id="email" class="email"><a href="mailto:rxmicro.io@gmail.com">rxmicro.io@gmail.com</a></span><br>
+<span id="revnumber">version 0.11,</span>
+<span id="revdate">2022-12-14 20:00:09 UTC</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#data-postgresql-basic-section">1. Basic Usage</a></li>
+<li><a href="#data-postgresql-annotations-section">2. <code>RxMicro Annotations</code></a></li>
+<li><a href="#data-postgresql-testing-section">3. Repositories Testing</a>
+<ul class="sectlevel2">
+<li><a href="#data-postgresql-test-database-section">3.1. Test Database</a></li>
+<li><a href="#data-postgresql-test-templates-section">3.2. Test Templates</a></li>
+</ul>
+</li>
+<li><a href="#data-postgresql-model-section">4. DataBase Models</a>
+<ul class="sectlevel2">
+<li><a href="#data-postgresql-model-primitives-section">4.1. Primitives</a></li>
+<li><a href="#data-postgresql-model-entities-section">4.2. Entities</a></li>
+</ul>
+</li>
+<li><a href="#data-postgres-universal-placeholder-section">5. Universal Placeholder</a></li>
+<li><a href="#data-postgres-repeat-parameter-section">6. <code>@RepeatParameter</code> Annotation</a></li>
+<li><a href="#data-postgresql-sql-operations-section">7. SQL Operations</a>
+<ul class="sectlevel2">
+<li><a href="#data-postgresql-select-section">7.1. <code>@Select</code></a>
+<ul class="sectlevel3">
+<li><a href="#data-postgresql-select-return-section">7.1.1. Returning Types Support</a></li>
+<li><a href="#data-postgresql-select-parameters-section">7.1.2. <code>WHERE</code>, <code>ORDER BY</code> and Other <code>SELECT</code> Operations</a></li>
+<li><a href="#data-postgresql-select-projection-section">7.1.3. Selected Projections</a></li>
+<li><a href="#data-postgresql-select-custom-section">7.1.4. Custom Select</a></li>
+</ul>
+</li>
+<li><a href="#data-postgresql-insert-section">7.2. <code>@Insert</code></a></li>
+<li><a href="#data-postgresql-update-section">7.3. <code>@Update</code></a></li>
+<li><a href="#data-postgresql-delete-section">7.4. <code>@Delete</code></a></li>
+</ul>
+</li>
+<li><a href="#data-postgresql-variables-section">8. Variables Support</a></li>
+<li><a href="#data-postgresql-primary-keys-section">9. Primary Keys Support</a></li>
+<li><a href="#data-postgresql-expected-updated-rows-count-section">10. <code>@ExpectedUpdatedRowsCount</code> annotation</a></li>
+<li><a href="#data-postgresql-transactional-section">11. Transactions Support</a>
+<ul class="sectlevel2">
+<li><a href="#data-postgresql-transactional-transaction-section">11.1. DataBase Transactions</a></li>
+<li><a href="#data-postgresql-transactional-concurrent-section">11.2. Concurrent Access Example</a></li>
+</ul>
+</li>
+<li><a href="#data-postgresql-partial-implementation-section">12. Partial Implementation</a></li>
+<li><a href="#data-postgresql-logging-section">13. Logging</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="project-documentation.html#project-documentation-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> REST-based Microservice Documentation</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="data-mongo.html#data-mongo-section"><strong>Mongo Data Repositories  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<div class="paragraph">
+<p>&#169; 2019-2022 rxmicro.io.
+Free use of this software is granted under the terms of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/LICENSE" target="_blank" rel="noopener"><code>Apache License 2.0</code></a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Copies of this entity may be made for Your own use and for distribution to others, provided that You do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.</p>
+</div>
+<div class="paragraph">
+<p>If You find errors or omissions in this entity, please don’t hesitate to submit an
+<a href="https://github.com/rxmicro/rxmicro-usage/issues" target="_blank" rel="noopener"><strong>issue</strong></a> or open <a href="https://github.com/rxmicro/rxmicro-usage/pulls" target="_blank" rel="noopener"><strong>a pull request</strong></a> with a fix.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The RxMicro framework supports creation of dynamic repositories for interaction with databases.</p>
+</div>
+<div class="paragraph">
+<p>To interact with <a href="https://www.postgresql.org/" target="_blank" rel="noopener"><code>PostgreSQL DB</code></a>, using the <a href="https://github.com/pgjdbc/r2dbc-postgresql" target="_blank" rel="noopener">reactive R2DBC PostgreSQL driver</a>, the RxMicro framework provides the <code>rxmicro.data.sql.r2dbc.postgresql</code> module.</p>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-postgresql-basic-section"><a class="anchor" href="#data-postgresql-basic-section"></a><a class="link" href="#data-postgresql-basic-section">1. Basic Usage</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To use the <code>rxmicro.data.sql.r2dbc.postgresql</code> module in the project, the following two steps must be taken:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Inject the <code>rxmicro.data.sql.r2dbc.postgresql</code> dependency to the <code>pom.xml</code> file:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;io.rxmicro&lt;/groupId&gt;
+    &lt;artifactId&gt;rxmicro-data-sql-r2dbc-postgresql&lt;/artifactId&gt;
+    &lt;version&gt;${rxmicro.version}&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Add the <code>rxmicro.data.sql.r2dbc.postgresql</code> module to the <code>module-info.java</code> descriptor:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">module examples.data.r2dbc.postgresql.basic {
+    requires rxmicro.data.sql.r2dbc.postgresql;
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>By default, the <a href="https://github.com/pgjdbc/r2dbc-postgresql" target="_blank" rel="noopener">reactive R2DBC PostgreSQL driver</a> uses the <a href="https://projectreactor.io/docs/core/release/reference/index.html" target="_blank" rel="noopener"><strong>Project Reactor</strong></a> library, so when adding the <code>rxmicro.data.sql.r2dbc.postgresql</code> module, the <code>reactor.core</code> module is automatically added and available for usage!</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>After adding the <code>rxmicro.data.sql.r2dbc.postgresql</code> module, You can create a data model class and dynamic repository:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Table
+<i class="conum" data-value="1"></i><b>(1)</b>
+@ColumnMappingStrategy
+public final class Account {
+
+    @Column(length = Column.UNLIMITED_LENGTH)
+    String firstName;
+
+    @Column(length = Column.UNLIMITED_LENGTH)
+    String lastName;
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data/src/main/java/io/rxmicro/data/ColumnMappingStrategy.java" target="_blank" rel="noopener"><code>@ColumnMappingStrategy</code></a>
+annotation sets the strategy of forming column names of the relational database table based on the analysis of the Java model class field names.<br>
+<em>(Thus, the <code>firstName</code> field corresponds to the <code>first_name</code> column, and the <code>lastName</code> field corresponds to the <code>last_name</code> column.)</em></td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java"><i class="conum" data-value="1"></i><b>(1)</b>
+@PostgreSQLRepository
+public interface DataRepository {
+
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @Select("SELECT * FROM ${table} WHERE email = ?")
+    Mono&lt;Account&gt; findByEmail(String email);
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>In order for a standard interface to be recognized by the RxMicro framework as a dynamic repository for interaction with <a href="https://www.postgresql.org/" target="_blank" rel="noopener"><code>PostgreSQL DB</code></a>, this interface should be annotated by <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql-r2dbc-postgresql/src/main/java/io/rxmicro/data/sql/r2dbc/postgresql/PostgreSQLRepository.java" target="_blank" rel="noopener"><code>@PostgreSQLRepository</code></a> annotation.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The dynamic repository may contain methods that form a query to the <a href="https://www.postgresql.org/" target="_blank" rel="noopener"><code>PostgreSQL DB</code></a>.<br>
+<em>(The query that used for a request for data uses the <a href="https://en.wikipedia.org/wiki/SQL" target="_blank" rel="noopener"><code>SQL</code></a> and is specified in the annotation parameters.)</em></td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Since the dynamic repository is a RxMicro component, for its testing You need to use <a href="testing.html#testing-component-tests-section">the microservice component testing approach</a>:</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The common approach recommended for testing dynamic repositories, that interact with <a href="https://www.postgresql.org/" target="_blank" rel="noopener"><code>PostgreSQL DB</code></a>, is described in the <a href="#data-postgresql-test-templates-section">Section 3.2, &#8220;Test Templates&#8221;</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Testcontainers
+@RxMicroComponentTest(DataRepository.class)
+final class DataRepositoryTest {
+
+    @Container
+    private final GenericContainer&lt;?&gt; postgresqlTestDb =
+            new GenericContainer&lt;&gt;("rxmicro/postgres-test-db")
+                    .withExposedPorts(5432);
+
+    @WithConfig
+    private final PostgreSQLConfig config = new PostgreSQLConfig()
+            .setDatabase("rxmicro")
+            .setUser("rxmicro")
+            .setPassword("password");
+
+    private DataRepository dataRepository;
+
+    @BeforeEach
+    void beforeEach() {
+        config
+                .setHost(postgresqlTestDb.getHost())
+                .setPort(postgresqlTestDb.getFirstMappedPort());
+    }
+
+    @Test
+    void Should_find_account() {
+        final Account account = requireNonNull(
+                dataRepository.findByEmail("richard.hendricks@piedpiper.com").block()
+        );
+
+        assertEquals("Richard", account.getFirstName());
+        assertEquals("Hendricks", account.getLastName());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-basic" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-basic</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-postgresql-annotations-section"><a class="anchor" href="#data-postgresql-annotations-section"></a><a class="link" href="#data-postgresql-annotations-section">2. <code>RxMicro Annotations</code></a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework supports the following <code>RxMicro Annotations</code>:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Supported <code>RxMicro Annotations</code>.</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Annotation</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data/src/main/java/io/rxmicro/data/Column.java" target="_blank" rel="noopener"><code>@Column</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets mapping between the column name in the <code>PostgreSQL DB</code> table and the Java model class field name.</p>
+<p class="tableblock"><em>(By default, the RxMicro framework uses the Java model class field name as the column name in the <code>PostgreSQL DB</code> table.
+If the name should differ for some reason, (for example, as a column name in the <code>PostgreSQL DB</code> table the keyword Java is used), it should be specified using this annotation!)</em></p>
+<p class="tableblock">Required <code>length</code> parameter must contain the max character count that can be stored to table column.
+If actual length will be more that expected length, value will be trimmed automatically.</p>
+<p class="tableblock">The <code>nullable</code> parameter does not disable any validation.
+It used as the descriptive characteristic only.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data/src/main/java/io/rxmicro/data/ColumnMappingStrategy.java" target="_blank" rel="noopener"><code>@ColumnMappingStrategy</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets the strategy of column name formation in the <code>PostgreSQL DB</code> table, based on the analysis of the Java model class field names.</p>
+<p class="tableblock"><em>(If this annotation annotates the Java model class, then the set strategy will be used for <strong>all</strong> fields in this class.
+For example, if You set the default <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-model/src/main/java/io/rxmicro/model/MappingStrategy.java#L41" target="_blank" rel="noopener"><code>LOWERCASE_WITH_UNDERSCORED</code></a> strategy,
+then the <code>parentId</code> field in the Java class will correspond to the <code>parent_id</code> column in the <code>PostgreSQL DB</code> table.)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data/src/main/java/io/rxmicro/data/DataRepositoryGeneratorConfig.java" target="_blank" rel="noopener"><code>@DataRepositoryGeneratorConfig</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allows You to configure the repository generation process.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data/src/main/java/io/rxmicro/data/RepeatParameter.java" target="_blank" rel="noopener"><code>@RepeatParameter</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allows setting <a href="#data-postgres-repeat-parameter-section">mapping between one method parameter marked with this annotation and several universal placeholders that are used in the query to <code>PostgreSQL DB</code></a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/operation/Select.java" target="_blank" rel="noopener"><code>@Select</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a repository method that must execute <a href="#data-postgresql-select-section">a <code>SELECT</code> SQL operation</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/operation/CustomSelect.java" target="_blank" rel="noopener"><code>@CustomSelect</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a <a href="#data-postgresql-select-custom-section">string parameter of repository method, the value of that must be used as custom SELECT.</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/operation/Insert.java" target="_blank" rel="noopener"><code>@Insert</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a repository method that must execute <a href="#data-postgresql-insert-section">a <code>INSERT</code> SQL operation</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/operation/Update.java" target="_blank" rel="noopener"><code>@Update</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a repository method that must execute <a href="#data-postgresql-update-section">a <code>UPDATE</code> SQL operation</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/operation/Delete.java" target="_blank" rel="noopener"><code>@Delete</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a repository method that must execute <a href="#data-postgresql-delete-section">a <code>DELETE</code> SQL operation</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/ExpectedUpdatedRowsCount.java" target="_blank" rel="noopener"><code>@ExpectedUpdatedRowsCount</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enables <a href="#data-postgresql-expected-updated-rows-count-section">validation for updated rows count during DML operation, like <code>Insert</code>, <code>Update</code> and <code>Delete</code> operations</a>.</p>
+<p class="tableblock">If current database has invalid state the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/model/InvalidDatabaseStateException.java" target="_blank" rel="noopener"><code>InvalidDatabaseStateException</code></a> will be thrown!</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/NotInsertable.java" target="_blank" rel="noopener"><code>@NotInsertable</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a model field, the value of that ignored during <code>INSERT</code> SQL operation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/NotUpdatable.java" target="_blank" rel="noopener"><code>@NotUpdatable</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a model field, the value of that ignored during <code>UPDATE</code> SQL operation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/PrimaryKey.java" target="_blank" rel="noopener"><code>@PrimaryKey</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="#data-postgresql-primary-keys-section">a model field that must be used as primary key.</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/Schema.java" target="_blank" rel="noopener"><code>@Schema</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a schema of a database table.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/SequenceGenerator.java" target="_blank" rel="noopener"><code>@SequenceGenerator</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="https://www.postgresql.org/docs/current/functions-sequence.html" target="_blank" rel="noopener">a sequence that must be used to get the next unique value for model field</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/Table.java" target="_blank" rel="noopener"><code>@Table</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a table name for entity.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/EnumType.java" target="_blank" rel="noopener"><code>@EnumType</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a db type name for enum.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/VariableValues.java" target="_blank" rel="noopener"><code>@VariableValues</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a <a href="#data-postgresql-variables-section">storage with the values of the predefined variables</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql-r2dbc-postgresql/src/main/java/io/rxmicro/data/sql/r2dbc/postgresql/PostgreSQLRepository.java" target="_blank" rel="noopener"><code>@PostgreSQLRepository</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes that an interface is a dynamic generated PostgreSQL data repository.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql-r2dbc-postgresql/src/main/java/io/rxmicro/data/sql/r2dbc/postgresql/PartialImplementation.java" target="_blank" rel="noopener"><code>@PartialImplementation</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes an abstract class that contains <a href="#data-postgresql-partial-implementation-section">a partial implementation of the annotated by this annotation a PostgreSQL Data Repository interface</a>.</p></td>
+</tr>
+</tbody>
+</table>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-postgresql-testing-section"><a class="anchor" href="#data-postgresql-testing-section"></a><a class="link" href="#data-postgresql-testing-section">3. Repositories Testing</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For successful functional testing of dynamic repositories, that interact with <a href="https://www.postgresql.org/" target="_blank" rel="noopener"><code>PostgreSQL DB</code></a>, it is required:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Presence of a script that creates a test database.</p>
+</li>
+<li>
+<p>Mechanism for preparing a database for testing: creating a database before starting the test and deleting a database after completing the test.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="data-postgresql-test-database-section"><a class="anchor" href="#data-postgresql-test-database-section"></a><a class="link" href="#data-postgresql-test-database-section">3.1. Test Database</a></h3>
+<div class="paragraph">
+<p>A test database was created for testing the <code>rxmicro.data.sql.r2dbc.postgresql</code> module features, which are described in this section.</p>
+</div>
+<div class="paragraph">
+<p>The test database contains three tables: <code>account</code>, <code>product</code> and <code>order</code>:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/data-postgresql/rxmicro-test-db-er-diagram.jpg" alt="rxmicro test db er diagram">
+</div>
+<div class="title">Figure 1. ER-Diagram for Test Database</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>SQL scripts for creating a test database are available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/docker-image-postgres-test-db/src/main/sql" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/blob/master/examples/docker-image-postgres-test-db/src/main/sql/</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The following classes of Java models correspond to the tables created in the test database:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Table
+@ColumnMappingStrategy
+public final class Account {
+
+    @PrimaryKey
+    @SequenceGenerator
+    Long id;
+
+    @Column(length = Column.UNLIMITED_LENGTH)
+    @NotUpdatable
+    String email;
+
+    @Column(length = Column.UNLIMITED_LENGTH)
+    String firstName;
+
+    @Column(length = Column.UNLIMITED_LENGTH)
+    String lastName;
+
+    BigDecimal balance;
+
+    Role role;
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Table
+@ColumnMappingStrategy
+public final class Order {
+
+    @PrimaryKey
+    Long id;
+
+    Long idAccount;
+
+    Integer idProduct;
+
+    Integer count;
+
+    @NotInsertable
+    Instant created;
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Table
+@ColumnMappingStrategy
+public final class Product {
+
+    @PrimaryKey(autoGenerated = false)
+    Integer id;
+
+    @Column(length = Column.UNLIMITED_LENGTH)
+    String name;
+
+    BigDecimal price;
+
+    Integer count;
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public enum Role {
+
+    CEO,
+
+    Lead_Engineer,
+
+    Systems_Architect
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For ease of studying the <code>rxmicro.data.sql.r2dbc.postgresql</code> module, You can use the ready-made <a href="https://www.postgresql.org/" target="_blank" rel="noopener"><code>PostgreSQL DB</code></a> image with the <a href="https://hub.docker.com/r/rxmicro/postgres-test-db" target="_blank" rel="noopener"><code>rxmicro/postgres-test-db</code></a> test database.</p>
+</div>
+<div class="paragraph">
+<p>The source code of the project used as a base for building this <code>docker</code> image, is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/docker-image-postgres-test-db" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/docker-image-postgres-test-db</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="data-postgresql-test-templates-section"><a class="anchor" href="#data-postgresql-test-templates-section"></a><a class="link" href="#data-postgresql-test-templates-section">3.2. Test Templates</a></h3>
+<div class="paragraph">
+<p>As a mechanism for preparing a database for testing (creating a database before starting the test and deleting a database after completing the test), it is most convenient to use <a href="https://www.docker.com/" target="_blank" rel="noopener"><code>docker</code></a>.</p>
+</div>
+<div class="paragraph">
+<p>To start <code>docker</code> containers in the functional test it is convenient to use the <a href="https://www.testcontainers.org/" target="_blank" rel="noopener"><code>Testcontainers</code></a> Java library:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java"><i class="conum" data-value="1"></i><b>(1)</b>
+@Testcontainers
+<i class="conum" data-value="2"></i><b>(2)</b>
+@RxMicroComponentTest(DataRepository.class)
+final class DataRepositoryTestTemplate1 {
+
+    <i class="conum" data-value="3"></i><b>(3)</b>
+    @Container
+    private static final GenericContainer&lt;?&gt; POSTGRESQL_TEST_DB =
+            new GenericContainer&lt;&gt;("rxmicro/postgres-test-db")
+                    .withExposedPorts(5432); <i class="conum" data-value="4"></i><b>(4)</b>
+
+    <i class="conum" data-value="5"></i><b>(5)</b>
+    @WithConfig
+    private static final PostgreSQLConfig CONFIG = new PostgreSQLConfig()
+            .setDatabase("rxmicro")
+            .setUser("rxmicro")
+            .setPassword("password"); <i class="conum" data-value="6"></i><b>(6)</b>
+
+    @BeforeAll
+    static void beforeAll() {
+        POSTGRESQL_TEST_DB.start(); <i class="conum" data-value="7"></i><b>(7)</b>
+        CONFIG
+                .setHost(POSTGRESQL_TEST_DB.getHost()) <i class="conum" data-value="8"></i><b>(8)</b>
+                .setPort(POSTGRESQL_TEST_DB.getFirstMappedPort());
+    }
+
+    private DataRepository dataRepository; <i class="conum" data-value="9"></i><b>(9)</b>
+
+    // ... test methods must be here
+
+    @AfterAll
+    static void afterAll() {
+        POSTGRESQL_TEST_DB.stop(); <i class="conum" data-value="10"></i><b>(10)</b>
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <a href="https://github.com/testcontainers/testcontainers-java/blob/main/modules/junit-jupiter/src/main/java/org/testcontainers/junit/jupiter/Testcontainers.java" target="_blank" rel="noopener"><code>@Testcontainers</code></a>
+annotation activates the start and stop of the <code>docker</code> containers to be used in this test.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Since the dynamic repository is a RxMicro component, for its testing You need to use <a href="testing.html#testing-component-tests-section">the microservice component testing approach</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The <a href="https://github.com/testcontainers/testcontainers-java/blob/main/modules/junit-jupiter/src/main/java/org/testcontainers/junit/jupiter/Container.java" target="_blank" rel="noopener"><code>@Container</code></a>
+annotation indicates the <code>docker</code> container that will be used in this test.
+As an image on the basis of which it is necessary to create the <code>docker</code> container, the <a href="https://www.postgresql.org/" target="_blank" rel="noopener"><code>PostgreSQL DB</code></a> ready-made image with the
+<a href="https://hub.docker.com/r/rxmicro/postgres-test-db" target="_blank" rel="noopener"><code>rxmicro/postgres-test-db</code></a> test database is used.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>When starting the <code>docker</code> container, You need to open the standard port for <a href="https://www.postgresql.org/" target="_blank" rel="noopener"><code>PostgreSQL DB</code></a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Using the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-test/src/main/java/io/rxmicro/test/WithConfig.java" target="_blank" rel="noopener"><code>@WithConfig</code></a>
+annotation, the configuration available only during the test is declared.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Setting up the configuration to interact with the test database.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Before running all tests, You must start the <code>docker</code> container.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>After starting the <code>docker</code> container, You need to read the random IP address and port that will be used when connecting to the running <code>docker</code> container.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>When testing <a href="testing.html#testing-component-tests-section">microservice components</a>, it is necessary to specify a reference to the component in which the RxMicro framework will inject the tested component.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="10"></i><b>10</b></td>
+<td>After completing all the tests, You must stop the <code>docker</code> container.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The main advantage of this template is the speed of testing.
+Since the <code>docker</code> container is created once before starting <strong>all</strong> test methods, the total runtime of all test methods is reduced.
+The main disadvantage of this template is that if any test method changes the <a href="https://www.postgresql.org/" target="_blank" rel="noopener"><code>PostgreSQL DB</code></a> state, the following test method may end with an error.</p>
+</div>
+<div class="paragraph">
+<p><strong>Therefore, this functional test template should be used for queries to <a href="https://www.postgresql.org/" target="_blank" rel="noopener"><code>PostgreSQL DB</code></a> that do not change the database state!</strong></p>
+</div>
+<div class="paragraph">
+<p>If You need to test methods that change the <a href="https://www.postgresql.org/" target="_blank" rel="noopener"><code>PostgreSQL DB</code></a> state, You should use another template:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java"><i class="conum" data-value="1"></i><b>(1)</b>
+@Testcontainers
+<i class="conum" data-value="2"></i><b>(2)</b>
+@RxMicroComponentTest(DataRepository.class)
+final class DataRepositoryTestTemplate2 {
+
+    <i class="conum" data-value="3"></i><b>(3)</b>
+    @Container
+    private final GenericContainer&lt;?&gt; postgresqlTestDb =
+            new GenericContainer&lt;&gt;("rxmicro/postgres-test-db")
+                    .withExposedPorts(5432); <i class="conum" data-value="4"></i><b>(4)</b>
+
+    <i class="conum" data-value="5"></i><b>(5)</b>
+    @WithConfig
+    private final PostgreSQLConfig config = new PostgreSQLConfig()
+            .setDatabase("rxmicro")
+            .setUser("rxmicro")
+            .setPassword("password"); <i class="conum" data-value="6"></i><b>(6)</b>
+
+    private DataRepository dataRepository; <i class="conum" data-value="7"></i><b>(7)</b>
+
+    @BeforeEach
+    void beforeEach() {
+        config
+                .setHost(postgresqlTestDb.getHost()) <i class="conum" data-value="8"></i><b>(8)</b>
+                .setPort(postgresqlTestDb.getFirstMappedPort());
+    }
+
+    // ... test methods must be here
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <a href="https://github.com/testcontainers/testcontainers-java/blob/main/modules/junit-jupiter/src/main/java/org/testcontainers/junit/jupiter/Testcontainers.java" target="_blank" rel="noopener"><code>@Testcontainers</code></a>
+annotation activates the start and stop of the <code>docker</code> containers to be used in this test.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Since the dynamic repository is a RxMicro component, for its testing You need to use <a href="testing.html#testing-component-tests-section">the microservice component testing approach</a></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The <a href="https://github.com/testcontainers/testcontainers-java/blob/main/modules/junit-jupiter/src/main/java/org/testcontainers/junit/jupiter/Container.java" target="_blank" rel="noopener"><code>@Container</code></a>
+annotation indicates the <code>docker</code> container that will be used in this test.
+As an image on the basis of which it is necessary to create the <code>docker</code> container, the <a href="https://www.postgresql.org/" target="_blank" rel="noopener"><code>PostgreSQL DB</code></a> ready-made image with the
+<a href="https://hub.docker.com/r/rxmicro/postgres-test-db" target="_blank" rel="noopener"><code>rxmicro/postgres-test-db</code></a> test database is used.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>When starting the <code>docker</code> container, You need to open the standard port for <a href="https://www.postgresql.org/" target="_blank" rel="noopener"><code>PostgreSQL DB</code></a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Using the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-test/src/main/java/io/rxmicro/test/WithConfig.java" target="_blank" rel="noopener"><code>@WithConfig</code></a>
+annotation, the configuration available only during the test is declared.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Setting up the configuration to interact with the test database.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>When testing <a href="testing.html#testing-component-tests-section">microservice components</a>, it is necessary to specify a reference to the component in which the RxMicro framework will inject the tested component.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>After starting the <code>docker</code> container, You need to read the random IP address and port that will be used when connecting to the running <code>docker</code> container.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This template <strong>for each test method</strong> will create and drop the <code>docker</code> container, which may increase the total runtime of all test methods.</p>
+</div>
+<div class="paragraph">
+<p><strong>Therefore, select the most appropriate functional test template based on the requirements of the tested functionality!</strong></p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The <a href="https://www.testcontainers.org/" target="_blank" rel="noopener"><code>Testcontainers</code></a> library starts the <code>docker</code> container before running the test and stops the <code>docker</code> container automatically after completing the test!</p>
+</div>
+<div class="paragraph">
+<p>So You should start and stop the <code>docker</code> container manually only if You want to use one <code>docker</code> container for <strong>all</strong> test methods!</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-postgresql-model-section"><a class="anchor" href="#data-postgresql-model-section"></a><a class="link" href="#data-postgresql-model-section">4. DataBase Models</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework supports the following database model types:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#data-postgresql-model-primitives-section">primitives</a>;</p>
+</li>
+<li>
+<p><a href="#data-postgresql-model-entities-section">entities</a>.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="data-postgresql-model-primitives-section"><a class="anchor" href="#data-postgresql-model-primitives-section"></a><a class="link" href="#data-postgresql-model-primitives-section">4.1. Primitives</a></h3>
+<div class="paragraph">
+<p>A primitive is a supported Java type that can be mapped to database table column.</p>
+</div>
+<div class="paragraph">
+<p>The <code>rxmicro.data.sql.r2dbc.postgresql</code> module supports the following primitive type:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>? extends Enum&lt;?&gt;</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Boolean</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Byte</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Short</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Integer</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Long</code>;</p>
+</li>
+<li>
+<p><code>java.math.BigInteger</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Float</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Double</code>;</p>
+</li>
+<li>
+<p><code>java.math.BigDecimal</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Character</code>;</p>
+</li>
+<li>
+<p><code>java.lang.String</code>;</p>
+</li>
+<li>
+<p><code>java.time.Instant</code>;</p>
+</li>
+<li>
+<p><code>java.time.LocalTime</code>;</p>
+</li>
+<li>
+<p><code>java.time.LocalDate</code>;</p>
+</li>
+<li>
+<p><code>java.time.LocalDateTime</code>;</p>
+</li>
+<li>
+<p><code>java.time.OffsetDateTime</code>;</p>
+</li>
+<li>
+<p><code>java.time.ZonedDateTime</code>;</p>
+</li>
+<li>
+<p><code>java.net.InetAddress</code>;</p>
+</li>
+<li>
+<p><code>java.util.UUID</code>;</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For floating point numbers, it is suggested to use the <code>java.math.BigDecimal</code> type instead of <code>java.lang.Float</code> or <code>java.lang.Double</code>.</p>
+</div>
+<div class="paragraph">
+<p>Using the <code>java.math.BigDecimal</code> allows excluding errors of decimal number notation.
+<strong>This is particularly important if the decimal number is used to represent currency-related data!</strong></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="data-postgresql-model-entities-section"><a class="anchor" href="#data-postgresql-model-entities-section"></a><a class="link" href="#data-postgresql-model-entities-section">4.2. Entities</a></h3>
+<div class="paragraph">
+<p>An entity is a composition of <a href="#data-postgresql-model-primitives-section">primitives</a> only.</p>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Table
+@ColumnMappingStrategy
+public final class Account {
+
+    @PrimaryKey
+    @SequenceGenerator
+    Long id;
+
+    @Column(length = Column.UNLIMITED_LENGTH)
+    @NotUpdatable
+    String email;
+
+    @Column(length = Column.UNLIMITED_LENGTH)
+    String firstName;
+
+    @Column(length = Column.UNLIMITED_LENGTH)
+    String lastName;
+
+    BigDecimal balance;
+
+    Role role;
+}</code></pre>
+</div>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-postgres-universal-placeholder-section"><a class="anchor" href="#data-postgres-universal-placeholder-section"></a><a class="link" href="#data-postgres-universal-placeholder-section">5. Universal Placeholder</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework recommends using the universal placeholder (<code>?</code>) as parameter value placeholder in the SQL queries:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Select("SELECT * FROM ${table} WHERE email=?")
+Mono&lt;Account&gt; findByEmail(String email);</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If this method invoked with the following parameter:<br>
+<code>repository.findByEmail("<a href="mailto:welcome@rxmicro.io">welcome@rxmicro.io</a>");</code>,</p>
+</div>
+<div class="paragraph">
+<p>the RxMicro framework will generate the following <code>PostgreSQL DB</code> query:<br>
+<code>SELECT * FROM account WHERE email='<a href="mailto:welcome@rxmicro.io">welcome@rxmicro.io</a>'</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-postgres-repeat-parameter-section"><a class="anchor" href="#data-postgres-repeat-parameter-section"></a><a class="link" href="#data-postgres-repeat-parameter-section">6. <code>@RepeatParameter</code> Annotation</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The universal placeholder (<code>?</code>) is the simplest type of placeholders.</p>
+</div>
+<div class="paragraph">
+<p>But unfortunately, it has one disadvantage: if a query parameter must be repeated, a developer must define a copy of this parameter:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Select("SELECT * FROM ${table} WHERE firstName=? OR lastName=?")
+Mono&lt;Account&gt; findByFirstOrLastNames(String name1, String name2);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data/src/main/java/io/rxmicro/data/RepeatParameter.java" target="_blank" rel="noopener"><code>@RepeatParameter</code></a> annotation fixes this disadvantage.</p>
+</div>
+<div class="paragraph">
+<p>The following code is an equivalent to the code with a copy of the <code>name</code> parameter:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Select("SELECT * FROM ${table} WHERE firstName=? OR lastName=?")
+Mono&lt;Account&gt; findByFirstOrLastNames(@RepeatParameter(2) String name);</code></pre>
+</div>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-postgresql-sql-operations-section"><a class="anchor" href="#data-postgresql-sql-operations-section"></a><a class="link" href="#data-postgresql-sql-operations-section">7. SQL Operations</a></h2>
+<div class="sectionbody">
+<div style="page-break-after: always;"></div>
+<div class="sect2">
+<h3 id="data-postgresql-select-section"><a class="anchor" href="#data-postgresql-select-section"></a><a class="link" href="#data-postgresql-select-section">7.1. <code>@Select</code></a></h3>
+<div class="paragraph">
+<p>The <code>rxmicro.data.sql.r2dbc.postgresql</code> module supports the <a href="https://www.postgresql.org/docs/current/sql-select.html" target="_blank" rel="noopener"><code>SELECT</code></a> SQL operation.</p>
+</div>
+<div class="sect3">
+<h4 id="data-postgresql-select-return-section"><a class="anchor" href="#data-postgresql-select-return-section"></a><a class="link" href="#data-postgresql-select-return-section">7.1.1. Returning Types Support</a></h4>
+<div class="sect4">
+<h5 id="data-postgresql-select-return-reactive-types-section"><a class="anchor" href="#data-postgresql-select-return-reactive-types-section"></a><a class="link" href="#data-postgresql-select-return-reactive-types-section">7.1.1.1. Reactive Types Support</a></h5>
+<div class="paragraph">
+<p>PostgreSQL Data Repositories that generated by the RxMicro frameworks support the following return reactive types:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If expected an asynchronous <code>0</code>-<code>1</code> result:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><a href="https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html" target="_blank" rel="noopener"><code>Mono&lt;MODEL&gt;</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletableFuture.html" target="_blank" rel="noopener"><code>CompletableFuture&lt;MODEL&gt;</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletionStage.html" target="_blank" rel="noopener"><code>CompletionStage&lt;MODEL&gt;</code></a>;</p>
+</li>
+<li>
+<p><a href="http://reactivex.io/RxJava/javadoc/io/reactivex/Single.html" target="_blank" rel="noopener"><code>Single&lt;MODEL&gt;</code></a>;</p>
+</li>
+<li>
+<p><a href="http://reactivex.io/RxJava/javadoc/io/reactivex/Maybe.html" target="_blank" rel="noopener"><code>Maybe&lt;MODEL&gt;</code></a>.</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+public interface SelectSingleDataRepository {
+
+    @Select("SELECT * FROM ${table} WHERE email = ?")
+    Mono&lt;Account&gt; findByEmail1(String email);
+
+    @Select("SELECT * FROM ${table} WHERE email = ?")
+    CompletableFuture&lt;Account&gt; findByEmail2(String email);
+
+    @Select("SELECT * FROM ${table} WHERE email = ?")
+    CompletionStage&lt;Account&gt; findByEmail3(String email);
+
+    @Select("SELECT * FROM ${table} WHERE email = ?")
+    CompletableFuture&lt;Optional&lt;Account&gt;&gt; findByEmail4(String email);
+
+    @Select("SELECT * FROM ${table} WHERE email = ?")
+    CompletionStage&lt;Optional&lt;Account&gt;&gt; findByEmail5(String email);
+
+    @Select("SELECT * FROM ${table} WHERE email = ?")
+    Single&lt;Account&gt; findByEmail6(String email);
+
+    @Select("SELECT * FROM ${table} WHERE email = ?")
+    Maybe&lt;Account&gt; findByEmail7(String email);
+}</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If expected an asynchronous <code>0</code>-<code>n</code> result:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><a href="https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html" target="_blank" rel="noopener"><code>Mono&lt;java.util.List&lt;MODEL&gt;&gt;</code></a>;</p>
+</li>
+<li>
+<p><a href="https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html" target="_blank" rel="noopener"><code>Flux&lt;MODEL&gt;</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletableFuture.html" target="_blank" rel="noopener"><code>CompletableFuture&lt;java.util.List&lt;MODEL&gt;&gt;</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletionStage.html" target="_blank" rel="noopener"><code>CompletionStage&lt;java.util.List&lt;MODEL&gt;&gt;</code></a>;</p>
+</li>
+<li>
+<p><a href="http://reactivex.io/RxJava/javadoc/io/reactivex/Single.html" target="_blank" rel="noopener"><code>Single&lt;java.util.List&lt;MODEL&gt;&gt;</code></a>;</p>
+</li>
+<li>
+<p><a href="http://reactivex.io/RxJava/javadoc/io/reactivex/Flowable.html" target="_blank" rel="noopener"><code>Flowable&lt;MODEL&gt;</code></a>.</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+public interface SelectManyDataRepository {
+
+    @Select("SELECT * FROM ${table} ORDER BY id")
+    Mono&lt;List&lt;Account&gt;&gt; findAll1();
+
+    @Select("SELECT * FROM ${table} ORDER BY id")
+    Flux&lt;Account&gt; findAll2();
+
+    @Select("SELECT * FROM ${table} ORDER BY id")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findAll3();
+
+    @Select("SELECT * FROM ${table} ORDER BY id")
+    CompletionStage&lt;List&lt;Account&gt;&gt; findAll4();
+
+    @Select("SELECT * FROM ${table} ORDER BY id")
+    Single&lt;List&lt;Account&gt;&gt; findAll5();
+
+    @Select("SELECT * FROM ${table} ORDER BY id")
+    Flowable&lt;Account&gt; findAll6();
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-select-return-reactive-types" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-select-return-reactive-types</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect4">
+<h5 id="data-postgresql-select-return-model-types-section"><a class="anchor" href="#data-postgresql-select-return-model-types-section"></a><a class="link" href="#data-postgresql-select-return-model-types-section">7.1.1.2. Model Types Support</a></h5>
+<div class="paragraph">
+<p>PostgreSQL Data Repositories that generated by the RxMicro frameworks support the following return model types:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If expected an asynchronous <code>0</code>-<code>1</code> result:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><a href="#data-postgresql-model-entities-section">Entity</a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/model/EntityFieldMap.java" target="_blank" rel="noopener"><code>EntityFieldMap</code></a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/model/EntityFieldList.java" target="_blank" rel="noopener"><code>EntityFieldList</code></a>;</p>
+</li>
+<li>
+<p><a href="#data-postgresql-model-primitives-section">Primitive</a>.</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+@VariableValues({
+        "${table}", "account"
+})
+public interface SelectSingleDataRepository {
+
+    @Select("SELECT * FROM ${table} " +
+            "WHERE email='richard.hendricks@piedpiper.com'")
+    CompletableFuture&lt;Account&gt; findSingleAccount();
+
+    @Select("SELECT first_name, last_name FROM ${table} " +
+            "WHERE email='richard.hendricks@piedpiper.com'")
+    CompletableFuture&lt;EntityFieldMap&gt; findSingleEntityFieldMap();
+
+    @Select("SELECT first_name, last_name FROM ${table} " +
+            "WHERE email='richard.hendricks@piedpiper.com'")
+    CompletableFuture&lt;EntityFieldList&gt; findSingleEntityFieldList();
+
+    @Select("SELECT email FROM ${table} " +
+            "WHERE email='richard.hendricks@piedpiper.com'")
+    CompletableFuture&lt;String&gt; findSingleEmail();
+
+    @Select("SELECT role FROM ${table} " +
+            "WHERE email='richard.hendricks@piedpiper.com'")
+    CompletableFuture&lt;Role&gt; findSingleRole();
+
+    @Select("SELECT balance FROM ${table} " +
+            "WHERE email='richard.hendricks@piedpiper.com'")
+    CompletableFuture&lt;BigDecimal&gt; findSingleBalance();
+}</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If expected an asynchronous <code>0</code>-<code>n</code> result:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>A list of <a href="#data-postgresql-model-entities-section">entities</a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/model/EntityFieldMap.java" target="_blank" rel="noopener"><code>java.util.List&lt;EntityFieldMap&gt;</code></a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/model/EntityFieldList.java" target="_blank" rel="noopener"><code>java.util.List&lt;EntityFieldList&gt;</code></a>;</p>
+</li>
+<li>
+<p>A list of <a href="#data-postgresql-model-primitives-section">primitives</a>.</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+public interface SelectManyDataRepository {
+
+    @Select("SELECT first_name, last_name FROM ${table} ORDER BY id")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findAllAccounts();
+
+    @Select(
+            value = "SELECT first_name, last_name FROM ${table} ORDER BY id",
+            entityClass = Account.class
+    )
+    CompletableFuture&lt;List&lt;EntityFieldMap&gt;&gt; findAllEntityFieldMapList();
+
+    @Select(
+            value = "SELECT first_name, last_name FROM ${table} ORDER BY id",
+            entityClass = Account.class
+    )
+    CompletableFuture&lt;List&lt;EntityFieldList&gt;&gt; findAllEntityFieldList();
+
+    @Select(
+            value = "SELECT email FROM ${table} ORDER BY id",
+            entityClass = Account.class
+    )
+    CompletableFuture&lt;List&lt;String&gt;&gt; findAllEmails();
+
+    @Select(
+            value = "SELECT DISTINCT role FROM ${table} ORDER BY role",
+            entityClass = Account.class
+    )
+    CompletableFuture&lt;List&lt;Role&gt;&gt; findAllRoles();
+
+    @Select(
+            value = "SELECT DISTINCT balance FROM ${table} ORDER BY balance",
+            entityClass = Account.class
+    )
+    CompletableFuture&lt;List&lt;BigDecimal&gt;&gt; findAllBalances();
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-select-return-model-types" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-select-return-model-types</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect4">
+<h5 id="data-postgresql-select-return-all-types-section"><a class="anchor" href="#data-postgresql-select-return-all-types-section"></a><a class="link" href="#data-postgresql-select-return-all-types-section">7.1.1.3. All Supported Return Types</a></h5>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For more information, we recommend that You familiarize yourself with the following examples:</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-return-types/src/main/java/io/rxmicro/examples/data/r2dbc/postgresql/returntypes/select" target="_blank" rel="noopener">All Supported Return Types</a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="data-postgresql-select-parameters-section"><a class="anchor" href="#data-postgresql-select-parameters-section"></a><a class="link" href="#data-postgresql-select-parameters-section">7.1.2. <code>WHERE</code>, <code>ORDER BY</code> and Other <code>SELECT</code> Operations</a></h4>
+<div class="paragraph">
+<p>The <code>rxmicro.data.sql.r2dbc.postgresql</code> module supports all SQL nested operators that are supported by the <a href="https://www.postgresql.org/docs/current/sql-select.html" target="_blank" rel="noopener"><code>SELECT</code></a> operation:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>WHERE</code> operator:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+public interface SelectByFilterRepository {
+
+    @Select("SELECT * FROM ${table} WHERE role=?")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findByRole(Role role);
+
+    @Select("SELECT * FROM ${table} WHERE first_name=? OR first_name=? OR first_name=?")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findByFirstName(
+            String firstName1, String firstName2, String firstName3
+    );
+
+    @Select("SELECT * FROM ${table} WHERE balance BETWEEN ? AND ?")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findByBalance(BigDecimal minBalance, BigDecimal maxBalance);
+
+    @Select("SELECT * FROM ${table} WHERE first_name=? OR last_name=?")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findByFirstOrLastName(String name1, String name2);
+
+    @Select("SELECT * FROM ${table} WHERE first_name ILIKE ? OR last_name ILIKE ?")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findByFirstOrLastName(@RepeatParameter(2) String name);
+}</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>IN</code> operator:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+public interface SelectByFilterUsingINOperatorRepository {
+
+    @Select("SELECT * FROM ${table} WHERE role IN ('CEO'::role, 'Systems_Architect'::role)")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findByRole();
+
+    @Select("SELECT * FROM ${table} WHERE email NOT IN (SELECT email FROM blocked_accounts)")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findNotBlockedAccount();
+
+    @Select("SELECT * FROM ${table} WHERE email in ?")
+    CompletableFuture&lt;Optional&lt;Account&gt;&gt; findByEmail(String email);
+
+    @Select("SELECT * FROM ${table} WHERE email in ?")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findByEmail(List&lt;String&gt; emails);
+
+    @Select("SELECT * FROM ${table} WHERE role in (?)")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findByRole(Role role);
+
+    @Select("SELECT * FROM ${table} WHERE role in (?)")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findByRole(List&lt;Role&gt; roles);
+
+    @Select("SELECT * FROM ${table} WHERE balance in (?)")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findByBalance(BigDecimal balance);
+
+    @Select("SELECT * FROM ${table} WHERE balance in ?")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findByBalance(List&lt;BigDecimal&gt; balances);
+}</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>ORDER BY</code> operator:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+public interface SelectOrderedDataRepository {
+
+    @Select("SELECT * FROM ${table} ORDER BY id")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findAllOrderedById();
+
+    @Select("SELECT * FROM ${table} ORDER BY ( id ? )")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findAllOrderedById(SortOrder sortOrder);
+
+    @Select("SELECT * FROM ${table} ORDER BY ? ?")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findAllOrderedBy(String columnName, SortOrder sortOrder);
+
+    @Select("SELECT * FROM ${table} ORDER BY (id ?, email ?) LIMIT 10")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findAllOrderedByIdAndEmail(
+            @RepeatParameter(2) SortOrder sortOrder
+    );
+}</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>LIMIT</code> and/or <code>OFFSET</code> operator(s):</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+public interface SelectLimitedDataRepository {
+
+    @Select("SELECT * FROM ${table} ORDER BY id LIMIT 2")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findFirst2Accounts();
+
+    @Select("SELECT * FROM ${table} ORDER BY id LIMIT ?")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findAccounts(int limit);
+
+    @Select("SELECT * FROM ${table} ORDER BY id LIMIT ? OFFSET ?")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findAccounts(int limit, int offset);
+
+    @Select("SELECT * FROM ${table} ORDER BY id LIMIT ? OFFSET ?")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; findAccounts(Pageable pageable);
+}</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Composition of <code>WHERE</code>, <code>ORDER BY</code>, <code>LIMIT</code> and <code>OFFSET</code> operators:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+public interface SelectComplexDataRepository {
+
+    @Select("SELECT * FROM ${table} WHERE " +
+            "first_name ILIKE ? AND role IN (?) AND balance &lt; ? " +
+            "ORDER BY (id ?, email ?) " +
+            "LIMIT ? " +
+            "OFFSET ?")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; find01(
+            String firstNameTemplate,
+            List&lt;Role&gt; roles,
+            BigDecimal balance,
+            @RepeatParameter(2) SortOrder sortOrder,
+            int limit,
+            int offset
+    );
+}</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>etc.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-select-parameters" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-select-parameters</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect3">
+<h4 id="data-postgresql-select-projection-section"><a class="anchor" href="#data-postgresql-select-projection-section"></a><a class="link" href="#data-postgresql-select-projection-section">7.1.3. Selected Projections</a></h4>
+<div class="paragraph">
+<p>The <code>rxmicro.data.sql.r2dbc.postgresql</code> module supports projections from selected table(s).</p>
+</div>
+<div class="paragraph">
+<p>To use projections, developer must specify required columns at <code>SELECT</code> query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+public interface SelectProjectionDataRepository {
+
+    @Select("SELECT * FROM ${table} " +
+            "WHERE email='richard.hendricks@piedpiper.com'")
+    CompletableFuture&lt;Account&gt; findAllColumns();
+
+    @Select("SELECT id, email, first_name, last_name, balance FROM ${table} " +
+            "WHERE email='richard.hendricks@piedpiper.com'")
+    CompletableFuture&lt;Account&gt; findAllColumnsExceptRole1();
+
+    @Select("SELECT id, email, last_name, first_name, balance FROM ${table} " +
+            "WHERE email='richard.hendricks@piedpiper.com'")
+    CompletableFuture&lt;Account&gt; findAllColumnsExceptRole2();
+
+    @Select("SELECT 1 as id, " +
+            "'richard.hendricks@piedpiper.com' as email, " +
+            "'Hendricks' as last_name, " +
+            "'Richard' as first_name, " +
+            "70000.00 as balance")
+    CompletableFuture&lt;Account&gt; findAllColumnsExceptRole3();
+
+    @Select("SELECT first_name, last_name FROM ${table} " +
+            "WHERE email='richard.hendricks@piedpiper.com'")
+    CompletableFuture&lt;Account&gt; findFirstAndLastName();
+
+    @Select("SELECT id, " +
+            "'***@***' as email, " +
+            "upper(last_name) as last_name, " +
+            "first_name, " +
+            "(20000 + 50000.00) as balance " +
+            "FROM ${table} " +
+            "WHERE email='richard.hendricks@piedpiper.com'")
+    CompletableFuture&lt;Account&gt; findModifiedColumns();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For each nonstandard projection, the RxMicro framework generates a separate converter method.</p>
+</div>
+<div class="paragraph">
+<p>For example for <code>SelectProjectionDataRepository</code> the RxMicro framework generates the following converter:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class $$AccountEntityFromDBConverter
+        extends EntityFromDBConverter&lt;Row, RowMetadata, Account&gt; {
+
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    public Account fromDB(final Row dbRow,
+                          final RowMetadata metadata) {
+        final Account model = new Account();
+        model.id = dbRow.get(0, Long.class);
+        model.email = dbRow.get(1, String.class);
+        model.firstName = dbRow.get(2, String.class);
+        model.lastName = dbRow.get(3, String.class);
+        model.balance = dbRow.get(4, BigDecimal.class);
+        model.role = toEnum(Role.class, dbRow.get(5, String.class), "role");
+        return model;
+    }
+
+    public Account fromDBFirst_nameLast_name(final Row dbRow,
+                                             final RowMetadata metadata) {
+        final Account model = new Account();
+        model.firstName = dbRow.get(0, String.class);
+        model.lastName = dbRow.get(1, String.class);
+        return model;
+    }
+
+    public Account fromDBIdEmailFirst_nameLast_nameBalance(final Row dbRow,
+                                                           final RowMetadata metadata) {
+        final Account model = new Account();
+        model.id = dbRow.get(0, Long.class);
+        model.email = dbRow.get(1, String.class);
+        model.firstName = dbRow.get(2, String.class);
+        model.lastName = dbRow.get(3, String.class);
+        model.balance = dbRow.get(4, BigDecimal.class);
+        return model;
+    }
+
+    public Account fromDBIdEmailLast_nameFirst_nameBalance(final Row dbRow,
+                                                           final RowMetadata metadata) {
+        final Account model = new Account();
+        model.id = dbRow.get(0, Long.class);
+        model.email = dbRow.get(1, String.class);
+        model.lastName = dbRow.get(2, String.class);
+        model.firstName = dbRow.get(3, String.class);
+        model.balance = dbRow.get(4, BigDecimal.class);
+        return model;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>It is standard converter example.<br>
+<em>(This converter is a standard one, because an order of the selected columns is defined by the order of fields of Java model class.
+(<code>Account</code> class for current example.))</em></td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-select-projection" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-select-projection</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect3">
+<h4 id="data-postgresql-select-custom-section"><a class="anchor" href="#data-postgresql-select-custom-section"></a><a class="link" href="#data-postgresql-select-custom-section">7.1.4. Custom Select</a></h4>
+<div class="paragraph">
+<p>The <code>rxmicro.data.sql.r2dbc.postgresql</code> module introduces a <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/operation/CustomSelect.java" target="_blank" rel="noopener"><code>@CustomSelect</code></a>
+annotation that allows working with a <code>Custom SELECT</code>.</p>
+</div>
+<div class="paragraph">
+<p>The <code>Custom SELECT</code> is a string parameter that sends to a repository method and contains a SQL, built dynamically during an execution of a microservice:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+public interface CustomSelectRepository {
+
+    @Select
+    CompletableFuture&lt;List&lt;EntityFieldMap&gt;&gt; findAll(
+            @CustomSelect String sql <i class="conum" data-value="1"></i><b>(1)</b>
+    );
+
+    @Select
+    CompletableFuture&lt;Optional&lt;Account&gt;&gt; findAccount(
+            @CustomSelect(supportUniversalPlaceholder = false) String sql, <i class="conum" data-value="2"></i><b>(2)</b>
+            String firstName
+    );
+
+    @Select
+    CompletableFuture&lt;Optional&lt;Account&gt;&gt; findFirstAndLastName(
+            @CustomSelect(selectedColumns = {"first_name", "last_name"}) String sql, <i class="conum" data-value="3"></i><b>(3)</b>
+            String firstName
+    );
+
+    @Select
+    CompletableFuture&lt;Optional&lt;Account&gt;&gt; findLastAndFirstName(
+            @CustomSelect(selectedColumns = {"last_name", "first_name"}) String sql, <i class="conum" data-value="4"></i><b>(4)</b>
+            String firstName
+    );
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>This is example of a repository method that can execute any <code>SELECT</code> query.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>This repository method selects all columns defined at <code>Account</code> entity.<br>
+<em>(Disabling of universal placeholder means that developer must use postgres specific placeholder (<code>$1</code>, <code>$2</code>, etc) instead of universal placeholder (<code>?</code>).
+Otherwise error will be thrown!)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>This repository method selects only selected columns (<code>first_name</code> and <code>last_name</code>) from <code>account</code> table.<br>
+<em>(This method supports universal placeholder!)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>This repository method selects only selected columns (<code>last_name</code> and <code>first_name</code>) from <code>account</code> table.<br>
+<em>(This method supports universal placeholder!)</em></td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Using of the <code>Custom SELECT</code> feature requires that dynamic built SQL contains the predefined selected columns, otherwise the model converter will convert a table row to the instance of Java class incorrectly!</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The following test describes how the <code>Custom SELECT</code> feature can be tested:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Test
+void findAll() {
+    final List&lt;EntityFieldMap&gt; entityFieldMaps = dataRepository.findAll(
+            "SELECT email, first_name, last_name FROM account WHERE id = 1"
+    ).join();
+    assertEquals(
+            List.of(
+                    orderedMap(
+                            "email", "richard.hendricks@piedpiper.com",
+                            "first_name", "Richard",
+                            "last_name", "Hendricks"
+                    )
+            ),
+            entityFieldMaps
+    );
+}
+
+@Test
+void findAccount() {
+    final Optional&lt;Account&gt; optionalAccount = dataRepository.findAccount(
+            "SELECT * FROM account WHERE first_name = $1",
+            "Richard"
+    ).join();
+    assertEquals(
+            Optional.of(
+                    new Account(
+                            1L,
+                            "richard.hendricks@piedpiper.com",
+                            "Richard",
+                            "Hendricks",
+                            new BigDecimal("70000.00")
+                    )
+            ),
+            optionalAccount
+    );
+}
+
+@Test
+void findFirstAndLastName() {
+    final Optional&lt;Account&gt; optionalAccount = dataRepository.findFirstAndLastName(
+            "SELECT first_name, last_name FROM account WHERE first_name = ?",
+            "Richard"
+    ).join();
+    assertEquals(
+            Optional.of(new Account("Richard", "Hendricks")),
+            optionalAccount
+    );
+}
+
+@Test
+void findLastAndFirstName() {
+    final Optional&lt;Account&gt; optionalAccount = dataRepository.findLastAndFirstName(
+            "SELECT last_name, first_name FROM account WHERE first_name = ?",
+            "Richard"
+    ).join();
+    assertEquals(
+            Optional.of(new Account("Richard", "Hendricks")),
+            optionalAccount
+    );
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-select-custom" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-select-custom</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="data-postgresql-insert-section"><a class="anchor" href="#data-postgresql-insert-section"></a><a class="link" href="#data-postgresql-insert-section">7.2. <code>@Insert</code></a></h3>
+<div class="paragraph">
+<p>The <code>rxmicro.data.sql.r2dbc.postgresql</code> module supports the <a href="https://www.postgresql.org/docs/current/sql-insert.html" target="_blank" rel="noopener"><code>INSERT</code></a> SQL operation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+public interface DataRepository {
+
+    @Insert
+    CompletableFuture&lt;Boolean&gt; insert1(Account account);
+
+    @Insert
+    CompletableFuture&lt;Account&gt; insert2(Account account);
+
+    @Insert("INSERT INTO ${table} VALUES(nextval('account_seq'),?,?,?,?,?)")
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @VariableValues({
+            "${table}", "account"
+    })
+    CompletableFuture&lt;Long&gt; insert3(
+            String email, String firstName, String lastName, BigDecimal balance, Role role
+    );
+
+    @Insert("INSERT INTO ${table} VALUES(nextval('account_seq'),?,?,?,?,?) RETURNING *")
+    CompletableFuture&lt;Account&gt; insert4(
+            String email, String firstName, String lastName, BigDecimal balance, Role role
+    );
+
+    @Insert(
+            value = "INSERT INTO ${table} VALUES(nextval('account_seq'),?,?,?,?,?)",
+            entityClass = Account.class
+    )
+    CompletableFuture&lt;Long&gt; insert5(
+            String email, String firstName, String lastName, BigDecimal balance, Role role
+    );
+
+    @Insert(
+            value = "INSERT INTO ${table} VALUES(nextval('account_seq'),?,?,?,?,?) RETURNING *",
+            entityClass = Account.class
+    )
+    CompletableFuture&lt;EntityFieldMap&gt; insert6(
+            String email, String firstName, String lastName, BigDecimal balance, Role role
+    );
+
+    @Insert("INSERT INTO ${table}(${inserted-columns}) VALUES(${values}) " +
+            "RETURNING ${returning-columns}")
+    CompletableFuture&lt;AccountResult&gt; insert7(Account account);
+
+    @Insert("INSERT INTO ${table}(${inserted-columns}) VALUES(${values}) " +
+            "ON CONFLICT (${id-columns}) DO UPDATE SET ${on-conflict-update-inserted-columns}" +
+            "RETURNING ${returning-columns}")
+    CompletableFuture&lt;AccountResult&gt; insert8(Account account);
+
+    @Insert("INSERT INTO ${table}(${inserted-columns}) VALUES(${values}) " +
+            "ON CONFLICT (${id-columns}) DO UPDATE SET ${on-conflict-update-inserted-columns}")
+    CompletableFuture&lt;Void&gt; insert9(Account account);
+
+    @Insert("INSERT INTO ${table}(${inserted-columns}) VALUES(${values}) " +
+            "ON CONFLICT (${id-columns}) DO NOTHING")
+    CompletableFuture&lt;Void&gt; insert10(Account account);
+
+    @Insert("INSERT INTO ${table} SELECT * FROM dump RETURNING *")
+    CompletableFuture&lt;List&lt;Account&gt;&gt; insertMany1();
+
+    @Insert("INSERT INTO account SELECT * FROM dump")
+    CompletableFuture&lt;Long&gt; insertMany2();
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The variable values are used to resolve predefined variables at the SQL query.<br>
+<em>(Read more about the algorithm of the variables resolving at <a href="#data-postgresql-variables-section">Section 8, &#8220;Variables Support&#8221;</a>.)</em></td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For more information, we recommend that You familiarize yourself with the following examples:</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-return-types/src/main/java/io/rxmicro/examples/data/r2dbc/postgresql/returntypes/insert" target="_blank" rel="noopener">All Supported Return Types</a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-insert" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-insert</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="data-postgresql-update-section"><a class="anchor" href="#data-postgresql-update-section"></a><a class="link" href="#data-postgresql-update-section">7.3. <code>@Update</code></a></h3>
+<div class="paragraph">
+<p>The <code>rxmicro.data.sql.r2dbc.postgresql</code> module supports the <a href="https://www.postgresql.org/docs/current/sql-update.html" target="_blank" rel="noopener"><code>UPDATE</code></a> SQL operation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+public interface DataRepository {
+
+    @Update
+    CompletableFuture&lt;Boolean&gt; update1(Account account);
+
+    @Update("UPDATE ${table} SET first_name=?, last_name=? WHERE id=?")
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @VariableValues({
+            "${table}", "account"
+    })
+    CompletableFuture&lt;Long&gt; update2(String firstName, String lastName, Long id);
+
+    @Update("UPDATE ${table} SET first_name=?, last_name=? WHERE ${by-id-filter} RETURNING *")
+    CompletableFuture&lt;Account&gt; update3(String firstName, String lastName, Long id);
+
+    @Update(
+            value = "UPDATE ${table} SET first_name=?, last_name=? " +
+                    "WHERE id = ?",
+            entityClass = Account.class
+    )
+    CompletableFuture&lt;Long&gt; update4(String firstName, String lastName, Long id);
+
+    @Update(
+            value = "UPDATE ${table} SET first_name=?, last_name=? " +
+                    "WHERE ${by-id-filter} RETURNING *",
+            entityClass = Account.class
+    )
+    CompletableFuture&lt;EntityFieldMap&gt; update5(String firstName, String lastName, Long id);
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The variable values are used to resolve predefined variables at the SQL query.<br>
+<em>(Read more about the algorithm of the variables resolving at <a href="#data-postgresql-variables-section">Section 8, &#8220;Variables Support&#8221;</a>.)</em></td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For more information, we recommend that You familiarize yourself with the following examples:</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-return-types/src/main/java/io/rxmicro/examples/data/r2dbc/postgresql/returntypes/update" target="_blank" rel="noopener">All Supported Return Types</a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-update" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-update</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="data-postgresql-delete-section"><a class="anchor" href="#data-postgresql-delete-section"></a><a class="link" href="#data-postgresql-delete-section">7.4. <code>@Delete</code></a></h3>
+<div class="paragraph">
+<p>The <code>rxmicro.data.sql.r2dbc.postgresql</code> module supports the <a href="https://www.postgresql.org/docs/current/sql-delete.html" target="_blank" rel="noopener"><code>DELETE</code></a> SQL operation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+public interface DataRepository {
+
+    @Delete
+    CompletableFuture&lt;Boolean&gt; delete1(Account account);
+
+    @Delete("DELETE FROM ${table} WHERE balance &lt; ?")
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @VariableValues({
+            "${table}", "account"
+    })
+    CompletableFuture&lt;Long&gt; delete2(BigDecimal minRequiredBalance);
+
+    @Delete("DELETE FROM ${table} WHERE ${by-id-filter} RETURNING *")
+    CompletableFuture&lt;Account&gt; delete3(Long id);
+
+    @Delete(entityClass = Account.class)
+    CompletableFuture&lt;Long&gt; delete4(Long id);
+
+    @Delete(
+            value = "DELETE FROM ${table} WHERE ${by-id-filter} RETURNING *",
+            entityClass = Account.class
+    )
+    CompletableFuture&lt;EntityFieldMap&gt; delete5(Long id);
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The variable values are used to resolve predefined variables at the SQL query.<br>
+<em>(Read more about the algorithm of the variables resolving at <a href="#data-postgresql-variables-section">Section 8, &#8220;Variables Support&#8221;</a>.)</em></td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For more information, we recommend that You familiarize yourself with the following examples:</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-return-types/src/main/java/io/rxmicro/examples/data/r2dbc/postgresql/returntypes/delete" target="_blank" rel="noopener">All Supported Return Types</a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-delete" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-delete</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-postgresql-variables-section"><a class="anchor" href="#data-postgresql-variables-section"></a><a class="link" href="#data-postgresql-variables-section">8. Variables Support</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When building SQL queries, sometimes it is necessary to specify the table name as a string constant.
+This feature provides the developer with more flexibility: the table names may vary depending on the environment.</p>
+</div>
+<div class="paragraph">
+<p>For better readability of SQL query, the RxMicro framework recommends using predefined variables instead of string concatenation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java"><i class="conum" data-value="1"></i><b>(1)</b>
+public static final String TABLE_NAME = "table1";
+
+<i class="conum" data-value="2"></i><b>(2)</b>
+@Select("SELECT id, value FROM " + TABLE_NAME + " WHERE id = ?")
+CompletableFuture&lt;EntityFieldMap&gt; findById1(long id);
+
+<i class="conum" data-value="3"></i><b>(3)</b>
+@Select("SELECT id, value FROM ${table} WHERE id = ?")
+@VariableValues({
+        "${table}", TABLE_NAME
+})
+CompletableFuture&lt;EntityFieldMap&gt; findById2(long id);</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>String constant with table name.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>When strings are concatenated, the readability of an entire SQL query gets worse.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Instead of string concatenation, the RxMicro framework recommends using predefined variables.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>All predefined variables supported by the RxMicro framework are declared in the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/SupportedVariables.java" target="_blank" rel="noopener"><code>SupportedVariables</code></a> class</p>
+</div>
+<div class="paragraph">
+<p>To determine the value of the predefined variable used in the query specified for the repository method, the RxMicro framework uses the following algorithm:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>If the repository method returns or accepts the entity model as a parameter, the entity model class is used to define the variable value.</p>
+</li>
+<li>
+<p>Otherwise, the RxMicro framework analyzes the optional <code>entityClass</code> parameter defined in the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/operation/Select.java" target="_blank" rel="noopener"><code>@Select</code></a>,
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/operation/Insert.java" target="_blank" rel="noopener"><code>@Insert</code></a>,
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/operation/Update.java" target="_blank" rel="noopener"><code>@Update</code></a> and
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/operation/Delete.java" target="_blank" rel="noopener"><code>@Delete</code></a> annotations.</p>
+</li>
+<li>
+<p>If the optional <code>entityClass</code> parameter is set, the class specified in this parameter is used to define the variable value.</p>
+</li>
+<li>
+<p>If the optional <code>entityClass</code> parameter is missing, the RxMicro framework tries to extract the variable value from the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/VariableValues.java" target="_blank" rel="noopener"><code>@VariableValues</code></a> annotation, which annotates this repository method.</p>
+</li>
+<li>
+<p>If the repository method is not annotated with the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/VariableValues.java" target="_blank" rel="noopener"><code>@VariableValues</code></a>
+annotation or the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/VariableValues.java" target="_blank" rel="noopener"><code>@VariableValues</code></a>
+annotation does not contain the value of a predefined variable, then the RxMicro framework tries to extract the value of this variable from the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/VariableValues.java" target="_blank" rel="noopener"><code>@VariableValues</code></a> annotation, which annotates the repository interface.</p>
+</li>
+<li>
+<p>If the variable value is undefined in all specified places, then the RxMicro framework notifies the developer about the error.</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+@VariableValues({
+        "${table}", SelectDataRepository.GLOBAL_TABLE
+})
+public interface SelectDataRepository {
+
+    public static final String GLOBAL_TABLE = "global_table";
+
+    public static final String ENTITY_TABLE = "entity_table";
+
+    public static final String LOCAL_TABLE = "local_table";
+
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @Select("SELECT * FROM ${table}")
+    CompletableFuture&lt;List&lt;Entity&gt;&gt; findFromEntityTable1();
+
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @Select(value = "SELECT * FROM ${table}", entityClass = Entity.class)
+    CompletableFuture&lt;List&lt;EntityFieldMap&gt;&gt; findFromEntityTable2();
+
+    <i class="conum" data-value="3"></i><b>(3)</b>
+    @Select("SELECT * FROM ${table}")
+    CompletableFuture&lt;List&lt;EntityFieldMap&gt;&gt; findFromGlobalTable();
+
+    <i class="conum" data-value="4"></i><b>(4)</b>
+    @Select("SELECT * FROM ${table}")
+    @VariableValues({
+            "${table}", SelectDataRepository.LOCAL_TABLE
+    })
+    CompletableFuture&lt;List&lt;EntityFieldMap&gt;&gt; findFromLocalTable();
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>${table}</code> variable value will be equal to <code>entity_table</code>.<br>
+<em>(The variable value is read from the <code>Entity</code> class, which is returned by this method.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <code>${table}</code> variable value will be equal to <code>entity_table</code>.<br>
+<em>(The variable value is read from the <code>Entity</code> class, since this class is specified in the <code>entityClass</code> parameter.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The <code>${table}</code> variable value will be equal to <code>global_table</code>.<br>
+<em>(The variable value is read from the <code>@VariableValues</code> annotation, which annotates the repository interface.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>The <code>${table}</code> variable value will be equal to <code>local_table</code>.<br>
+<em>(The variable value is read from the <code>@VariableValues</code> annotation, which annotates the repository method.)</em></td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-variables" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-variables</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-postgresql-primary-keys-section"><a class="anchor" href="#data-postgresql-primary-keys-section"></a><a class="link" href="#data-postgresql-primary-keys-section">9. Primary Keys Support</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>rxmicro.data.sql.r2dbc.postgresql</code> module supports four types of the primary keys:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Auto generated primary key. (<a href="https://www.postgresql.org/docs/current/datatype-numeric.html#DATATYPE-SERIAL" target="_blank" rel="noopener"><code>SERIAL</code> type.</a>)<br>
+<em>(A uniqueness of this type of primary key is controlled by the database server!)</em>:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PrimaryKey
+Long id;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Auto generated primary key that uses <a href="https://www.postgresql.org/docs/current/functions-sequence.html" target="_blank" rel="noopener">a sequence to get the next unique value</a>.<br>
+<em>(A uniqueness of this type of primary key is controlled by the database server!)</em>:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PrimaryKey
+@SequenceGenerator
+Long id;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Manually set primary key.<br>
+<em>(A developer must control a uniqueness of this type of primary key!)</em>:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PrimaryKey(autoGenerated = false)
+Integer id;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Complex primary key:<br>
+<em>(A developer must control a uniqueness of this type of primary key!)</em>:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PrimaryKey(autoGenerated = false)
+Long idCategory;
+
+@PrimaryKey(autoGenerated = false)
+@Column(length = Column.UNLIMITED_LENGTH)
+String idType;
+
+@PrimaryKey(autoGenerated = false)
+Role idRole;</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-primary-keys" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-primary-keys</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-postgresql-expected-updated-rows-count-section"><a class="anchor" href="#data-postgresql-expected-updated-rows-count-section"></a><a class="link" href="#data-postgresql-expected-updated-rows-count-section">10. <code>@ExpectedUpdatedRowsCount</code> annotation</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Enables validation for updated rows count during DML operation, like <code>Insert</code>, <code>Update</code> and <code>Delete</code> operations.
+This annotation adds additional runtime validator that validates the actual updated rows during SQL operation.</p>
+</div>
+<div class="paragraph">
+<p>If current database has invalid state the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/model/InvalidDatabaseStateException.java" target="_blank" rel="noopener"><code>InvalidDatabaseStateException</code></a> will be thrown!</p>
+</div>
+<div class="paragraph">
+<p>The following examples demonstrate the <code>@ExpectedUpdatedRowsCount</code> annotation usage:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@ExpectedUpdatedRowsCount(10)
+@Insert("INSERT INTO ${table} SELECT * FROM dump")
+Mono&lt;Long&gt; insert12();
+
+@ExpectedUpdatedRowsCount(1)
+@Insert("INSERT INTO ${table} VALUES(nextval('account_seq'),?,?)")
+Mono&lt;Boolean&gt; insert13(String firstName, String lastName);
+
+@ExpectedUpdatedRowsCount(1)
+@Insert("INSERT INTO ${table} VALUES(nextval('account_seq'),?,?) RETURNING *")
+Mono&lt;Account&gt; insert14(String firstName, String lastName);
+
+@ExpectedUpdatedRowsCount(0)
+@Insert("INSERT INTO ${table} VALUES(nextval('account_seq'),?,?) RETURNING *")
+Mono&lt;Account&gt; insert15(String firstName, String lastName);</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@ExpectedUpdatedRowsCount(10)
+@Update("UPDATE ${table} SET first_name=?, last_name=? WHERE email=?")
+Mono&lt;Long&gt; update12(String firstName, String lastName, String email);
+
+@ExpectedUpdatedRowsCount(1)
+@Update("UPDATE ${table} SET first_name=?, last_name=? WHERE id=?")
+Mono&lt;Boolean&gt; update13(String firstName, String lastName, Long id);
+
+@ExpectedUpdatedRowsCount(1)
+@Update("UPDATE ${table} SET first_name=?, last_name=? WHERE ${by-id-filter} RETURNING *")
+Mono&lt;Account&gt; update14(String firstName, String lastName, Long id);
+
+@ExpectedUpdatedRowsCount(0)
+@Update("UPDATE ${table} SET first_name=?, last_name=? WHERE ${by-id-filter} RETURNING *")
+Mono&lt;Account&gt; update15(String firstName, String lastName, Long id);</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@ExpectedUpdatedRowsCount(1)
+@Delete(entityClass = Account.class)
+Mono&lt;Void&gt; delete11(Long id);
+
+@ExpectedUpdatedRowsCount(10)
+@Delete("DELETE FROM ${table} WHERE first_name ILIKE ? OR last_name ILIKE ?")
+Mono&lt;Long&gt; delete12(Transaction transaction, @RepeatParameter(2) String name);
+
+@ExpectedUpdatedRowsCount(1)
+@Delete(entityClass = Account.class)
+Mono&lt;Boolean&gt; delete13(Long id);
+
+@ExpectedUpdatedRowsCount(1)
+@Delete("DELETE FROM ${table} WHERE ${by-id-filter} RETURNING *")
+Mono&lt;Account&gt; delete14(Long id);
+
+@ExpectedUpdatedRowsCount(0)
+@Delete("DELETE FROM ${table} WHERE ${by-id-filter} RETURNING *")
+Mono&lt;Account&gt; delete15(Long id);</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-expected-updated-rows-count" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-expected-updated-rows-count</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-postgresql-transactional-section"><a class="anchor" href="#data-postgresql-transactional-section"></a><a class="link" href="#data-postgresql-transactional-section">11. Transactions Support</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="data-postgresql-transactional-transaction-section"><a class="anchor" href="#data-postgresql-transactional-transaction-section"></a><a class="link" href="#data-postgresql-transactional-transaction-section">11.1. DataBase Transactions</a></h3>
+<div class="paragraph">
+<p>To work with database transactions the RxMicro framework introduces a basic transaction model:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public interface Transaction {
+
+    ReactiveType commit();
+
+    ReactiveType rollback();
+
+    ReactiveType create(SavePoint savePoint);
+
+    ReactiveType release(SavePoint savePoint);
+
+    ReactiveType rollback(SavePoint savePoint);
+
+    IsolationLevel getIsolationLevel();
+
+    ReactiveType setIsolationLevel(IsolationLevel isolationLevel);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>where <code>ReactiveType</code> can be <a href="https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html" target="_blank" rel="noopener"><code>Mono&lt;Void&gt;</code></a>,
+<a href="http://reactivex.io/RxJava/javadoc/io/reactivex/Completable.html" target="_blank" rel="noopener"><code>Completable</code></a> or <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletableFuture.html" target="_blank" rel="noopener"><code>CompletableFuture&lt;Void&gt;</code></a>.</p>
+</div>
+<div class="paragraph">
+<p>This basic transaction model has adaptation for <a href="core.html#core-reactive-libraries-support">all supported reactive libraries</a>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If You want to use the <a href="https://projectreactor.io/docs/core/release/reference/index.html" target="_blank" rel="noopener"><strong>Project Reactor</strong></a> library:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>ReactiveType</code> will be a <a href="https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html" target="_blank" rel="noopener"><code>Mono&lt;Void&gt;</code></a>.</p>
+</li>
+<li>
+<p>You must use the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/model/reactor/Transaction.java" target="_blank" rel="noopener"><code>io.rxmicro.data.sql.model.reactor.Transaction</code></a> interface.</p>
+</li>
+<li>
+<p>A repository method that creates a new transaction must return <code>Mono&lt;io.rxmicro.data.sql.model.reactor.Transaction&gt;</code> reactive type:</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">import io.rxmicro.data.sql.model.reactor.Transaction;
+
+@PostgreSQLRepository
+public interface BeginReactorTransactionRepository {
+
+    Mono&lt;Transaction&gt; beginTransaction();
+
+    Mono&lt;Transaction&gt; beginTransaction(IsolationLevel isolationLevel);
+}</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If You want to use the <a href="https://github.com/ReactiveX/RxJava/blob/3.x/README.md" target="_blank" rel="noopener"><strong>RxJava</strong></a> library:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>ReactiveType</code> will be a <a href="http://reactivex.io/RxJava/javadoc/io/reactivex/Completable.html" target="_blank" rel="noopener"><code>Completable</code></a>.</p>
+</li>
+<li>
+<p>You must use the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/model/rxjava3/Transaction.java" target="_blank" rel="noopener"><code>io.rxmicro.data.sql.model.rxjava3.Transaction</code></a> interface.</p>
+</li>
+<li>
+<p>A repository method that creates a new transaction must return <code>Single&lt;io.rxmicro.data.sql.model.rxjava3.Transaction&gt;</code> reactive type:</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">import io.rxmicro.data.sql.model.rxjava3.Transaction;
+
+@PostgreSQLRepository
+public interface BeginRxJava3TransactionRepository {
+
+    Single&lt;Transaction&gt; beginTransaction();
+
+    Single&lt;Transaction&gt; beginTransaction(IsolationLevel isolationLevel);
+}</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If You want to use the <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/package-summary.html" target="_blank" rel="noopener"><strong>java.util.concurrent</strong></a> library:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>ReactiveType</code> will be a <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletableFuture.html" target="_blank" rel="noopener"><code>CompletableFuture&lt;Void&gt;</code></a>.</p>
+</li>
+<li>
+<p>You must use the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql/src/main/java/io/rxmicro/data/sql/model/completablefuture/Transaction.java" target="_blank" rel="noopener"><code>io.rxmicro.data.sql.model.completablefuture.Transaction</code></a> interface.</p>
+</li>
+<li>
+<p>A repository method that creates a new transaction must return <code>CompletableFuture&lt;io.rxmicro.data.sql.model.completablefuture.Transaction&gt;</code> reactive type:</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">import io.rxmicro.data.sql.model.completablefuture.Transaction;
+
+@SuppressWarnings("unused")
+@PostgreSQLRepository
+public interface BeginCompletableFutureTransactionRepository {
+
+    CompletionStage&lt;Transaction&gt; beginTransaction1();
+
+    CompletionStage&lt;Transaction&gt; beginTransaction1(IsolationLevel isolationLevel);
+
+    CompletableFuture&lt;Transaction&gt; beginTransaction2();
+
+    CompletableFuture&lt;Transaction&gt; beginTransaction2(IsolationLevel isolationLevel);
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-transactional" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-transactional</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="data-postgresql-transactional-concurrent-section"><a class="anchor" href="#data-postgresql-transactional-concurrent-section"></a><a class="link" href="#data-postgresql-transactional-concurrent-section">11.2. Concurrent Access Example</a></h3>
+<div class="paragraph">
+<p>The following example demonstrates how developer can use the RxMicro framework to build microservice that requires concurrent access:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+public interface ConcurrentRepository {
+
+    Mono&lt;Transaction&gt; beginTransaction();
+
+    @Select("SELECT * FROM ${table} WHERE id=? FOR UPDATE")
+    Mono&lt;Account&gt; findAccountById(Transaction transaction, long id);
+
+    @Select("SELECT * FROM ${table} WHERE id=? FOR UPDATE")
+    Mono&lt;Product&gt; findProductById(Transaction transaction, int id);
+
+    @Update(value = "UPDATE ${table} SET balance=? WHERE id=?", entityClass = Account.class)
+    Mono&lt;Void&gt; updateAccountBalance(Transaction transaction, BigDecimal balance, long id);
+
+    @Update(value = "UPDATE ${table} SET count=? WHERE id=?", entityClass = Product.class)
+    Mono&lt;Void&gt; updateProductCount(Transaction transaction, int count, long id);
+
+    @Insert
+    Mono&lt;Order&gt; createOrder(Transaction transaction, Order order);
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class ConcurrentBusinessService {
+
+    private final ConcurrentRepository repository = getRepository(ConcurrentRepository.class);
+
+    /**
+     * @return order id if purchase is successful or
+     *         error signal if:
+     *                  - account not found or
+     *                  - product not found or
+     *                  - products ran out or
+     *                  - money ran out
+     */
+    public Mono&lt;Long&gt; tryToBuy(final long idAccount,
+                               final int idProduct,
+                               final int count) {
+        return repository.beginTransaction()
+                .flatMap(transaction -&gt; repository.findAccountById(transaction, idAccount)
+                        .flatMap(account -&gt; repository.findProductById(transaction, idProduct)
+                                .flatMap(product -&gt;
+                                        tryToBuy(transaction, account, product, count))
+                                .switchIfEmpty(Mono.error(() -&gt;
+                                        // product not found
+                                        new ProductNotFoundException(idProduct))))
+                        // account not found
+                        .switchIfEmpty(Mono.error(() -&gt; new AccountNotFoundException(idAccount)))
+                        .onErrorResume(transaction.createRollbackThenReturnErrorFallback())
+                );
+    }
+
+    private Mono&lt;Long&gt; tryToBuy(final Transaction transaction,
+                                final Account account,
+                                final Product product,
+                                final int count) {
+        if (count &lt;= product.getCount()) {
+            final BigDecimal cost = product.getPrice().multiply(BigDecimal.valueOf(count));
+            if (cost.compareTo(account.getBalance()) &lt;= 0) {
+                return buy(transaction, account, product, count, cost);
+            } else {
+                // money ran out
+                return Mono.error(new NotEnoughFundsException(cost, account.getBalance()));
+            }
+        } else {
+            // products ran out
+            return Mono.error(new NotEnoughProductCountException(count, product.getCount()));
+        }
+    }
+
+    // purchase is successful, returns order id
+    private Mono&lt;Long&gt; buy(final Transaction transaction,
+                           final Account account,
+                           final Product product,
+                           final int count,
+                           final BigDecimal cost) {
+        final int newProductCount = product.getCount() - count;
+        final BigDecimal newBalance = account.getBalance().subtract(cost);
+        final Order order = new Order(account.getId(), product.getId(), count);
+
+        return repository.updateProductCount(transaction, newProductCount, product.getId())
+                .then(repository.updateAccountBalance(transaction, newBalance, account.getId())
+                        .then(repository.createOrder(transaction, order)
+                                .map(Order::getId)
+                                .flatMap(id -&gt; transaction.commit()
+                                        .thenReturn(id))
+                        )
+                );
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For more information, we recommend that You familiarize yourself with the following examples:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-concurrent-reactor" target="_blank" rel="noopener"><strong>Concurrent Example Using Spring Reactor Library</strong></a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-concurrent-rxjava3" target="_blank" rel="noopener"><strong>Concurrent Example Using RxJava 3 Library</strong></a>;</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-postgresql-partial-implementation-section"><a class="anchor" href="#data-postgresql-partial-implementation-section"></a><a class="link" href="#data-postgresql-partial-implementation-section">12. Partial Implementation</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If the Postgre SQL data repository generated by the <code>RxMicro Annotation Processor</code> contains errors, incorrect or non-optimized logic, the developer can use the <code>Partial Implementation</code> feature.</p>
+</div>
+<div class="paragraph">
+<p>This feature allows You to implement methods for the Postgre SQL data repository on Your own, instead of generating them by the RxMicro framework.</p>
+</div>
+<div class="paragraph">
+<p>To activate this feature, You need to use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql-r2dbc-postgresql/src/main/java/io/rxmicro/data/sql/r2dbc/postgresql/PartialImplementation.java" target="_blank" rel="noopener"><code>@PartialImplementation</code></a>
+annotation, and specify an abstract class that contains a partial implementation of method(s) for Postgre SQL data repository:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@PostgreSQLRepository
+<i class="conum" data-value="1"></i><b>(1)</b>
+@PartialImplementation(AbstractDataRepository.class)
+public interface DataRepository {
+
+    @Select("SELECT 1 + 1")
+    CompletableFuture&lt;Long&gt; generatedMethod();
+
+    CompletableFuture&lt;Long&gt; userDefinedMethod();
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Using the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql-r2dbc-postgresql/src/main/java/io/rxmicro/data/sql/r2dbc/postgresql/PartialImplementation.java" target="_blank" rel="noopener"><code>@PartialImplementation</code></a>
+annotation, the <code>AbstractDataRepository</code> class is specified.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>An <code>AbstractDataRepository</code> contains the following content:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public abstract class AbstractDataRepository extends AbstractPostgreSQLRepository
+        implements DataRepository {
+
+    protected AbstractDataRepository(final Class&lt;?&gt; repositoryClass, final ConnectionPool pool) {
+        super(repositoryClass, pool);
+    }
+
+    @Override
+    public CompletableFuture&lt;Long&gt; userDefinedMethod() {
+        return CompletableFuture.completedFuture(100L);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>An abstract class that contains a partial implementation must meet the following requirements:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The class must be an <code>abstract</code> one.</p>
+</li>
+<li>
+<p>The class must extend the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql-r2dbc-postgresql/src/main/java/io/rxmicro/data/sql/r2dbc/postgresql/detail/AbstractPostgreSQLRepository.java" target="_blank" rel="noopener"><code>AbstractPostgreSQLRepository</code></a> one.</p>
+</li>
+<li>
+<p>The class must implement the PostgreSQL data repository interface.</p>
+</li>
+<li>
+<p>The class must contain an implementation of all methods that are not generated automatically.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>In terms of infrastructure, the repository methods generated and defined by the developer for Postgre SQL data repository do not differ:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Test
+void generatedMethod() {
+    assertEquals(2L, dataRepository.generatedMethod().join());
+}
+
+@Test
+void userDefinedMethod() {
+    assertEquals(100L, dataRepository.userDefinedMethod().join());
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-partial-implementation" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-r2dbc-postgresql/data-r2dbc-postgresql-partial-implementation</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-postgresql-logging-section"><a class="anchor" href="#data-postgresql-logging-section"></a><a class="link" href="#data-postgresql-logging-section">13. Logging</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>PostgreSQL Data Repositories use the <a href="https://github.com/pgjdbc/r2dbc-postgresql#reactive-relational-database-connectivity-postgresql-implementation--" target="_blank" rel="noopener"><strong>R2DBC PostgreSQL Driver</strong></a>, so in order to activate database request logging, You must configure the <strong>R2DBC PostgreSQL Driver Logger</strong>:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/pgjdbc/r2dbc-postgresql#logging" target="_blank" rel="noopener"><code>https://github.com/pgjdbc/r2dbc-postgresql#logging</code></a>.</p>
+</div>
+<div class="paragraph">
+<p>For example, if to the <code>classpath</code> of the current project add the <a href="core.html#core-logger-config-file-inline"><code>jul.properties</code></a> resource:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-properties" data-lang="properties">io.r2dbc.postgresql.QUERY.level=TRACE</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>,then PostgreSQL Data Repositories will generate request logs to the database while working:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">[DEBUG] io.r2dbc.postgresql.QUERY : Executing query: <strong>SHOW TRANSACTION ISOLATION LEVEL</strong>
+[DEBUG] io.r2dbc.postgresql.QUERY : Executing query: <strong>SELECT 2+2</strong>
+[DEBUG] io.r2dbc.postgresql.QUERY : Executing query: <strong>SELECT first_name, last_name FROM account WHERE email = $1</strong></code></pre>
+</div>
+</div>
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="project-documentation.html#project-documentation-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> REST-based Microservice Documentation</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="data-mongo.html#data-mongo-section"><strong>Mongo Data Repositories  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-166298262-2"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-166298262-2');
+</script>
+</div>
+</div>
+</div>
+</body>
+</html>

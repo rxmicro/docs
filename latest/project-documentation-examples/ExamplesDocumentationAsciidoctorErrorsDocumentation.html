@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.15">
+<meta name="author" content="GeneratedBy RxMicroAnnotationProcessor">
+<title>Examples Documentation Asciidoctor Errors</title>
+<link rel="stylesheet" href="../styles/rxmicro-doc.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>Examples Documentation Asciidoctor Errors</h1>
+<div class="details">
+<span id="author" class="author">GeneratedBy RxMicroAnnotationProcessor</span><br>
+<span id="email" class="email"><a href="mailto:rxmicro.io@gmail.com">rxmicro.io@gmail.com</a></span><br>
+<span id="revdate">1.0-SNAPSHOT</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_complex_micro_service">1. Complex Micro Service</a>
+<ul class="sectlevel2">
+<li><a href="#_get">1.1. GET /</a>
+<ul class="sectlevel3">
+<li><a href="#_request">1.1.1. Request</a></li>
+<li><a href="#_response_200">1.1.2. Response 200</a></li>
+<li><a href="#_response_429">1.1.3. Response 429</a></li>
+<li><a href="#_response_499">1.1.4. Response 499</a></li>
+<li><a href="#_response_500">1.1.5. Response 500</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#_proxy_micro_service">2. Proxy Micro Service</a>
+<ul class="sectlevel2">
+<li><a href="#_get_2">2.1. GET /</a>
+<ul class="sectlevel3">
+<li><a href="#_request_2">2.1.1. Request</a></li>
+<li><a href="#_response_200_2">2.1.2. Response 200</a></li>
+<li><a href="#_response_404">2.1.3. Response 404</a></li>
+<li><a href="#_response_406">2.1.4. Response 406</a></li>
+<li><a href="#_response_410">2.1.5. Response 410</a></li>
+<li><a href="#_response_504">2.1.6. Response 504</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This document describes <strong>the Examples Documentation Asciidoctor Errors</strong>.</p>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_complex_micro_service"><a class="anchor" href="#_complex_micro_service"></a><a class="link" href="#_complex_micro_service">1. Complex Micro Service</a></h2>
+<div class="sectionbody">
+<div style="page-break-after: always;"></div>
+<div class="sect2">
+<h3 id="_get"><a class="anchor" href="#_get"></a><a class="link" href="#_get">1.1. GET /</a></h3>
+<div class="sect3">
+<h4 id="_request"><a class="anchor" href="#_request"></a><a class="link" href="#_request">1.1.1. Request</a></h4>
+<div class="sect4">
+<h5 id="_http_request_example"><a class="anchor" href="#_http_request_example"></a><a class="link" href="#_http_request_example">1.1.1.1. HTTP Request Example</a></h5>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-http" data-lang="http">GET / HTTP/1.1
+Accept: application/json
+Content-Length: 0</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_response_200"><a class="anchor" href="#_response_200"></a><a class="link" href="#_response_200">1.1.2. Response 200</a></h4>
+<div class="sect4">
+<h5 id="_http_response_example"><a class="anchor" href="#_http_response_example"></a><a class="link" href="#_http_response_example">1.1.2.1. HTTP Response Example</a></h5>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-http" data-lang="http">HTTP/1.1 200 OK
+Content-Length: 0
+Request-Id: 62jJeu8x1310662</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_response_429"><a class="anchor" href="#_response_429"></a><a class="link" href="#_response_429">1.1.3. Response 429</a></h4>
+<div class="paragraph">
+<p>Too Many Requests</p>
+</div>
+<div class="sect4">
+<h5 id="_http_response_example_2"><a class="anchor" href="#_http_response_example_2"></a><a class="link" href="#_http_response_example_2">1.1.3.1. HTTP Response Example</a></h5>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-http" data-lang="http">HTTP/1.1 429 Too Many Requests
+Content-Length: 0
+Request-Id: 62jJeu8x1310662
+Retry-After: 3600</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_http_response_headers_description"><a class="anchor" href="#_http_response_headers_description"></a><a class="link" href="#_http_response_headers_description">1.1.3.2. HTTP Response Headers Description</a></h5>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 26.5957%;">
+<col style="width: 9.5744%;">
+<col style="width: 29.7872%;">
+<col style="width: 34.0427%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><strong>Name</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Type</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Restrictions</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Description</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Request-Id</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><span class="small"><code>required: true</code></span></p>
+</li>
+<li>
+<p><span class="small"><code>unique: true</code></span></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>An unique request string identifier.</p>
+</div>
+<div class="ulist">
+<div class="title">Read more:</div>
+<ul>
+<li>
+<p><span class="small"><a href="https://docs.rxmicro.io/latest/user-guide/monitoring.html#monitoring-request-id-section" target="_blank" rel="noopener"><em>What is request id?</em></a></span></p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Retry-After</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>number</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><span class="small"><code>optional: true</code></span></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Indicates how long to wait before making a new request.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_response_499"><a class="anchor" href="#_response_499"></a><a class="link" href="#_response_499">1.1.4. Response 499</a></h4>
+<div class="paragraph">
+<p>CustomWithInternalsException description!</p>
+</div>
+<div class="sect4">
+<h5 id="_http_response_example_3"><a class="anchor" href="#_http_response_example_3"></a><a class="link" href="#_http_response_example_3">1.1.4.1. HTTP Response Example</a></h5>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-http" data-lang="http">HTTP/1.1 499
+Content-Type: application/json
+Content-Length: 3
+Request-Id: 62jJeu8x1310662
+
+{
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_http_response_headers_description_2"><a class="anchor" href="#_http_response_headers_description_2"></a><a class="link" href="#_http_response_headers_description_2">1.1.4.2. HTTP Response Headers Description</a></h5>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 26.5957%;">
+<col style="width: 9.5744%;">
+<col style="width: 29.7872%;">
+<col style="width: 34.0427%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><strong>Name</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Type</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Restrictions</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Description</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Request-Id</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><span class="small"><code>required: true</code></span></p>
+</li>
+<li>
+<p><span class="small"><code>unique: true</code></span></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>An unique request string identifier.</p>
+</div>
+<div class="ulist">
+<div class="title">Read more:</div>
+<ul>
+<li>
+<p><span class="small"><a href="https://docs.rxmicro.io/latest/user-guide/monitoring.html#monitoring-request-id-section" target="_blank" rel="noopener"><em>What is request id?</em></a></span></p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_http_response_body_parameters_description"><a class="anchor" href="#_http_response_body_parameters_description"></a><a class="link" href="#_http_response_body_parameters_description">1.1.4.3. HTTP Response Body Parameters Description</a></h5>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 26.5957%;">
+<col style="width: 9.5744%;">
+<col style="width: 29.7872%;">
+<col style="width: 34.0427%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><strong>Name</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Type</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Restrictions</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Description</strong></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_response_500"><a class="anchor" href="#_response_500"></a><a class="link" href="#_response_500">1.1.5. Response 500</a></h4>
+<div class="paragraph">
+<p>Internal Server Error</p>
+</div>
+<div class="sect4">
+<h5 id="_http_response_example_4"><a class="anchor" href="#_http_response_example_4"></a><a class="link" href="#_http_response_example_4">1.1.5.1. HTTP Response Example</a></h5>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-http" data-lang="http">HTTP/1.1 500 Internal Server Error
+Content-Type: application/json
+Content-Length: 91
+Request-Id: 62jJeu8x1310662
+Retry-After: 3600
+
+{
+  "message": "NullPointerException",
+  "readMore": "https://example.com/read-more.html"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_http_response_headers_description_3"><a class="anchor" href="#_http_response_headers_description_3"></a><a class="link" href="#_http_response_headers_description_3">1.1.5.2. HTTP Response Headers Description</a></h5>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 26.5957%;">
+<col style="width: 9.5744%;">
+<col style="width: 29.7872%;">
+<col style="width: 34.0427%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><strong>Name</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Type</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Restrictions</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Description</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Request-Id</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><span class="small"><code>required: true</code></span></p>
+</li>
+<li>
+<p><span class="small"><code>unique: true</code></span></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>An unique request string identifier.</p>
+</div>
+<div class="ulist">
+<div class="title">Read more:</div>
+<ul>
+<li>
+<p><span class="small"><a href="https://docs.rxmicro.io/latest/user-guide/monitoring.html#monitoring-request-id-section" target="_blank" rel="noopener"><em>What is request id?</em></a></span></p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Retry-After</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>number</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><span class="small"><code>optional: true</code></span></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Indicates how long to wait before making a new request.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_http_response_body_parameters_description_2"><a class="anchor" href="#_http_response_body_parameters_description_2"></a><a class="link" href="#_http_response_body_parameters_description_2">1.1.5.3. HTTP Response Body Parameters Description</a></h5>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 26.5957%;">
+<col style="width: 9.5744%;">
+<col style="width: 29.7872%;">
+<col style="width: 34.0427%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><strong>Name</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Type</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Restrictions</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Description</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>message</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><span class="small"><code>required: true</code></span></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>The detailed cause of error</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>readMore</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><span class="small"><code>optional: true</code></span></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>'readMore' parameter</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_proxy_micro_service"><a class="anchor" href="#_proxy_micro_service"></a><a class="link" href="#_proxy_micro_service">2. Proxy Micro Service</a></h2>
+<div class="sectionbody">
+<div style="page-break-after: always;"></div>
+<div class="sect2">
+<h3 id="_get_2"><a class="anchor" href="#_get_2"></a><a class="link" href="#_get_2">2.1. GET /</a></h3>
+<div class="sect3">
+<h4 id="_request_2"><a class="anchor" href="#_request_2"></a><a class="link" href="#_request_2">2.1.1. Request</a></h4>
+<div class="sect4">
+<h5 id="_http_request_example_2"><a class="anchor" href="#_http_request_example_2"></a><a class="link" href="#_http_request_example_2">2.1.1.1. HTTP Request Example</a></h5>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-http" data-lang="http">GET / HTTP/1.1
+Accept: application/json
+Content-Length: 0</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_response_200_2"><a class="anchor" href="#_response_200_2"></a><a class="link" href="#_response_200_2">2.1.2. Response 200</a></h4>
+<div class="sect4">
+<h5 id="_http_response_example_5"><a class="anchor" href="#_http_response_example_5"></a><a class="link" href="#_http_response_example_5">2.1.2.1. HTTP Response Example</a></h5>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-http" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 22
+Request-Id: 62jJeu8x1310662
+
+{
+  "data": "string"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_http_response_headers_description_4"><a class="anchor" href="#_http_response_headers_description_4"></a><a class="link" href="#_http_response_headers_description_4">2.1.2.2. HTTP Response Headers Description</a></h5>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 26.5957%;">
+<col style="width: 9.5744%;">
+<col style="width: 29.7872%;">
+<col style="width: 34.0427%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><strong>Name</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Type</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Restrictions</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Description</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Request-Id</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><span class="small"><code>required: true</code></span></p>
+</li>
+<li>
+<p><span class="small"><code>unique: true</code></span></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>An unique request string identifier.</p>
+</div>
+<div class="ulist">
+<div class="title">Read more:</div>
+<ul>
+<li>
+<p><span class="small"><a href="https://docs.rxmicro.io/latest/user-guide/monitoring.html#monitoring-request-id-section" target="_blank" rel="noopener"><em>What is request id?</em></a></span></p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_http_response_body_parameters_description_3"><a class="anchor" href="#_http_response_body_parameters_description_3"></a><a class="link" href="#_http_response_body_parameters_description_3">2.1.2.3. HTTP Response Body Parameters Description</a></h5>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 26.5957%;">
+<col style="width: 9.5744%;">
+<col style="width: 29.7872%;">
+<col style="width: 34.0427%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><strong>Name</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Type</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Restrictions</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Description</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>data</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><span class="small"><code>required: true</code></span></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_http_response_body_json_schema"><a class="anchor" href="#_http_response_body_json_schema"></a><a class="link" href="#_http_response_body_json_schema">2.1.2.4. HTTP Response Body JSON Schema</a></h5>
+<div class="paragraph">
+<p><span class="small"><a href="https://json-schema.org/" target="_blank" rel="noopener"><em>(Read more about JSON Schema)</em></a></span></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "string",
+      "examples": [
+        "string"
+      ]
+    }
+  },
+  "required": [
+    "data"
+  ],
+  "minProperties": 1,
+  "maxProperties": 1
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_response_404"><a class="anchor" href="#_response_404"></a><a class="link" href="#_response_404">2.1.3. Response 404</a></h4>
+<div class="paragraph">
+<p>If data not found</p>
+</div>
+<div class="sect4">
+<h5 id="_http_response_example_6"><a class="anchor" href="#_http_response_example_6"></a><a class="link" href="#_http_response_example_6">2.1.3.1. HTTP Response Example</a></h5>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-http" data-lang="http">HTTP/1.1 404 Not Found
+Content-Type: application/json
+Content-Length: 34
+Request-Id: 62jJeu8x1310662
+
+{
+  "message": "Data not found!"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_http_response_headers_description_5"><a class="anchor" href="#_http_response_headers_description_5"></a><a class="link" href="#_http_response_headers_description_5">2.1.3.2. HTTP Response Headers Description</a></h5>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 26.5957%;">
+<col style="width: 9.5744%;">
+<col style="width: 29.7872%;">
+<col style="width: 34.0427%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><strong>Name</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Type</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Restrictions</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Description</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Request-Id</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><span class="small"><code>required: true</code></span></p>
+</li>
+<li>
+<p><span class="small"><code>unique: true</code></span></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>An unique request string identifier.</p>
+</div>
+<div class="ulist">
+<div class="title">Read more:</div>
+<ul>
+<li>
+<p><span class="small"><a href="https://docs.rxmicro.io/latest/user-guide/monitoring.html#monitoring-request-id-section" target="_blank" rel="noopener"><em>What is request id?</em></a></span></p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_http_response_body_parameters_description_4"><a class="anchor" href="#_http_response_body_parameters_description_4"></a><a class="link" href="#_http_response_body_parameters_description_4">2.1.3.3. HTTP Response Body Parameters Description</a></h5>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 26.5957%;">
+<col style="width: 9.5744%;">
+<col style="width: 29.7872%;">
+<col style="width: 34.0427%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><strong>Name</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Type</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Restrictions</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Description</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>message</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><span class="small"><code>required: true</code></span></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>'message' parameter</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_response_406"><a class="anchor" href="#_response_406"></a><a class="link" href="#_response_406">2.1.4. Response 406</a></h4>
+<div class="paragraph">
+<p>This error response indicates that the API is not able to generate any of the client&#8217;s preferred media types, as indicated by the Accept request header.</p>
+</div>
+<div class="sect4">
+<h5 id="_http_response_example_7"><a class="anchor" href="#_http_response_example_7"></a><a class="link" href="#_http_response_example_7">2.1.4.1. HTTP Response Example</a></h5>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-http" data-lang="http">HTTP/1.1 406 Not Acceptable
+Content-Type: application/json
+Content-Length: 33
+Request-Id: 62jJeu8x1310662
+
+{
+  "message": "Not-Acceptable"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_http_response_headers_description_6"><a class="anchor" href="#_http_response_headers_description_6"></a><a class="link" href="#_http_response_headers_description_6">2.1.4.2. HTTP Response Headers Description</a></h5>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 26.5957%;">
+<col style="width: 9.5744%;">
+<col style="width: 29.7872%;">
+<col style="width: 34.0427%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><strong>Name</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Type</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Restrictions</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Description</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Request-Id</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><span class="small"><code>required: true</code></span></p>
+</li>
+<li>
+<p><span class="small"><code>unique: true</code></span></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>An unique request string identifier.</p>
+</div>
+<div class="ulist">
+<div class="title">Read more:</div>
+<ul>
+<li>
+<p><span class="small"><a href="https://docs.rxmicro.io/latest/user-guide/monitoring.html#monitoring-request-id-section" target="_blank" rel="noopener"><em>What is request id?</em></a></span></p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_http_response_body_parameters_description_5"><a class="anchor" href="#_http_response_body_parameters_description_5"></a><a class="link" href="#_http_response_body_parameters_description_5">2.1.4.3. HTTP Response Body Parameters Description</a></h5>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 26.5957%;">
+<col style="width: 9.5744%;">
+<col style="width: 29.7872%;">
+<col style="width: 34.0427%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><strong>Name</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Type</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Restrictions</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Description</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>message</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><span class="small"><code>required: true</code></span></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>The detailed cause of the arisen error.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_response_410"><a class="anchor" href="#_response_410"></a><a class="link" href="#_response_410">2.1.5. Response 410</a></h4>
+<div class="paragraph">
+<p>Custom description</p>
+</div>
+<div class="sect4">
+<h5 id="_http_response_example_8"><a class="anchor" href="#_http_response_example_8"></a><a class="link" href="#_http_response_example_8">2.1.5.1. HTTP Response Example</a></h5>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-http" data-lang="http">HTTP/1.1 410 Gone
+Content-Type: application/json
+Content-Length: 54
+Request-Id: 62jJeu8x1310662
+
+{
+  "next_attempt_after": "2187-04-10T23:40:15.789Z"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_http_response_headers_description_7"><a class="anchor" href="#_http_response_headers_description_7"></a><a class="link" href="#_http_response_headers_description_7">2.1.5.2. HTTP Response Headers Description</a></h5>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 26.5957%;">
+<col style="width: 9.5744%;">
+<col style="width: 29.7872%;">
+<col style="width: 34.0427%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><strong>Name</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Type</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Restrictions</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Description</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Request-Id</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><span class="small"><code>required: true</code></span></p>
+</li>
+<li>
+<p><span class="small"><code>unique: true</code></span></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>An unique request string identifier.</p>
+</div>
+<div class="ulist">
+<div class="title">Read more:</div>
+<ul>
+<li>
+<p><span class="small"><a href="https://docs.rxmicro.io/latest/user-guide/monitoring.html#monitoring-request-id-section" target="_blank" rel="noopener"><em>What is request id?</em></a></span></p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Debug</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><span class="small"><code>optional: true</code></span></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Debug header example description</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_http_response_body_parameters_description_6"><a class="anchor" href="#_http_response_body_parameters_description_6"></a><a class="link" href="#_http_response_body_parameters_description_6">2.1.5.3. HTTP Response Body Parameters Description</a></h5>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 26.5957%;">
+<col style="width: 9.5744%;">
+<col style="width: 29.7872%;">
+<col style="width: 34.0427%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><strong>Name</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Type</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Restrictions</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Description</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>next_attempt_after</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><span class="small"><code>required: true</code></span></p>
+</li>
+<li>
+<p><span class="small"><code>format: UTC</code></span></p>
+</li>
+<li>
+<p><span class="small"><code>future: true</code></span></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>The client must repeat some action after this instant</p>
+</div>
+<div class="ulist">
+<div class="title">Read more:</div>
+<ul>
+<li>
+<p><span class="small"><a href="https://en.wikipedia.org/wiki/Coordinated_Universal_Time" target="_blank" rel="noopener"><em>What is UTC?</em></a></span></p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_response_504"><a class="anchor" href="#_response_504"></a><a class="link" href="#_response_504">2.1.6. Response 504</a></h4>
+<div class="paragraph">
+<p>If response is not received within a specified time period.</p>
+</div>
+<div class="sect4">
+<h5 id="_http_response_example_9"><a class="anchor" href="#_http_response_example_9"></a><a class="link" href="#_http_response_example_9">2.1.6.1. HTTP Response Example</a></h5>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-http" data-lang="http">HTTP/1.1 504 Gateway Timeout
+Content-Type: application/json
+Content-Length: 34
+Request-Id: 62jJeu8x1310662
+
+{
+  "message": "Request Timeout"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_http_response_body_parameters_description_7"><a class="anchor" href="#_http_response_body_parameters_description_7"></a><a class="link" href="#_http_response_body_parameters_description_7">2.1.6.2. HTTP Response Body Parameters Description</a></h5>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 26.5957%;">
+<col style="width: 9.5744%;">
+<col style="width: 29.7872%;">
+<col style="width: 34.0427%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><strong>Name</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Type</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Restrictions</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Description</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>message</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><span class="small"><code>required: true</code></span></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>Gateway Timeout</code> value (by default) or contains external rest micro service endpoint, which is not available now.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2022-12-14 20:00:09 UTC
+</div>
+</div>
+</body>
+</html>

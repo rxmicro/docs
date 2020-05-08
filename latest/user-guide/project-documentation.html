@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.15">
+<meta name="description" content="A modern, JVM-based, full stack framework designed to develop distributed reactive applications that use a microservice architecture.">
+<meta name="keywords" content="rx, rxmicro, reactive java, reactive jvm, microservice java, reactive microservice, micro service java, reactive micro service">
+<meta name="author" content="nedis">
+<title>REST-based Microservice Documentation</title>
+<link rel="stylesheet" href="../styles/rxmicro-doc.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body id="project-documentation-section" class="article toc2 toc-left">
+<div id="header">
+<h1>REST-based Microservice Documentation</h1>
+<div class="details">
+<span id="author" class="author">nedis</span><br>
+<span id="email" class="email"><a href="mailto:rxmicro.io@gmail.com">rxmicro.io@gmail.com</a></span><br>
+<span id="revnumber">version 0.11,</span>
+<span id="revdate">2022-12-14 20:00:09 UTC</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#project-documentation-basic-usage-section">1. Basic Usage</a>
+<ul class="sectlevel2">
+<li><a href="#min_settings">1.1. Min Settings</a></li>
+<li><a href="#asciidoctor_maven_plugin_settings">1.2. <code>Asciidoctor-maven-plugin</code> Settings</a></li>
+<li><a href="#project-documentation-basic-usage-maven-dependency-plugin">1.3. <code>Asciidoctor-dependency-plugin</code> Settings</a></li>
+</ul>
+</li>
+<li><a href="#project-documentation-annotations-section">2. <code>RxMicro Annotations</code></a></li>
+<li><a href="#project-documentation-example-description-section">3. <code>@Example</code> and <code>@Description</code> Usage</a></li>
+<li><a href="#project-documentation-section-customization-section">4. Sections Customization</a></li>
+<li><a href="#project-documentation-validation-section">5. Integration with <code>rxmicro.validation</code> Module</a></li>
+<li><a href="#rest_based_microservice_metadata_configuration">6. REST-based Microservice Metadata Configuration</a>
+<ul class="sectlevel2">
+<li><a href="#project-documentation-metadata-pomxml-section">6.1. Using <code>pom.xml</code></a></li>
+<li><a href="#project-documentation-metadata-annotations-section">6.2. Using Annotations</a></li>
+</ul>
+</li>
+<li><a href="#project-documentation-errors-section">7. Error Documentation</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="validation.html#validation-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> Validation</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="data-postgresql.html#data-postgresql-section"><strong>Postgre SQL Data Repositories  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<div class="paragraph">
+<p>&#169; 2019-2022 rxmicro.io.
+Free use of this software is granted under the terms of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/LICENSE" target="_blank" rel="noopener"><code>Apache License 2.0</code></a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Copies of this entity may be made for Your own use and for distribution to others, provided that You do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.</p>
+</div>
+<div class="paragraph">
+<p>If You find errors or omissions in this entity, please don’t hesitate to submit an
+<a href="https://github.com/rxmicro/rxmicro-usage/issues" target="_blank" rel="noopener"><strong>issue</strong></a> or open <a href="https://github.com/rxmicro/rxmicro-usage/pulls" target="_blank" rel="noopener"><strong>a pull request</strong></a> with a fix.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>REST-based microservice documentation describes rules of interaction with REST-based microservices for fast and easy integration with them.</p>
+</div>
+<div class="paragraph">
+<p>Currently, the RxMicro framework only supports specialized documentation format based on the <a href="https://asciidoc.org/" target="_blank" rel="noopener"><code>AsciiDoc</code></a> format.</p>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="project-documentation-basic-usage-section"><a class="anchor" href="#project-documentation-basic-usage-section"></a><a class="link" href="#project-documentation-basic-usage-section">1. Basic Usage</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Default settings allow You to generate REST-based microservice documentation using minimal configurations.<br>
+<em>(This advantage is achieved through close integration with other RxMicro modules.)</em></p>
+</div>
+<div class="sect2">
+<h3 id="min_settings"><a class="anchor" href="#min_settings"></a><a class="link" href="#min_settings">1.1. Min Settings</a></h3>
+<div class="paragraph">
+<p>To generate REST-based microservice documentation during the compilation of the microservice project, the following two steps must be done:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Add the <code>rxmicro-documentation-asciidoctor</code> dependency to <code>pom.xml</code> of the microservice project:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;io.rxmicro&lt;/groupId&gt;
+    &lt;artifactId&gt;rxmicro-documentation-asciidoctor&lt;/artifactId&gt;
+    &lt;version&gt;${rxmicro.version}&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Add the <code>rxmicro.documentation.asciidoctor</code> module to the <code>module-info.java</code> descriptor of the microservice project:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">module examples.documentation.asciidoctor.quick.start {
+    requires rxmicro.rest.server.netty;
+    requires rxmicro.rest.server.exchange.json;
+    requires static rxmicro.documentation.asciidoctor; <i class="conum" data-value="1"></i><b>(1)</b>
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>rxmicro.documentation.asciidoctor</code> must be added using the <code>static</code> modifier.<br>
+<em>(For more information on the benefits of the <code>static</code> modifier, refer to the <a href="#project-documentation-basic-usage-maven-dependency-plugin">Section 1.3, &#8220;<code>Asciidoctor-dependency-plugin</code> Settings&#8221;</a>.)</em></td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>After performing these steps during compiling the microservice project, the <code>RxMicro Annotation Processor</code> will generate the <code>ExamplesDocumentationAsciidoctorQuickStartDocumentation.adoc</code> file.
+The generated file will contain REST-based microservice documentation in the <a href="https://asciidoc.org/" target="_blank" rel="noopener"><code>AsciiDoc</code></a> format, and by default will be located in the <code>./src/main/asciidoc</code> folder.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In terms of the version control system, the <code>./src/main/asciidoc</code> folder is the source code, so it will be controlled by this system.
+Therefore, if REST-based microservice documentation is to be dynamically generated, it is necessary to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>specify that files in the <code>./src/main/asciidoc</code> folder must be ignored by the version control system;</p>
+</li>
+<li>
+<p>or configure the <code>rxmicro.documentation.asciidoctor</code> module, so that it generates REST-based microservice documentation in another folder, for example in the <code>target/docs</code>.<br>
+<em>(To configure the folder in which REST-based microservice documentation should be generated, refer to the <a href="core.html#rxmicro-annotation-processor-options-section">core.html</a>.)</em></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Using the <code>./src/main/asciidoc</code> folder by default provides the following benefits:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <code>asciidoctor-maven-plugin</code>, which converts the <a href="https://asciidoc.org/" target="_blank" rel="noopener"><code>AsciiDoc</code></a> format to <a href="https://html.spec.whatwg.org/" target="_blank" rel="noopener"><code>HTML</code></a> or <a href="https://www.adobe.com/content/dam/acom/en/devnet/pdf/pdfs/PDF32000_2008.pdf" target="_blank" rel="noopener"><code>PDF</code></a>
+, by default reads files from the <code>./src/main/asciidoc</code> folder.</p>
+</li>
+<li>
+<p>Automatic building of REST-based microservice documentation can be used as an initial version of the document.
+After formation of the initial version, the generation can be disabled and all changes to the documentation will be made manually by the developer and stored in the version control system.</p>
+</li>
+<li>
+<p>Compared to the previous version, a more efficient way to keep REST-based microservice documentation up to date is to divide all documentation into fragments.
+Static fragments (business task description, charts and figures) will be created manually by the developer.
+Dynamic fragments will be generated by the <code>RxMicro Annotation Processor</code> at each project compilation.
+As a result, a final document containing static and dynamic fragments will be compiled from these fragments.<br>
+<em>(When using this approach, do not forget to add the all dynamic fragments to ignore list for Your version control system!)</em></p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="asciidoctor_maven_plugin_settings"><a class="anchor" href="#asciidoctor_maven_plugin_settings"></a><a class="link" href="#asciidoctor_maven_plugin_settings">1.2. <code>Asciidoctor-maven-plugin</code> Settings</a></h3>
+<div class="paragraph">
+<p>The <code>asciidoctor-maven-plugin</code> plugin allows You to convert documentation from the <a href="https://asciidoc.org/" target="_blank" rel="noopener"><code>AsciiDoc</code></a> format to
+<a href="https://html.spec.whatwg.org/" target="_blank" rel="noopener"><code>HTML</code></a>, <a href="https://www.adobe.com/content/dam/acom/en/devnet/pdf/pdfs/PDF32000_2008.pdf" target="_blank" rel="noopener"><code>PDF</code></a> and other formats.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;plugin&gt;
+    &lt;groupId&gt;org.asciidoctor&lt;/groupId&gt;
+    &lt;artifactId&gt;asciidoctor-maven-plugin&lt;/artifactId&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+    &lt;version&gt;${asciidoctor-maven-plugin.version}&lt;/version&gt;
+    &lt;executions&gt;
+        &lt;execution&gt;
+            &lt;id&gt;output-html5&lt;/id&gt;
+            &lt;phase&gt;package&lt;/phase&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+            &lt;goals&gt;
+                &lt;goal&gt;process-asciidoc&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+                &lt;backend&gt;html5&lt;/backend&gt; <i class="conum" data-value="3"></i><b>(3)</b>
+                &lt;sourceHighlighter&gt;highlight.js&lt;/sourceHighlighter&gt; <i class="conum" data-value="4"></i><b>(4)</b>
+                &lt;preserveDirectories&gt;true&lt;/preserveDirectories&gt;
+                &lt;relativeBaseDir&gt;true&lt;/relativeBaseDir&gt;
+                &lt;attributes&gt; <i class="conum" data-value="5"></i><b>(5)</b>
+                    &lt;icons&gt;font&lt;/icons&gt;
+                    &lt;pagenums/&gt;
+                    &lt;toclevels&gt;3&lt;/toclevels&gt;
+                &lt;/attributes&gt;
+            &lt;/configuration&gt;
+        &lt;/execution&gt;
+    &lt;/executions&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><a href="https://mvnrepository.com/artifact/org.asciidoctor/asciidoctor-maven-plugin" target="_blank" rel="noopener">The latest stable version of the <code>asciidoctor-maven-plugin</code></a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <code>asciidoctor-maven-plugin</code> must convert REST-based microservice documentation at the <code>package</code> phase.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Using the <code>backend</code> directive, You can specify in which format the <a href="https://asciidoc.org/" target="_blank" rel="noopener"><code>AsciiDoc</code></a> document should be converted.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>If the <a href="https://asciidoc.org/" target="_blank" rel="noopener"><code>AsciiDoc</code></a> document contains examples of source code in a programming language, You need to add the js library for highlighting the syntax of that language.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Using the <code>attributes</code> directive, it is possible to override the attributes of the   <a href="https://asciidoc.org/" target="_blank" rel="noopener"><code>AsciiDoc</code></a> document.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For more information about the <code>asciidoctor-maven-plugin</code> plugin features, refer to the documentation:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://asciidoctor.org/docs/asciidoctor-maven-plugin/" target="_blank" rel="noopener"><code>https://asciidoctor.org/docs/asciidoctor-maven-plugin/</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="project-documentation-basic-usage-maven-dependency-plugin"><a class="anchor" href="#project-documentation-basic-usage-maven-dependency-plugin"></a><a class="link" href="#project-documentation-basic-usage-maven-dependency-plugin">1.3. <code>Asciidoctor-dependency-plugin</code> Settings</a></h3>
+<div class="paragraph">
+<p>REST-based microservice documentation is generated during the compilation process, therefore the libraries used to configure the REST-based microservice documentation generation process are not required in <code>runtime</code>.
+Therefore, the <code>maven-dependency-plugin</code> should not copy artifacts related to the generation of REST-based microservice documentation to the <code>lib</code> folder:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;plugin&gt;
+    &lt;artifactId&gt;maven-dependency-plugin&lt;/artifactId&gt;
+    &lt;version&gt;${maven-dependency-plugin.version}&lt;/version&gt;
+    &lt;executions&gt;
+        &lt;execution&gt;
+            &lt;id&gt;copy-dependencies&lt;/id&gt;
+            &lt;phase&gt;package&lt;/phase&gt;
+            &lt;goals&gt;
+                &lt;goal&gt;copy-dependencies&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+                &lt;outputDirectory&gt;${project.build.directory}/lib&lt;/outputDirectory&gt;
+                &lt;includeScope&gt;compile&lt;/includeScope&gt;
+                &lt;excludeArtifactIds&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+                    rxmicro-documentation,
+                    rxmicro-documentation-asciidoctor
+                &lt;/excludeArtifactIds&gt;
+            &lt;/configuration&gt;
+        &lt;/execution&gt;
+    &lt;/executions&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>rxmicro-documentation</code> and <code>rxmicro-documentation-asciidoctor</code> artifacts are required <strong>only</strong> during the compilation process.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In order that in <code>runtime</code> no errors occur when excluding the artifacts required for REST-based microservice documentation generation, it is required to use the <code>static</code> modifier in the <code>module-info.java</code> descriptor: <code>requires static rxmicro.documentation.asciidoctor;</code>.</p>
+</div>
+<div class="paragraph">
+<p>Without this modifier the following error will occur when starting the microservice: <code>Module rxmicro.documentation.asciidoctor not found</code>!</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>When compiling a project, the RxMicro framework will generate the following project documentation according to the settings of the <code>rxmicro.documentation.asciidoctor</code> module defined in this section:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="../project-documentation-examples/ExamplesDocumentationAsciidoctorQuickStartDocumentation.html" target="_blank" rel="noopener"><code>ExamplesDocumentationAsciidoctorQuickStartDocumentation.html</code></a></p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-documentation-asciidoctor/documentation-asciidoctor-quick-start" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-documentation-asciidoctor/documentation-asciidoctor-quick-start</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="project-documentation-annotations-section"><a class="anchor" href="#project-documentation-annotations-section"></a><a class="link" href="#project-documentation-annotations-section">2. <code>RxMicro Annotations</code></a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework supports the following <code>RxMicro Annotations</code>:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Supported <code>RxMicro Annotations</code>.</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Annotation</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/Author.java" target="_blank" rel="noopener"><code>@Author</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="#project-documentation-metadata-annotations-section">the author of the generated REST-based microservice documentation</a>.</p>
+<p class="tableblock"><em>(Allows You to override the author specified in the <code>developer</code> directive to <code>pom.xml</code>.)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/BaseEndpoint.java" target="_blank" rel="noopener"><code>@BaseEndpoint</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="#project-documentation-metadata-annotations-section">the basic endpoint in the generated REST-based microservice documentation</a>.</p>
+<p class="tableblock"><em>(Allows You to override the basic endpoint specified in the <code>url</code> directive to <code>pom.xml</code>.)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/Description.java" target="_blank" rel="noopener"><code>@Description</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="#project-documentation-metadata-annotations-section">the description of the generated REST-based microservice documentation</a>.</p>
+<p class="tableblock"><em>(Allows You to override the description specified in the <code>description</code> directive to <code>pom.xml</code>.)</em></p>
+<p class="tableblock">In addition to the description of all REST-based microservice documentation, this annotation also allows You to specify a description of separate elements: sections, model fields, etc.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/DocumentationDefinition.java" target="_blank" rel="noopener"><code>@DocumentationDefinition</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A composite annotation that specifies <a href="#project-documentation-section-customization-section">the settings for generating a whole document</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/DocumentationVersion.java" target="_blank" rel="noopener"><code>@DocumentationVersion</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="#project-documentation-metadata-annotations-section">the version of REST-based microservice in the generated REST-based microservice documentation</a>.</p>
+<p class="tableblock"><em>(Allows You to override the version of REST-based microservice specified in the <code>version</code> directive to <code>pom.xml</code>.)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/Example.java" target="_blank" rel="noopener"><code>@Example</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="#project-documentation-example-description-section">the model field value used as an example in the generated REST-based microservice documentation</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/IncludeDescription.java" target="_blank" rel="noopener"><code>@IncludeDescription</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="#project-documentation-metadata-annotations-section">the AsciiDoc fragment to be imported into the generated REST-based microservice documentation</a>.</p>
+<p class="tableblock">In addition to the description of all REST-based microservice documentation, this annotation also allows You to specify the AsciiDoc fragment for separate elements: sections, model fields, etc.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/IntroductionDefinition.java" target="_blank" rel="noopener"><code>@IntroductionDefinition</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A composite annotation that specifies <a href="#project-documentation-section-customization-section">the settings for generating the <code>Introduction</code> section</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/License.java" target="_blank" rel="noopener"><code>@License</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="#project-documentation-metadata-annotations-section">the license of REST-based microservice in the generated REST-based microservice documentation</a>.</p>
+<p class="tableblock"><em>(Allows You to override the license of REST-based microservice specified in the <code>license</code> directive to <code>pom.xml</code>.)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/ModelExceptionErrorResponse.java" target="_blank" rel="noopener"><code>@ModelExceptionErrorResponse</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes the exception class to be analyzed by the <code>RxMicro Annotation Processor</code> for <a href="#project-documentation-errors-section">generating the unsuccessful HTTP response description of REST-based microservice</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/ResourceDefinition.java" target="_blank" rel="noopener"><code>@ResourceDefinition</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A composite annotation that specifies <a href="#project-documentation-section-customization-section">the settings for generating the <code>ResourceDefinition</code> section</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/ResourceGroupDefinition.java" target="_blank" rel="noopener"><code>@ResourceGroupDefinition</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A composite annotation that specifies <a href="#project-documentation-section-customization-section">the settings for generating the <code>ResourceGroupDefinition</code> section</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/SimpleErrorResponse.java" target="_blank" rel="noopener"><code>@SimpleErrorResponse</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Contains metadata about <a href="#project-documentation-errors-section">the unsuccessful HTTP response of REST-based microservice</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/Title.java" target="_blank" rel="noopener"><code>@Title</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="#project-documentation-metadata-annotations-section">the name of the generated REST-based microservice documentation</a>.</p>
+<p class="tableblock"><em>(Allows You to override the name of the generated REST-based microservice documentation specified in the <code>name</code> directive to <code>pom.xml</code>.)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation-asciidoctor/src/main/java/io/rxmicro/documentation/asciidoctor/DocumentAttributes.java" target="_blank" rel="noopener"><code>@DocumentAttributes</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allows You to specify <a href="https://asciidoctor.org/docs/user-manual/#attributes" target="_blank" rel="noopener">AsciiDoc attributes</a> for the generated REST-based microservice documentation.</p></td>
+</tr>
+</tbody>
+</table>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="project-documentation-example-description-section"><a class="anchor" href="#project-documentation-example-description-section"></a><a class="link" href="#project-documentation-example-description-section">3. <code>@Example</code> and <code>@Description</code> Usage</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Using the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/Example.java" target="_blank" rel="noopener"><code>@Example</code></a>
+annotation, the developer can specify the data that is as close to the real data as possible, which will be used to build examples of usage in REST-based microservice documentation.</p>
+</div>
+<div class="paragraph">
+<p>Using the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/Description.java" target="_blank" rel="noopener"><code>@Description</code></a>
+annotation, the developer can specify the detailed description of separate model fields to be used in building REST-based microservice documentation.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class Echo {
+
+    @Example("EchoExample")
+    @Description("EchoDescription")
+    String echo;
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">final class MicroService {
+
+    @GET("/")
+    @POST("/")
+    @POST(value = "/", httpBody = false)
+    CompletableFuture&lt;Echo&gt; echo(final Echo echo) {
+        return completedFuture(echo);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When compiling a project, the RxMicro framework will generate the following project documentation according to the settings of the <code>rxmicro.documentation.asciidoctor</code> module defined in this section:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="../project-documentation-examples/ExamplesDocumentationAsciidoctorEchoDocumentation.html" target="_blank" rel="noopener"><code>ExamplesDocumentationAsciidoctorEchoDocumentation.html</code></a></p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-documentation-asciidoctor/documentation-asciidoctor-echo" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-documentation-asciidoctor/documentation-asciidoctor-echo</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="project-documentation-section-customization-section"><a class="anchor" href="#project-documentation-section-customization-section"></a><a class="link" href="#project-documentation-section-customization-section">4. Sections Customization</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Using the following composite annotations:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/DocumentationDefinition.java" target="_blank" rel="noopener"><code>@DocumentationDefinition</code></a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/IncludeDescription.java" target="_blank" rel="noopener"><code>@IncludeDescription</code></a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/ResourceGroupDefinition.java" target="_blank" rel="noopener"><code>@ResourceGroupDefinition</code></a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/ResourceDefinition.java" target="_blank" rel="noopener"><code>@ResourceDefinition</code></a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>the developer can regroup standard sections of REST-based microservice documentation, as well as add his own fragments as sections.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@DocumentationDefinition(
+        withGeneratedDate = false,
+        introduction = @IntroductionDefinition(
+                sectionOrder = {
+                        IntroductionDefinition.Section.LICENSES,
+                        IntroductionDefinition.Section.SPECIFICATION,
+                        IntroductionDefinition.Section.CUSTOM_SECTION
+                },
+                customSection = {
+                        "${PROJECT-DIR}/src/main/asciidoc/_fragment/" +
+                                "custom-introduction-content.asciidoc"
+                },
+                includeMode = IncludeMode.INLINE_CONTENT
+        ),
+        resourceGroup = @ResourceGroupDefinition(
+                sectionOrder = {
+                        ResourceGroupDefinition.Section.CUSTOM_SECTION
+                },
+                customSection = {
+                        "${PROJECT-DIR}/src/main/asciidoc/_fragment/" +
+                                "custom-resource-group-content.asciidoc"
+                },
+                includeMode = IncludeMode.INLINE_CONTENT
+        ),
+        resource = @ResourceDefinition(
+                withInternalErrorResponse = false,
+                withJsonSchema = false,
+                withRequestIdResponseHeader = false,
+                withQueryParametersDescriptionTable = false,
+                withBodyParametersDescriptionTable = false
+        )
+)
+module examples.documentation.asciidoctor.custom.sections {
+    requires rxmicro.rest.server.netty;
+    requires rxmicro.rest.server.exchange.json;
+    requires static rxmicro.documentation.asciidoctor;
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Besides generating the final <a href="https://asciidoc.org/" target="_blank" rel="noopener"><code>AsciiDoc</code></a> document, the <code>RxMicro Annotation Processor</code> allows You to generate separate dynamic fragments.</p>
+</div>
+<div class="paragraph">
+<p>For more information on this feature, check out the following example:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-documentation-asciidoctor/documentation-asciidoctor-custom-sections" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-documentation-asciidoctor/documentation-asciidoctor-custom-sections</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>When compiling a project, the RxMicro framework will generate the following project documentation according to the settings of the <code>rxmicro.documentation.asciidoctor</code> module defined in this section:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="../project-documentation-examples/ExamplesDocumentationAsciidoctorCustomSectionsDocumentation.html" target="_blank" rel="noopener"><code>ExamplesDocumentationAsciidoctorCustomSectionsDocumentation.html</code></a></p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-documentation-asciidoctor/documentation-asciidoctor-custom-sections" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-documentation-asciidoctor/documentation-asciidoctor-custom-sections</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="project-documentation-validation-section"><a class="anchor" href="#project-documentation-validation-section"></a><a class="link" href="#project-documentation-validation-section">5. Integration with <code>rxmicro.validation</code> Module</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>rxmicro.documentation.asciidoctor</code> module is integrated with the <code>rxmicro.validation</code> module.
+Thanks to this integration, when building the REST-based microservice documentation, the RxMicro framework analyzes all available built-in constraints for automatic generation of model fields description.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@DocumentationDefinition(
+        introduction = @IntroductionDefinition(sectionOrder = {}),
+        withGeneratedDate = false
+)
+module examples.documentation.asciidoctor.validation {
+    requires rxmicro.rest.server.netty;
+    requires rxmicro.rest.server.exchange.json;
+    requires rxmicro.validation;
+    requires static rxmicro.documentation.asciidoctor;
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">final class MicroService {
+
+    @PUT("/")
+    void consume(final @Phone String phone) { <i class="conum" data-value="1"></i><b>(1)</b>
+        // do something
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>phone</code> parameter must be validated via built-in constraint for phones.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Thus, when building the REST-based microservice documentation, the RxMicro framework will automatically generate a description for the <code>phone</code> parameter:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/project-documentation/validation-integration.jpg" alt="validation integration">
+</div>
+<div class="title">Figure 1. The <code>phone</code> field description, formed based on built-in constraints analysis</div>
+</div>
+<div class="paragraph">
+<p>When compiling a project, the RxMicro framework will generate the following project documentation according to the settings of the <code>rxmicro.documentation.asciidoctor</code> module defined in this section:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="../project-documentation-examples/ExamplesDocumentationAsciidoctorValidationDocumentation.html" target="_blank" rel="noopener"><code>ExamplesDocumentationAsciidoctorValidationDocumentation.html</code></a></p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-documentation-asciidoctor/documentation-asciidoctor-validation" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-documentation-asciidoctor/documentation-asciidoctor-validation</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rest_based_microservice_metadata_configuration"><a class="anchor" href="#rest_based_microservice_metadata_configuration"></a><a class="link" href="#rest_based_microservice_metadata_configuration">6. REST-based Microservice Metadata Configuration</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To obtain metadata while building REST-based microservice documentation, the RxMicro framework can use:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <code>pom.xml</code> file;</p>
+</li>
+<li>
+<p>The <code>rxmicro.documentation</code> module annotations.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The REST-based microservice metadata is:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the REST-based microservice name;</p>
+</li>
+<li>
+<p>the REST-based microservice description;</p>
+</li>
+<li>
+<p>the REST-based microservice version;</p>
+</li>
+<li>
+<p>the list of licenses that cover the REST-based microservice;</p>
+</li>
+<li>
+<p>the list of REST-based microservice developers;</p>
+</li>
+<li>
+<p>the REST-based microservice basic endpoint.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="project-documentation-metadata-pomxml-section"><a class="anchor" href="#project-documentation-metadata-pomxml-section"></a><a class="link" href="#project-documentation-metadata-pomxml-section">6.1. Using <code>pom.xml</code></a></h3>
+<div class="paragraph">
+<p>To specify the metadata needed to generate the REST-based microservice documentation, You can use the <code>pom.xml</code> file</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;project&gt;
+    &lt;name&gt;Metadata Pom Xml&lt;/name&gt;
+    &lt;description&gt;*Project* _Description_&lt;/description&gt;
+    &lt;developers&gt;
+        &lt;developer&gt;
+            &lt;name&gt;Richard Hendricks&lt;/name&gt;
+            &lt;email&gt;richard.hendricks@piedpiper.com&lt;/email&gt;
+        &lt;/developer&gt;
+        &lt;developer&gt;
+            &lt;name&gt;Bertram Gilfoyle&lt;/name&gt;
+            &lt;email&gt;bertram.gilfoyle@piedpiper.com&lt;/email&gt;
+        &lt;/developer&gt;
+        &lt;developer&gt;
+            &lt;name&gt;Dinesh Chugtai&lt;/name&gt;
+            &lt;email&gt;dinesh.chugtai@piedpiper.com&lt;/email&gt;
+        &lt;/developer&gt;
+    &lt;/developers&gt;
+    &lt;url&gt;https://api.rxmicro.io&lt;/url&gt;
+    &lt;licenses&gt;
+        &lt;license&gt;
+            &lt;name&gt;Apache License 2.0&lt;/name&gt;
+            &lt;url&gt;https://github.com/rxmicro/rxmicro/blob/master/LICENSE&lt;/url&gt;
+        &lt;/license&gt;
+    &lt;/licenses&gt;
+&lt;/project&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When compiling a project, the RxMicro framework will generate the following project documentation according to the settings of the <code>rxmicro.documentation.asciidoctor</code> module defined in this section:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="../project-documentation-examples/MetadataPomXmlDocumentation.html" target="_blank" rel="noopener"><code>MetadataPomXmlDocumentation.html</code></a></p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-documentation-asciidoctor/documentation-asciidoctor-metadata-pomxml" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-documentation-asciidoctor/documentation-asciidoctor-metadata-pomxml</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="project-documentation-metadata-annotations-section"><a class="anchor" href="#project-documentation-metadata-annotations-section"></a><a class="link" href="#project-documentation-metadata-annotations-section">6.2. Using Annotations</a></h3>
+<div class="paragraph">
+<p>To specify the metadata needed to generate the REST-based microservice documentation, You can use the <code>rxmicro.documentation</code> module annotations.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Title("Metadata Annotations")
+@Description("*Project* _Description_")
+@DocumentationVersion("0.0.1")
+@Author(
+        name = "Richard Hendricks",
+        email = "richard.hendricks@piedpiper.com"
+)
+@Author(
+        name = "Bertram Gilfoyle",
+        email = "bertram.gilfoyle@piedpiper.com"
+)
+@Author(
+        name = "Dinesh Chugtai",
+        email = "dinesh.chugtai@piedpiper.com"
+)
+@BaseEndpoint("https://api.rxmicro.io")
+@License(
+        name = "Apache License 2.0",
+        url = "https://github.com/rxmicro/rxmicro/blob/master/LICENSE"
+)
+@DocumentationDefinition(
+        introduction = @IntroductionDefinition(
+                sectionOrder = {
+                        IntroductionDefinition.Section.BASE_ENDPOINT,
+                        IntroductionDefinition.Section.LICENSES
+                }
+        ),
+        resource = @ResourceDefinition(
+                withInternalErrorResponse = false
+        ),
+        withGeneratedDate = false
+)
+module examples.documentation.asciidoctor.metadata.annotations {
+    requires rxmicro.rest.server.netty;
+    requires rxmicro.rest.server.exchange.json;
+    requires static rxmicro.documentation.asciidoctor;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When compiling a project, the RxMicro framework will generate the following project documentation according to the settings of the <code>rxmicro.documentation.asciidoctor</code> module defined in this section:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="../project-documentation-examples/MetadataAnnotationsDocumentation.html" target="_blank" rel="noopener"><code>MetadataAnnotationsDocumentation.html</code></a></p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-documentation-asciidoctor/documentation-asciidoctor-metadata-annotations" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-documentation-asciidoctor/documentation-asciidoctor-metadata-annotations</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="project-documentation-errors-section"><a class="anchor" href="#project-documentation-errors-section"></a><a class="link" href="#project-documentation-errors-section">7. Error Documentation</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To describe unsuccessful HTTP responses, the <code>rxmicro.documentation</code> module provides two annotations:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/SimpleErrorResponse.java" target="_blank" rel="noopener"><code>@SimpleErrorResponse</code></a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/ModelExceptionErrorResponse.java" target="_blank" rel="noopener"><code>@ModelExceptionErrorResponse</code></a>.</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">Unresolved directive in ../_fragment/_project-documentation/errors.adoc - include::../../../../../../examples/group-documentation-asciidoctor/documentation-asciidoctor-errors/src/main/java/io/rxmicro/examples/documentation/asciidoctor/errors/ProxyMicroService.java[tags=content]</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/SimpleErrorResponse.java" target="_blank" rel="noopener"><code>@SimpleErrorResponse</code></a> annotation allows You to explicitly specify the HTTP response description.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <code>status</code> parameter describes the HTTP status code.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The <code>description</code> parameter describes the text description.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>The <code>exampleErrorMessage</code> parameter denotes the value used as an example in the generated REST-based microservice documentation.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>The <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/ModelExceptionErrorResponse.java" target="_blank" rel="noopener"><code>@ModelExceptionErrorResponse</code></a> annotation allows You to specify the exception class of the standard</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>or custom type.</td>
+</tr>
+</table>
+</div>
+<div id="project-documentation-custom-error-requirements" class="paragraph">
+<p>When using the custom exception type, this class contains all necessary parameters for building REST-based microservice documentation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">Unresolved directive in ../_fragment/_project-documentation/errors.adoc - include::../../../../../../examples/group-documentation-asciidoctor/documentation-asciidoctor-errors/src/main/java/io/rxmicro/examples/documentation/asciidoctor/errors/model/NotAcceptableException.java[tags=content]</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The required <code>STATUS_CODE</code> static field describes the HTTP status code.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/Description.java" target="_blank" rel="noopener"><code>@Description</code></a> annotation describes the text description.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/Example.java" target="_blank" rel="noopener"><code>@Example</code></a> annotation describes the value used as an example in the generated REST-based microservice documentation.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The custom exception class can contain not string parameter(s).
+For such classes the RxMicro framework returns custom JSON model instead of <a href="rest-controller.html#rest-controller-errors-model-inline">standard one</a>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">Unresolved directive in ../_fragment/_project-documentation/errors.adoc - include::../../../../../../examples/group-documentation-asciidoctor/documentation-asciidoctor-errors/src/main/java/io/rxmicro/examples/documentation/asciidoctor/errors/model/CustomErrorModelException.java[tags=content]</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/Description.java" target="_blank" rel="noopener"><code>@Description</code></a> annotation describes the text description.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The required <code>STATUS_CODE</code> static field describes the HTTP status code.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The custom field can contain <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/Example.java" target="_blank" rel="noopener"><code>@Example</code></a> and
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-documentation/src/main/java/io/rxmicro/documentation/Description.java" target="_blank" rel="noopener"><code>@Description</code></a> annotations.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>The custom field(s) must be initialized via constructor.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>For custom exception classes with custom field(s) the RxMicro Annotation Processor does not generate <code>Writer</code>, so You must override the <code>getResponseData</code> method manually!</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Overridden method must return values from all declared fields at custom exception class.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If <a href="core.html#rxmicro-annotation-processor-options-section"><code>RX_MICRO_STRICT_MODE</code></a> option is enabled, the RxMicro Annotation Processor validates the overidden <code>getResponseData</code> method and throws compilation error if some field values not returned!</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>When compiling a project, the RxMicro framework will generate the following project documentation according to the settings of the <code>rxmicro.documentation.asciidoctor</code> module defined in this section:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="../project-documentation-examples/ExamplesDocumentationAsciidoctorErrorsDocumentation.html" target="_blank" rel="noopener"><code>ExamplesDocumentationAsciidoctorErrorsDocumentation.html</code></a></p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-documentation-asciidoctor/documentation-asciidoctor-errors" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-documentation-asciidoctor/documentation-asciidoctor-errors</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="validation.html#validation-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> Validation</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="data-postgresql.html#data-postgresql-section"><strong>Postgre SQL Data Repositories  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-166298262-2"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-166298262-2');
+</script>
+</div>
+</div>
+</div>
+</body>
+</html>

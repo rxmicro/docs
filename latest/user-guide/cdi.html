@@ -1,0 +1,2430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.15">
+<meta name="description" content="A modern, JVM-based, full stack framework designed to develop distributed reactive applications that use a microservice architecture.">
+<meta name="keywords" content="rx, rxmicro, reactive java, reactive jvm, microservice java, reactive microservice, micro service java, reactive micro service">
+<meta name="author" content="nedis">
+<title>Contexts and Dependency Injection</title>
+<link rel="stylesheet" href="../styles/rxmicro-doc.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body id="cdi-section" class="article toc2 toc-left">
+<div id="header">
+<h1>Contexts and Dependency Injection</h1>
+<div class="details">
+<span id="author" class="author">nedis</span><br>
+<span id="email" class="email"><a href="mailto:rxmicro.io@gmail.com">rxmicro.io@gmail.com</a></span><br>
+<span id="revnumber">version 0.11,</span>
+<span id="revdate">2022-12-14 20:00:09 UTC</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#cdi-basic-section">1. Basic Usage</a></li>
+<li><a href="#cdi-annotations-section">2. <code>RxMicro Annotations</code></a></li>
+<li><a href="#cdi-singletons-section">3. All Beans are Singletons!</a></li>
+<li><a href="#cdi-constructor-injection-section">4. Constructor Injection</a></li>
+<li><a href="#cdi-method-injection-section">5. Method Injection</a></li>
+<li><a href="#ambiguity_resolving">6. Ambiguity Resolving</a>
+<ul class="sectlevel2">
+<li><a href="#default_ambiguity_resolving">6.1. Default Ambiguity Resolving</a></li>
+<li><a href="#cdi-named">6.2. The <code>@Named</code> (<code>@Qualifier</code>) Annotation Usage</a></li>
+<li><a href="#custom_annotations_usage">6.3. Custom Annotations Usage</a></li>
+</ul>
+</li>
+<li><a href="#cdi-spring-style-section">7. Dependency Injection Using Spring Style</a></li>
+<li><a href="#cdi-post-construct-section">8. <code>@PostConstruct</code></a></li>
+<li><a href="#cdi-rx-micro-component-injection-section">9. RxMicro Components Injection</a>
+<ul class="sectlevel2">
+<li><a href="#basic_usage">9.1. Basic Usage</a></li>
+<li><a href="#cdi-rx-micro-component-injection-all-supported-components-section">9.2. All Supported RxMicro Components</a></li>
+</ul>
+</li>
+<li><a href="#cdi-factory-method-section">10. Factory Method</a></li>
+<li><a href="#cdi-factory-class-section">11. Factory Class</a></li>
+<li><a href="#cdi-resource-section">12. External resource injection</a>
+<ul class="sectlevel2">
+<li><a href="#basic_usage_2">12.1. Basic Usage</a></li>
+<li><a href="#additional_info">12.2. Additional Info</a></li>
+</ul>
+</li>
+<li><a href="#cdi-optional-injection-section">13. Optional Injection</a></li>
+<li><a href="#cdi-multibindings-section">14. Multibindings</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="data-mongo.html#data-mongo-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> Mongo Data Repositories</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="monitoring.html#monitoring-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> Monitoring  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<div class="paragraph">
+<p>&#169; 2019-2022 rxmicro.io.
+Free use of this software is granted under the terms of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/LICENSE" target="_blank" rel="noopener"><code>Apache License 2.0</code></a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Copies of this entity may be made for Your own use and for distribution to others, provided that You do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.</p>
+</div>
+<div class="paragraph">
+<p>If You find errors or omissions in this entity, please don’t hesitate to submit an
+<a href="https://github.com/rxmicro/rxmicro-usage/issues" target="_blank" rel="noopener"><strong>issue</strong></a> or open <a href="https://github.com/rxmicro/rxmicro-usage/pulls" target="_blank" rel="noopener"><strong>a pull request</strong></a> with a fix.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The <code>rxmicro.cdi</code> module is an implementation of the <a href="https://en.wikipedia.org/wiki/Dependency_injection" target="_blank" rel="noopener"><strong>Dependency Injection</strong></a> design pattern, that is integrated to the RxMicro framework.</p>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cdi-basic-section"><a class="anchor" href="#cdi-basic-section"></a><a class="link" href="#cdi-basic-section">1. Basic Usage</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To use the <code>rxmicro.cdi</code> module in the project, the following two steps must be taken:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Add the <code>rxmicro-cdi</code> dependency to the <code>pom.xml</code> file:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;io.rxmicro&lt;/groupId&gt;
+    &lt;artifactId&gt;rxmicro-cdi&lt;/artifactId&gt;
+    &lt;version&gt;${rxmicro.version}&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Add the <code>rxmicro.cdi</code> module to the <code>module-info.java</code> descriptor:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">module examples.cdi.basic {
+    requires rxmicro.rest.server.netty;
+    requires rxmicro.rest.server.exchange.json;
+    requires rxmicro.cdi; <i class="conum" data-value="1"></i><b>(1)</b>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After adding the <code>rxmicro.cdi</code> module, You can create a business service:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public interface BusinessService {
+
+    String getValue();
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessServiceImpl implements BusinessService {
+
+    @Override
+    public String getValue() {
+        return "IMPL";
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In order to inject a business service implementation, it is necessary to use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Inject.java" target="_blank" rel="noopener"><code>@Inject</code></a> annotation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class RestController {
+
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @Inject
+    BusinessService businessService;
+
+    @PATCH("/")
+    void handle() {
+        System.out.println(businessService.getValue());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The usage of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Inject.java" target="_blank" rel="noopener"><code>@io.rxmicro.cdi.Inject</code></a>
+annotation does not differ fundamentally from that of the
+<a href="https://docs.oracle.com/javaee/6/api/javax/inject/Inject.html" target="_blank" rel="noopener"><code>@javax.inject.Inject</code></a> or
+<a href="https://google.github.io/guice/api-docs/latest/javadoc/index.html?com/google/inject/Inject.html" target="_blank" rel="noopener"><code>@com.google.inject.Inject</code></a> annotations.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The correctness of injection can be checked using <a href="testing.html#testing-rest-based-microservice-tests-section">REST-based microservice test</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroRestBasedMicroServiceTest(RestController.class)
+final class RestControllerTest {
+
+    private BlockingHttpClient blockingHttpClient;
+
+    private SystemOut systemOut;
+
+    @Test
+    void Should_print_to_system_out() {
+        blockingHttpClient.patch("/");
+
+        assertEquals("IMPL", systemOut.asString());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Business service implementation can be injected not only into REST controller, but into any component:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessServiceFacade {
+
+    @Inject
+    BusinessService businessService;
+
+    public String getValue() {
+        return businessService.getValue();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Since the injection is performed into any component, it is necessary to use <a href="testing.html#testing-component-tests-section">the microservice component testing approach</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroComponentTest(BusinessServiceFacade.class)
+final class BusinessServiceFacadeTest {
+
+    private BusinessServiceFacade businessServiceFacade;
+
+    @Test
+    void Should_invoke_BusinessService_getValue() {
+        assertEquals("IMPL", businessServiceFacade.getValue());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-basic" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-basic</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cdi-annotations-section"><a class="anchor" href="#cdi-annotations-section"></a><a class="link" href="#cdi-annotations-section">2. <code>RxMicro Annotations</code></a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework supports the following <code>RxMicro Annotations</code>:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Supported <code>RxMicro Annotations</code>.</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Annotation</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Inject.java" target="_blank" rel="noopener"><code>@Inject</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates the need to inject the component implementation into the annotated class field or method parameter.</p>
+<p class="tableblock"><em>(Is a synonym of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Autowired.java" target="_blank" rel="noopener"><code>@Autowired</code></a>
+annotation, and is recommended for developers who have used JEE or Google Guice as CDI implementation in their previous projects.)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Named.java" target="_blank" rel="noopener"><code>@Named</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allows <a href="#cdi-named">to customize an injection point by specifying a string value or custom annotation.</a>
+This annotation can also be used to specify a component name.</p>
+<p class="tableblock"><em>(Is a synonym of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Qualifier.java" target="_blank" rel="noopener"><code>@Qualifier</code></a>
+annotation, and is recommended for developers who have used JEE or Google Guice as CDI implementation in their previous projects.)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Autowired.java" target="_blank" rel="noopener"><code>@Autowired</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates the need to inject the component implementation into the annotated class field or method parameter.</p>
+<p class="tableblock"><em>(Is a synonym of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Inject.java" target="_blank" rel="noopener"><code>@Inject</code></a>
+annotation, and is recommended for developers who have used Spring DI as CDI implementation in their previous projects.)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Qualifier.java" target="_blank" rel="noopener"><code>@Qualifier</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allows <a href="#cdi-named">to customize an injection point by specifying a string value or custom annotation.</a>
+This annotation can also be used to specify a component name.</p>
+<p class="tableblock"><em>(Is a synonym of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Named.java" target="_blank" rel="noopener"><code>@Named</code></a>
+annotation, and is recommended for developers who have used Spring DI as CDI implementation in their previous projects.)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/PostConstruct.java" target="_blank" rel="noopener"><code>@PostConstruct</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="#cdi-post-construct-section">a method, that should be invoked automatically after all dependencies have been injected into the current component.</a></p>
+<p class="tableblock"><em>(In its semantics, it completely corresponds to the <a href="https://docs.oracle.com/javaee/7/api/javax/annotation/PostConstruct.html" target="_blank" rel="noopener"><code>@javax.annotation.PostConstruct</code></a> annotation.)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Factory.java" target="_blank" rel="noopener"><code>@Factory</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="#cdi-factory-method-section">a factory method</a> or <a href="#cdi-factory-class-section">a factory, that creates instances of the specified class</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Resource.java" target="_blank" rel="noopener"><code>@Resource</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates <a href="#cdi-resource-section">the need to inject the external resource</a> into the annotated class field or method parameter.</p></td>
+</tr>
+</tbody>
+</table>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cdi-singletons-section"><a class="anchor" href="#cdi-singletons-section"></a><a class="link" href="#cdi-singletons-section">3. All Beans are Singletons!</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework focuses on creating microservice projects.
+One of the key features of microservices is their simplicity.
+That&#8217;s why <code>singleton</code> scope was chosen as the main and only one.</p>
+</div>
+<div class="paragraph">
+<p>Thus, <strong>all CDI components are <code>singletons</code>!</strong></p>
+</div>
+<div class="paragraph">
+<p>It means that when starting a microservice project, <strong>only one instance</strong> of the component implementation class is created and injected into all necessary injection points.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If it is necessary to inject a separate implementation class instance (<code>prototype</code> scope) to each injection point, then You must use  <a href="#cdi-factory-class-section">the factory that creates instances of the given class</a>!</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This behavior can be checked with the following code:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessServiceImpl implements BusinessService1, BusinessService2 {
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessServiceFacade {
+
+    @Inject
+    BusinessService1 businessService1;
+
+    @Inject
+    BusinessService2 businessService2;
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroComponentTest(BusinessServiceFacade.class)
+final class BusinessServiceFacadeTest {
+
+    private BusinessServiceFacade facade;
+
+    @Test
+    void Should_use_singleton_instance() {
+        assertSame(facade.businessService1, facade.businessService2); <i class="conum" data-value="1"></i><b>(1)</b>
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Since the <code>BusinessServiceImpl</code> class implements two interfaces, the same implementation instance is injected when injecting different types of interfaces!</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-singletons" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-singletons</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cdi-constructor-injection-section"><a class="anchor" href="#cdi-constructor-injection-section"></a><a class="link" href="#cdi-constructor-injection-section">4. Constructor Injection</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework also supports constructor injection:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessServiceFacade {
+
+    private final BusinessService businessService;
+
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @Inject
+    public BusinessServiceFacade(final BusinessService businessService) {
+        System.out.println(businessService.getClass().getSimpleName());
+        this.businessService = businessService;
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>To enable constructor injection, it is necessary to create a constructor with parameters and annotate it by the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Inject.java" target="_blank" rel="noopener"><code>@Inject</code></a> or
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Autowired.java" target="_blank" rel="noopener"><code>@Autowired</code></a> annotation.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>When using the constructor injection mechanism, this constructor is automatically invoked by the RxMicro framework:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroComponentTest(BusinessServiceFacade.class)
+final class BusinessServiceFacadeTest {
+
+    private SystemOut systemOut;
+
+    @Test
+    void Should_support_constructor_injection() {
+        assertEquals(BusinessServiceImpl.class.getSimpleName(), systemOut.asString());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Constructor injection requires more code to be written, but also allows You to create <code>final</code> fields as injection points.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-constructor-injection" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-constructor-injection</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cdi-method-injection-section"><a class="anchor" href="#cdi-method-injection-section"></a><a class="link" href="#cdi-method-injection-section">5. Method Injection</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework also supports injection with <a href="https://www.w3schools.com/java/java_encapsulation.asp" target="_blank" rel="noopener"><code>setters</code> (method injection)</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessServiceFacade {
+
+    private BusinessService businessService;
+
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @Inject
+    public void setBusinessService(final BusinessService businessService) {
+        System.out.println(businessService.getClass().getSimpleName());
+        this.businessService = businessService;
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>To enable the injection with <a href="https://www.w3schools.com/java/java_encapsulation.asp" target="_blank" rel="noopener"><code>setters</code></a>, it is necessary to create <code>setter</code> and annotate it by the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Inject.java" target="_blank" rel="noopener"><code>@Inject</code></a> or
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Autowired.java" target="_blank" rel="noopener"><code>@Autowired</code></a> annotation.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>When using the injection mechanism with <a href="https://www.w3schools.com/java/java_encapsulation.asp" target="_blank" rel="noopener"><code>setters</code></a>, this method is invoked automatically by the RxMicro framework:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroComponentTest(BusinessServiceFacade.class)
+final class BusinessServiceFacadeTest {
+
+    private SystemOut systemOut;
+
+    @Test
+    void Should_support_constructor_injection() {
+        assertEquals(BusinessServiceImpl.class.getSimpleName(), systemOut.asString());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-method-injection" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-method-injection</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ambiguity_resolving"><a class="anchor" href="#ambiguity_resolving"></a><a class="link" href="#ambiguity_resolving">6. Ambiguity Resolving</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If there are two or more implementations of the same interface in the current project module, the problem of ambiguity resolving may arise in the process of dependencies injection.
+In the field with the interface type potentially can be injected an implementation of any of the child classes of this interface, that&#8217;s why such a problem occurs.</p>
+</div>
+<div class="paragraph">
+<p>In order to solve such problems definitively, the RxMicro framework uses the ambiguity resolving algorithm by default.</p>
+</div>
+<div class="sect2">
+<h3 id="default_ambiguity_resolving"><a class="anchor" href="#default_ambiguity_resolving"></a><a class="link" href="#default_ambiguity_resolving">6.1. Default Ambiguity Resolving</a></h3>
+<div class="paragraph">
+<p>If there are two or more implementations of the same interface in the current project module, then the RxMicro framework implicitly sets the name for each implementation.
+This name corresponds to a simple class name starting with a small letter, for example:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>For the <code>io.rxmicro.examples.cdi.ProductionBusinessService</code> class, the name is equal to <code>productionBusinessService</code>.</p>
+</li>
+<li>
+<p>For the <code>io.rxmicro.examples.cdi.DevelopmentBusinessService</code> class, the name is equal to <code>developmentBusinessService</code>.</p>
+</li>
+<li>
+<p>For the <code>io.rxmicro.ProductionBusinessService</code> class, the name is equal to <code>productionBusinessService</code>.</p>
+</li>
+<li>
+<p>For the <code>ProductionBusinessService</code> class, the name is equal to <code>productionBusinessService</code>.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The ambiguity resolving problem may occur <strong>only between classes implementing the same interface!</strong>.</p>
+</div>
+<div class="paragraph">
+<p>This means that if there are two following interfaces in the project:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>package1.BusinessService</code> and</p>
+</li>
+<li>
+<p><code>package2.BusinessService</code>;</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>and four implementation classes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>package1.impl.ProductionBusinessService implements package1.BusinessService</code>;</p>
+</li>
+<li>
+<p><code>package1.impl.DevelopmentBusinessService implements package1.BusinessService</code>;</p>
+</li>
+<li>
+<p><code>package2.impl.ProductionBusinessService implements package2.BusinessService</code>;</p>
+</li>
+<li>
+<p><code>package2.impl.DevelopmentBusinessService implements package2.BusinessService</code>;</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>then despite the same names for different classes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>productionBusinessService</code> for <code>package1.impl.ProductionBusinessService</code> and <code>package2.impl.ProductionBusinessService</code>;</p>
+</li>
+<li>
+<p><code>developmentBusinessService</code> for <code>package1.impl.DevelopmentBusinessService</code> and <code>package2.impl.DevelopmentBusinessService</code>;</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>no implementation errors will occur!
+Everything will work correctly as the same component names are created for <strong>different data types!</strong></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Thus, for <code>ProductionBusinessService</code> and <code>DevelopmentBusinessService</code> implementation classes, the following names are set accordingly: <code>productionBusinessService</code> and <code>developmentBusinessService</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class ProductionBusinessService implements BusinessService {
+
+    @Override
+    public String getValue() {
+        return "PRODUCTION";
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class DevelopmentBusinessService implements BusinessService {
+
+    @Override
+    public String getValue() {
+        return "DEVELOPMENT";
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When injecting implementations, the RxMicro framework reads the name of the class or method parameter field.
+If the names of the class fields correspond to the names of implementation components, the successful injection is performed:</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If there is <strong>only one implementation class</strong>, in the current module, then regardless of the class field names or method parameters, the instance of this class will be successfully injected!</p>
+</div>
+<div class="paragraph">
+<p>In other words, the ambiguity resolving algorithm is enabled by default <strong>only if there are such ambiguities!</strong></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessServiceFacade {
+
+    @Inject
+    BusinessService productionBusinessService; <i class="conum" data-value="1"></i><b>(1)</b>
+
+    @Inject
+    BusinessService developmentBusinessService; <i class="conum" data-value="2"></i><b>(2)</b>
+
+    public String getValue(final boolean production) {
+        if (production) {
+            return productionBusinessService.getValue();
+        } else {
+            return developmentBusinessService.getValue();
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>In the <code>productionBusinessService</code> field, the <code>ProductionBusinessService</code> class instance is injected.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>In the <code>developmentBusinessService</code> field, the <code>DevelopmentBusinessService</code> class instance is injected.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This behavior can be tested with the following test:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroComponentTest(BusinessServiceFacade.class)
+final class BusinessServiceFacadeTest {
+
+    private BusinessServiceFacade businessServiceFacade;
+
+    @Test
+    void Should_return_PRODUCTION() {
+        assertEquals("PRODUCTION", businessServiceFacade.getValue(true));
+    }
+
+    @Test
+    void Should_return_DEVELOPMENT() {
+        assertEquals("DEVELOPMENT", businessServiceFacade.getValue(false));
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-ambiguty-resolving-by-impl-classname-and-field-name" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-ambiguty-resolving-by-impl-classname-and-field-name</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="cdi-named"><a class="anchor" href="#cdi-named"></a><a class="link" href="#cdi-named">6.2. The <code>@Named</code> (<code>@Qualifier</code>) Annotation Usage</a></h3>
+<div class="paragraph">
+<p>In case if the ambiguity resolving algorithm by default does not meet the needs of a business task, the developer can set up the implementation process using the following annotations: <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Named.java" target="_blank" rel="noopener"><code>@Named</code></a> or
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Qualifier.java" target="_blank" rel="noopener"><code>@Qualifier</code></a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessServiceFacade {
+
+    @Inject
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @Named("productionBusinessService")
+    BusinessService businessService1;
+
+    @Inject
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @Named("developmentBusinessService")
+    BusinessService businessService2;
+
+    public String getValue(final boolean production) {
+        if (production) {
+            return businessService1.getValue();
+        } else {
+            return businessService2.getValue();
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>To inject the <code>ProductionBusinessService</code> class instance to the <code>businessService1</code> field, in the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Named.java" target="_blank" rel="noopener"><code>@Named</code></a>
+annotation parameter, You need to specify the <code>productionBusinessService</code> name.<br>
+<em>(This is an implicit name that is set by the RxMicro framework for the <code>ProductionBusinessService</code> class!)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>To inject the <code>DevelopmentBusinessService</code> class instance to the <code>businessService2</code> field, in the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Named.java" target="_blank" rel="noopener"><code>@Named</code></a>
+annotation parameter, You need to specify the <code>developmentBusinessService</code> name.<br>
+<em>(This is an implicit name that is set by the RxMicro framework for the <code>DevelopmentBusinessService</code> class!)</em></td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This behavior can be tested with the following test:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroComponentTest(BusinessServiceFacade.class)
+final class BusinessServiceFacadeTest {
+
+    private BusinessServiceFacade businessServiceFacade;
+
+    @Test
+    void Should_return_PRODUCTION() {
+        assertEquals("PRODUCTION", businessServiceFacade.getValue(true));
+    }
+
+    @Test
+    void Should_return_DEVELOPMENT() {
+        assertEquals("DEVELOPMENT", businessServiceFacade.getValue(false));
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-ambiguty-resolving-by-impl-classname-and-Named-annotation" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-ambiguty-resolving-by-impl-classname-and-Named-annotation</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>An implicitly created name for an implementation class can be set explicitly using the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Named.java" target="_blank" rel="noopener"><code>@Named</code></a> or
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Qualifier.java" target="_blank" rel="noopener"><code>@Qualifier</code></a> annotations:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Named("Production")
+public final class ProductionBusinessService implements BusinessService {
+
+    @Override
+    public String getValue() {
+        return "PRODUCTION";
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Named("Development")
+public final class DevelopmentBusinessService implements BusinessService {
+
+    @Override
+    public String getValue() {
+        return "DEVELOPMENT";
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When using explicit names for implementation classes, it is necessary to specify these explicit names as the qualifier of an injection point:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessServiceFacade {
+
+    @Inject
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @Named("Production")
+    BusinessService businessService1;
+
+    @Inject
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @Named("Development")
+    BusinessService businessService2;
+
+    public String getValue(final boolean production) {
+        if (production) {
+            return businessService1.getValue();
+        } else {
+            return businessService2.getValue();
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>To inject the <code>ProductionBusinessService</code> class instance to the <code>businessService1</code> field, in the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Named.java" target="_blank" rel="noopener"><code>@Named</code></a>
+annotation parameter, You need to specify the <code>Production</code> name.<br>
+<em>(This name is explicitly set for the <code>ProductionBusinessService</code> class, using the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Named.java" target="_blank" rel="noopener"><code>@Named</code></a> annotation!)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>To inject the <code>DevelopmentBusinessService</code> class instance to the <code>businessService2</code> field, in the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Named.java" target="_blank" rel="noopener"><code>@Named</code></a>
+annotation parameter, You need to specify the <code>Development</code> name.<br>
+<em>(This name is explicitly set for the <code>DevelopmentBusinessService</code> class, using the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Named.java" target="_blank" rel="noopener"><code>@Named</code></a> annotation!)</em></td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-ambiguty-resolving-by-Named-implementation-and-Named-field" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-ambiguty-resolving-by-Named-implementation-and-Named-field</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="custom_annotations_usage"><a class="anchor" href="#custom_annotations_usage"></a><a class="link" href="#custom_annotations_usage">6.3. Custom Annotations Usage</a></h3>
+<div class="paragraph">
+<p>When using string names for implementation classes and injection points, the developer may make a mistake.
+Since the compiler does not check the specified names, the error can be detected only during runtime.</p>
+</div>
+<div class="paragraph">
+<p>If such a situation is unacceptable, custom annotations should be used as qualifiers:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Documented
+@Retention(CLASS)
+@Target({FIELD, METHOD, TYPE})
+<i class="conum" data-value="1"></i><b>(1)</b>
+@Named("")
+public @interface EnvironmentType {
+
+    Type value(); <i class="conum" data-value="2"></i><b>(2)</b>
+
+    enum Type {
+
+        PRODUCTION,
+
+        DEVELOPMENT
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>For a custom annotation to be defined by the RxMicro framework as a qualifier, it must be annotated by the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Named.java" target="_blank" rel="noopener"><code>@Named</code></a> or
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Qualifier.java" target="_blank" rel="noopener"><code>@Qualifier</code></a> annotation with an empty string value.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>To control the component names with the compiler, it is recommended to use enumerations.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>After creating the custom annotation that serves as a qualifier, it is necessary to annotate the implementation classes by it</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@EnvironmentType(EnvironmentType.Type.PRODUCTION)
+public final class ProductionBusinessService implements BusinessService {
+
+    @Override
+    public String getValue() {
+        return "PRODUCTION";
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@EnvironmentType(EnvironmentType.Type.DEVELOPMENT)
+public final class DevelopmentBusinessService implements BusinessService {
+
+    @Override
+    public String getValue() {
+        return "DEVELOPMENT";
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>and injection points:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessServiceFacade {
+
+    @Inject
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @EnvironmentType(EnvironmentType.Type.PRODUCTION)
+    BusinessService businessService1;
+
+    @Inject
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @EnvironmentType(EnvironmentType.Type.DEVELOPMENT)
+    BusinessService businessService2;
+
+    public String getValue(final boolean production) {
+        if (production) {
+            return businessService1.getValue();
+        } else {
+            return businessService2.getValue();
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When using custom annotations, the result of ambiguity resolving will be the same as when using string names:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroComponentTest(BusinessServiceFacade.class)
+final class BusinessServiceFacadeTest {
+
+    private BusinessServiceFacade businessServiceFacade;
+
+    @Test
+    void Should_return_PRODUCTION() {
+        assertEquals("PRODUCTION", businessServiceFacade.getValue(true));
+    }
+
+    @Test
+    void Should_return_DEVELOPMENT() {
+        assertEquals("DEVELOPMENT", businessServiceFacade.getValue(false));
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-ambiguty-resolving-using-custom-Named-annotation" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-ambiguty-resolving-using-custom-Named-annotation</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cdi-spring-style-section"><a class="anchor" href="#cdi-spring-style-section"></a><a class="link" href="#cdi-spring-style-section">7. Dependency Injection Using Spring Style</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The developers with a rich experience in using Spring in their previous projects can instead of the following annotations:
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Inject.java" target="_blank" rel="noopener"><code>@Inject</code></a> and
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Named.java" target="_blank" rel="noopener"><code>@Named</code></a>
+use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Autowired.java" target="_blank" rel="noopener"><code>@Autowired</code></a> and
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Qualifier.java" target="_blank" rel="noopener"><code>@Qualifier</code></a> annotations respectively, which are absolutely similar in features:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Qualifier("Production")
+public final class ProductionBusinessService implements BusinessService {
+
+    @Override
+    public String getValue() {
+        return "PRODUCTION";
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Qualifier("Development")
+public final class DevelopmentBusinessService implements BusinessService {
+
+    @Override
+    public String getValue() {
+        return "DEVELOPMENT";
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessServiceFacade {
+
+    @Autowired
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @Qualifier("Production")
+    BusinessService businessService1;
+
+    @Autowired
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @Qualifier("Development")
+    BusinessService businessService2;
+
+    public String getValue(final boolean production) {
+        if (production) {
+            return businessService1.getValue();
+        } else {
+            return businessService2.getValue();
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>To inject the <code>ProductionBusinessService</code> class instance in the <code>businessService1</code> field, it is necessary in the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Qualifier.java" target="_blank" rel="noopener"><code>@Qualifier</code></a>
+annotation parameter specify the <code>Production</code> name.<br>
+<em>(This is the name that is set explicitly for the <code>ProductionBusinessService</code> class by the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Qualifier.java" target="_blank" rel="noopener"><code>@Qualifier</code></a> annotation!)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>To inject the <code>DevelopmentBusinessService</code> class instance in the <code>businessService2</code> field, it is necessary in the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Qualifier.java" target="_blank" rel="noopener"><code>@Qualifier</code></a>
+annotation parameter specify the <code>Development</code> name.<br>
+<em>(This is the name that is set explicitly for the <code>DevelopmentBusinessService</code> class by the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Qualifier.java" target="_blank" rel="noopener"><code>@Qualifier</code></a> annotation!)</em></td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-spring-style" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-spring-style</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cdi-post-construct-section"><a class="anchor" href="#cdi-post-construct-section"></a><a class="link" href="#cdi-post-construct-section">8. <code>@PostConstruct</code></a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If You need to run some code while creating a class instance, Java provides a special method for doing so, namely the constructor.
+However, when using the dependency injection mechanisms, the dependencies are injected after creating an instance, and accordingly after invoking the constructor.
+<em>(Except for the constructor injection mechanism!)</em>.
+In order to run some code while creating an instance, but only after introducing all dependencies into this instance, the RxMicro framework provides a special
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/PostConstruct.java" target="_blank" rel="noopener"><code>@PostConstruct</code></a> annotation.</p>
+</div>
+<div class="paragraph">
+<p>Thus, if there is a class method, annotated by the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/PostConstruct.java" target="_blank" rel="noopener"><code>@PostConstruct</code></a> annotation, then this method is automatically invoked after all dependencies are injected into the created instance of this class.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessService2Facade {
+
+    @Inject
+    BusinessService businessService;
+
+    @PostConstruct
+    void anyName() { <i class="conum" data-value="1"></i><b>(1)</b>
+        System.out.println(businessService.getClass().getSimpleName());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>After injection of the implementation class instance in the <code>businessService</code> field, the RxMicro framework will automatically invoke the <code>anyName</code> method, since this method is annotated by the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/PostConstruct.java" target="_blank" rel="noopener"><code>@PostConstruct</code></a> annotation.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>For the convenience of developers, the RxMicro framework introduces an additional convention:</p>
+</div>
+<div class="paragraph">
+<p><strong>If there is a method with the <code>postConstruct</code> name in the class, this method may not be annotated by the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/PostConstruct.java" target="_blank" rel="noopener"><code>@PostConstruct</code></a> annotation!</strong></p>
+</div>
+<div class="paragraph">
+<p>The method with the specified name will be invoked automatically after all dependencies are injected:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessService1Facade {
+
+    @Inject
+    BusinessService businessService;
+
+    void postConstruct() { <i class="conum" data-value="1"></i><b>(1)</b>
+        System.out.println(businessService.getClass().getSimpleName());
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Thus, for any method in the class to be defined by the RxMicro framework as the method to be invoked automatically after all dependencies are injected, it is necessary to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>to annotate this method by the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/PostConstruct.java" target="_blank" rel="noopener"><code>@PostConstruct</code></a> annotation;</p>
+</li>
+<li>
+<p>or has the predefined <code>postConstruct</code> name.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The <code>postConstruct</code> method must meet the following requirements:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>This method should be a single method in the class.</p>
+</li>
+<li>
+<p>The method must not be <code>static</code>.</p>
+</li>
+<li>
+<p>The method must not be <code>abstract</code>.</p>
+</li>
+<li>
+<p>The method must be non-<code>native</code>.</p>
+</li>
+<li>
+<p>The method must not be <code>synchronized</code>.</p>
+</li>
+<li>
+<p>The method must not contain parameters.</p>
+</li>
+<li>
+<p>The method must return the <code>void</code> type.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The facts of invoking the <code>postConstruct</code> and <code>anyName</code> methods can be checked using the following tests:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroComponentTest(BusinessService1Facade.class)
+final class BusinessService1FacadeTest {
+
+    private SystemOut systemOut;
+
+    @Test
+    void Should_invoke_postConstruct_method() {
+        assertEquals(BusinessServiceImpl.class.getSimpleName(), systemOut.asString());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroComponentTest(BusinessService2Facade.class)
+final class BusinessService2FacadeTest {
+
+    private SystemOut systemOut;
+
+    @Test
+    void Should_invoke_postConstruct_method() {
+        assertEquals(BusinessServiceImpl.class.getSimpleName(), systemOut.asString());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-post-construct" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-post-construct</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In many frameworks implementing the <a href="https://en.wikipedia.org/wiki/Dependency_injection" target="_blank" rel="noopener"><strong>Dependency Injection</strong></a> design template, besides the <code>postConstruct</code> methods, there are also the <code>preDestroy</code> methods.
+These methods are invoked automatically, and usually clear resources when deleting an instance from the CDI container.</p>
+</div>
+<div class="paragraph">
+<p>For a microservice project that uses the RxMicro framework, there is no need for the <code>preDestroy</code> methods.
+Since the instances are removed from the CDI container when the java process ends.
+And upon completion of any process in the operating system, the operating system automatically clears <strong>all</strong> occupied resources!</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cdi-rx-micro-component-injection-section"><a class="anchor" href="#cdi-rx-micro-component-injection-section"></a><a class="link" href="#cdi-rx-micro-component-injection-section">9. RxMicro Components Injection</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="basic_usage"><a class="anchor" href="#basic_usage"></a><a class="link" href="#basic_usage">9.1. Basic Usage</a></h3>
+<div class="paragraph">
+<p>Besides custom classes, the RxMicro framework supports the RxMicro components injection.</p>
+</div>
+<div class="paragraph">
+<p>For example, if a declarative REST client is declared in the project:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+public interface RESTClient {
+
+    @PATCH("/")
+    CompletableFuture&lt;Void&gt; patch();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>then instead of getting an explicit reference to the implementation class instance using the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-client/src/main/java/io/rxmicro/rest/client/RestClientFactory.java#L48" target="_blank" rel="noopener"><code>RestClientFactory.getRestClient(Class&lt;?&gt;)</code></a>, the developer can use the dependency injection mechanism:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessServiceFacade {
+
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @Inject
+    RESTClient restClient;
+
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @Inject
+    RestClientConfig config;
+
+    void postConstruct() {
+        System.out.println(restClient.getClass().getSimpleName());
+        System.out.println(config.getClass().getSimpleName());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>To get a reference to the REST client implementation class, the developer can use the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Inject.java" target="_blank" rel="noopener"><code>@Inject</code></a> annotation.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Besides injecting REST clients, the RxMicro framework also supports the configuration injection.<br>
+<em>(A list of all supported RxMicro components that can be injected is described in the <a href="#cdi-rx-micro-component-injection-all-supported-components-section">Section 9.2, &#8220;All Supported RxMicro Components&#8221;</a>.)</em></td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-rxmicro-component" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-rxmicro-component</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cdi-rx-micro-component-injection-all-supported-components-section"><a class="anchor" href="#cdi-rx-micro-component-injection-all-supported-components-section"></a><a class="link" href="#cdi-rx-micro-component-injection-all-supported-components-section">9.2. All Supported RxMicro Components</a></h3>
+<div class="paragraph">
+<p>This section describes all supported RxMicro components that can be injected in any class using the injection mechanisms.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. All Supported RxMicro Components.</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Name</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Feature</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Config instance.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any class that extends the basic configuration class: <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-config/src/main/java/io/rxmicro/config/Config.java" target="_blank" rel="noopener"><code>Config</code></a>.</p>
+<p class="tableblock"><em>(For example: <code>MongoConfig</code>, <code>HttpClientConfig</code>, <code>HttpServerConfig</code>, etc.)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mongo repository.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The interface annotated by the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-mongo/src/main/java/io/rxmicro/data/mongo/MongoRepository.java" target="_blank" rel="noopener"><code>@MongoRepository</code></a> annotation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mongo client.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Predefined type: <a href="https://mongodb.github.io/mongo-java-driver-reactivestreams/1.13/javadoc/com/mongodb/reactivestreams/client/MongoClient.html" target="_blank" rel="noopener"><code>com.mongodb.reactivestreams.client.MongoClient</code></a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PostgreSQL repository.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The interface annotated by the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-sql-r2dbc-postgresql/src/main/java/io/rxmicro/data/sql/r2dbc/postgresql/PostgreSQLRepository.java" target="_blank" rel="noopener"><code>@PostgreSQLRepository</code></a> annotation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">R2DBC connection factory.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Predefined type: <a href="https://r2dbc.io/spec/1.0.0.RELEASE/api/io/r2dbc/spi/ConnectionFactory.html" target="_blank" rel="noopener"><code>io.r2dbc.spi.ConnectionFactory</code></a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">R2DBC connection pool.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Predefined type: <a href="https://javadoc.io/static/io.r2dbc/r2dbc-pool/1.0.0.RELEASE/io/r2dbc/pool/ConnectionPool.html" target="_blank" rel="noopener"><code>io.r2dbc.pool.ConnectionPool</code></a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">REST client.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The interface annotated by the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-client/src/main/java/io/rxmicro/rest/client/RestClient.java" target="_blank" rel="noopener"><code>@RestClient</code></a> annotation.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The source code of the project demonstrating all supported for injection RxMicro components is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-all-rxmicro-components" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-all-rxmicro-components</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cdi-factory-method-section"><a class="anchor" href="#cdi-factory-method-section"></a><a class="link" href="#cdi-factory-method-section">10. Factory Method</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When using the dependency injection mechanisms, the RxMicro framework creates instances of the specified classes and injects references to them to injection points.
+For successful implementation of this behavior, each class, the instance of which should be injected, must contain an accessible constructor without parameters or a constructor annotated by the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Inject.java" target="_blank" rel="noopener"><code>@Inject</code></a> or
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Autowired.java" target="_blank" rel="noopener"><code>@Autowired</code></a> annotation.</p>
+</div>
+<div class="paragraph">
+<p>In other words, the RxMicro framework determines the instance of which class should be created and creates this instance automatically at the start of the CDI container.
+If it is necessary to get more control over creation of the implementation instance, it is necessary to use the Factory Method template:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessServiceFacade {
+
+    @Inject
+    BusinessService businessService;
+
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @Factory
+    static BusinessServiceFacade create() {
+        System.out.println("Use factory method");
+        return new BusinessServiceFacade();
+    }
+
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    private BusinessServiceFacade() {
+    }
+
+    void postConstruct() {
+        System.out.println(businessService.getClass().getSimpleName());
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The class must contain the static method annotated by the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Factory.java" target="_blank" rel="noopener"><code>@Factory</code></a>annotation.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The private constructor restricts the possibility of creating the instance of this class externally.
+Thus, the instance of this class can only be created using the <code>create()</code> factory method.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If the RxMicro framework detects a method in the class, annotated by the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Factory.java" target="_blank" rel="noopener"><code>@Factory</code></a>annotation, then this method is used instead of the constructor when creating the instance of this class:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroComponentTest(BusinessServiceFacade.class)
+final class BusinessServiceFacadeTest {
+
+    private SystemOut systemOut;
+
+    @Test
+    void Should_support_constructor_injection() {
+        assertEquals(
+                List.of(
+                        "Use factory method",
+                        BusinessServiceImpl.class.getSimpleName()
+                ),
+                systemOut.asStrings()
+        );
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The factory method must meet the following requirements:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The method must be <code>static</code>.</p>
+</li>
+<li>
+<p>The method must be non-<code>native</code>.</p>
+</li>
+<li>
+<p>The method must not be <code>synchronized</code>.</p>
+</li>
+<li>
+<p>The method must return the class instance in which it is declared.</p>
+</li>
+<li>
+<p>The method must not contain parameters.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-factory-method" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-factory-method</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cdi-factory-class-section"><a class="anchor" href="#cdi-factory-class-section"></a><a class="link" href="#cdi-factory-class-section">11. Factory Class</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework supports creation of factory classes, that can be used to create instances of other types.</p>
+</div>
+<div class="paragraph">
+<p>By using factory classes, it is possible to get the following benefits:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Create dynamic classes.
+<em>(For example, using the <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/reflect/Proxy.html" target="_blank" rel="noopener"><code>Proxy</code></a> class.)</em></p>
+</li>
+<li>
+<p>Implement a <code>prototype</code> scope.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>To create a factory class, it is necessary:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Create a class implementing the <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Supplier.html" target="_blank" rel="noopener"><code>Supplier</code></a> interface.</p>
+</li>
+<li>
+<p>Annotate this class by the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Factory.java" target="_blank" rel="noopener"><code>@Factory</code></a>annotation.</p>
+</li>
+<li>
+<p>Implement the <code>get</code> method, which should return the instance of the created class.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For example, to create a dynamic class, it is necessary to use the following factory class:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Factory
+public final class BusinessServiceFactoryImpl implements Supplier&lt;BusinessService&gt; {
+
+    @Override
+    public BusinessService get() {
+        final Object o = new Object();
+        return (BusinessService) Proxy.newProxyInstance(
+                BusinessService.class.getClassLoader(),
+                new Class[]{BusinessService.class},
+                (proxy, method, args) -&gt; {
+                    if ("getValue".equals(method.getName())) {
+                        return "PROXY";
+                    } else {
+                        return method.invoke(o, args);
+                    }
+                }
+        );
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Injection of an instance created by the factory class does not differ from injection of an instance automatically created by the RxMicro framework:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessServiceFacade {
+
+    @Inject
+    BusinessService businessService;
+
+    public String getValue() {
+        return businessService.getValue();
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When invoking the <code>getValue</code> method, the dynamic class returns a predefined value:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroComponentTest(BusinessServiceFacade.class)
+final class BusinessServiceFacadeTest {
+
+    private BusinessServiceFacade businessServiceFacade;
+
+    @Test
+    void Should_support_factory_classes() {
+        assertEquals("PROXY", businessServiceFacade.getValue());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-factory-class" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-factory-class</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cdi-resource-section"><a class="anchor" href="#cdi-resource-section"></a><a class="link" href="#cdi-resource-section">12. External resource injection</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="basic_usage_2"><a class="anchor" href="#basic_usage_2"></a><a class="link" href="#basic_usage_2">12.1. Basic Usage</a></h3>
+<div class="paragraph">
+<p>Indicates the need to inject the external resource into the annotated class field or method parameter.</p>
+</div>
+<div class="paragraph">
+<p>External resource is:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>File.</p>
+</li>
+<li>
+<p>Directory.</p>
+</li>
+<li>
+<p>Classpath resource.</p>
+</li>
+<li>
+<p>URL Resource.</p>
+</li>
+<li>
+<p>etc.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>The RxMicro framework uses blocking API to inject resource during startup!</strong></p>
+</div>
+<div class="paragraph">
+<p>To inject external resource it is necessary to use
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Resource.java" target="_blank" rel="noopener"><code>@Resource</code></a> annotation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public class Component {
+
+    @Resource("classpath:resources.properties")
+    Map&lt;String, String&gt; resources;
+
+    public Map&lt;String, String&gt; getResources() {
+        return resources;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Content of the <code>classpath:resources.properties</code> is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-properties" data-lang="properties">name=value</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After startup external resource is injected successful:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroComponentTest(Component.class)
+final class ComponentTest {
+
+    private Component component;
+
+    @Test
+    void Should_the_resources_be_injected() {
+        assertEquals(Map.of("name", "value"), component.getResources());
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="additional_info"><a class="anchor" href="#additional_info"></a><a class="link" href="#additional_info">12.2. Additional Info</a></h3>
+<div class="paragraph">
+<p>To customize resource injection mechanism it is necessary to use <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Resource.java" target="_blank" rel="noopener"><code>@Resource</code></a> annotation.</p>
+</div>
+<div class="paragraph">
+<p>Example of valid resource paths:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>/home/rxmicro/config.json</code>;</p>
+</li>
+<li>
+<p><code>/home/rxmicro/config.properties</code>;</p>
+</li>
+<li>
+<p><code><a href="file:///home/rxmicro/config.json" class="bare">file:///home/rxmicro/config.json</a></code>;</p>
+</li>
+<li>
+<p><code><a href="file:///home/rxmicro/config.properties" class="bare">file:///home/rxmicro/config.properties</a></code>;</p>
+</li>
+<li>
+<p><code>classpath:config.json</code>;</p>
+</li>
+<li>
+<p><code>classpath:config.properties</code>;</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If converter class is not specified, the RxMicro framework tries to detect valid resource converter automatically using the following algorithm:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>io.rxmicro.cdi.resource.ClasspathJsonArrayResourceConverter</code> is used if:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Resource path starts with <code>classpath:</code> prefix.</p>
+</li>
+<li>
+<p>Resource path ends with <code>json</code> extension.</p>
+</li>
+<li>
+<p>Annotated by <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Resource.java" target="_blank" rel="noopener"><code>@Resource</code></a> annotation field has <code>java.util.List&lt;Object&gt;</code> type.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>io.rxmicro.cdi.resource.ClasspathJsonObjectResourceConverter</code> is used if:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Resource path starts with <code>classpath:</code> prefix.</p>
+</li>
+<li>
+<p>Resource path ends with <code>json</code> extension.</p>
+</li>
+<li>
+<p>Annotated by <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Resource.java" target="_blank" rel="noopener"><code>@Resource</code></a> annotation field has <code>java.util.Map&lt;String, Object&gt;</code> type.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>io.rxmicro.cdi.resource.ClasspathPropertiesResourceConverter</code> is used if:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Resource path starts with <code>classpath:</code> prefix.</p>
+</li>
+<li>
+<p>Resource path ends with <code>properties</code> extension.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>io.rxmicro.cdi.resource.FileJsonArrayResourceConverter</code> is used if:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Resource path starts with <code>file://</code> prefix or prefix is missing.</p>
+</li>
+<li>
+<p>Resource path ends with <code>json</code> extension.</p>
+</li>
+<li>
+<p>Annotated by <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Resource.java" target="_blank" rel="noopener"><code>@Resource</code></a> annotation field has <code>java.util.List&lt;Object&gt;</code> type.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>io.rxmicro.cdi.resource.FileJsonObjectResourceConverter</code> is used if:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Resource path starts with <code>file://</code> prefix or prefix is missing.</p>
+</li>
+<li>
+<p>Resource path ends with <code>json</code> extension.</p>
+</li>
+<li>
+<p>Annotated by <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Resource.java" target="_blank" rel="noopener"><code>@Resource</code></a> annotation field has <code>java.util.Map&lt;String, Object&gt;</code> type.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>io.rxmicro.cdi.resource.FilePropertiesResourceConverter</code> is used if:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Resource path starts with <code>file://</code> prefix or prefix is missing.</p>
+</li>
+<li>
+<p>Resource path ends with <code>properties</code> extension.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cdi-optional-injection-section"><a class="anchor" href="#cdi-optional-injection-section"></a><a class="link" href="#cdi-optional-injection-section">13. Optional Injection</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>By default, all injection points are required.
+Thus, if during the process of dependencies injection, the RxMicro framework does not find a suitable instance, an error will occur.</p>
+</div>
+<div class="paragraph">
+<p>If the current project allows the situation when a suitable instance may be missing, then the <code>optional injection</code> mode should be used:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessServiceFacade {
+
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @Inject(optional = true)
+    BusinessService productionBusinessService = null;
+
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @Autowired(required = false)
+    BusinessService developmentBusinessService = new BusinessService() {
+        @Override
+        public String toString() {
+            return "DefaultImpl";
+        }
+    };
+
+    void postConstruct() {
+        System.out.println(productionBusinessService);
+        System.out.println(developmentBusinessService);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>When using the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Inject.java" target="_blank" rel="noopener"><code>@Inject</code></a> annotation, the <code>optional = true</code> parameter must be set to enable the <code>optional injection</code> mode.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>When using the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-cdi/src/main/java/io/rxmicro/cdi/Autowired.java" target="_blank" rel="noopener"><code>@Autowired</code></a> annotation, the <code>required = false</code> parameter must be set to enable the <code>optional injection</code> mode.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If the <code>optional injection</code> mode is enabled, the RxMicro framework uses the following injection algorithm:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>If the dependency is found, it will be successfully injected.</p>
+</li>
+<li>
+<p>If there&#8217;s no dependency, nothing happens.<br>
+<em>(In this case, the behaviour appears to be as if the field is not annotated by any annotation!)</em></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The correctness of this algorithm can be checked with the following test:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroComponentTest(BusinessServiceFacade.class)
+final class BusinessServiceFacadeTest {
+
+    private SystemOut systemOut;
+
+    @Test
+    void Should_support_optional_injection() {
+        assertEquals(
+                List.of(
+                        "null",
+                        "DefaultImpl"
+                ),
+                systemOut.asStrings()
+        );
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-optional-injection" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-optional-injection</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cdi-multibindings-section"><a class="anchor" href="#cdi-multibindings-section"></a><a class="link" href="#cdi-multibindings-section">14. Multibindings</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework supports <strong>Multibindings</strong>.</p>
+</div>
+<div class="paragraph">
+<p><strong>Multibindings</strong> is a function of the CDI container, that allows You to find all implementations of this type and inject them.</p>
+</div>
+<div class="paragraph">
+<p>For example, if there are two implementation classes of the <code>BusinessService</code> interface:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class ProductionBusinessService implements BusinessService {
+
+    @Override
+    public String getValue() {
+        return "PRODUCTION";
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class DevelopmentBusinessService implements BusinessService {
+
+    @Override
+    public String getValue() {
+        return "DEVELOPMENT";
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>then the instances of these classes can be injected by the RxMicro framework into the <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Set.html" target="_blank" rel="noopener"><code>java.util.Set</code></a> type field:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class BusinessServiceFacade {
+
+    @Inject
+    Set&lt;BusinessService&gt; businessServices;
+
+    void postConstruct() {
+        System.out.println(
+                businessServices.stream()
+                        .map(s -&gt; s.getClass().getSimpleName())
+                        .collect(joining(", "))
+        );
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After successful injection, the <code>businessServices</code> field will contain the <code>ProductionBusinessService</code> and <code>DevelopmentBusinessService</code> class instances:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroComponentTest(BusinessServiceFacade.class)
+final class BusinessServiceFacadeTest {
+
+    private SystemOut systemOut;
+
+    @Test
+    void Should_support_multibinder() {
+        assertEquals(
+                "DevelopmentBusinessService, ProductionBusinessService",
+                systemOut.asString()
+        );
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-multibinder" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-cdi/cdi-multibinder</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="data-mongo.html#data-mongo-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> Mongo Data Repositories</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="monitoring.html#monitoring-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> Monitoring  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-166298262-2"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-166298262-2');
+</script>
+</div>
+</div>
+</div>
+</body>
+</html>

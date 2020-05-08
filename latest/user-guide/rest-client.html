@@ -1,0 +1,4044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.15">
+<meta name="description" content="A modern, JVM-based, full stack framework designed to develop distributed reactive applications that use a microservice architecture.">
+<meta name="keywords" content="rx, rxmicro, reactive java, reactive jvm, microservice java, reactive microservice, micro service java, reactive micro service">
+<meta name="author" content="nedis">
+<title>REST Client</title>
+<link rel="stylesheet" href="../styles/rxmicro-doc.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body id="rest-client-section" class="article toc2 toc-left">
+<div id="header">
+<h1>REST Client</h1>
+<div class="details">
+<span id="author" class="author">nedis</span><br>
+<span id="email" class="email"><a href="mailto:rxmicro.io@gmail.com">rxmicro.io@gmail.com</a></span><br>
+<span id="revnumber">version 0.11,</span>
+<span id="revdate">2022-12-14 20:00:09 UTC</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#rest_client_implementation_requirements">1. REST Client Implementation Requirements</a>
+<ul class="sectlevel2">
+<li><a href="#rest_client_interface_requirements">1.1. REST Client Interface Requirements</a></li>
+<li><a href="#http_request_handler_requirements">1.2. HTTP Request Handler Requirements</a></li>
+</ul>
+</li>
+<li><a href="#rest-client-annotations-section">2. <code>RxMicro Annotations</code></a></li>
+<li><a href="#http_request_handler_return_types">3. HTTP Request Handler Return Types</a>
+<ul class="sectlevel2">
+<li><a href="#supported_return_result_types_for_http_response_without_body">3.1. Supported Return Result Types for HTTP Response without Body</a></li>
+<li><a href="#supported_return_result_types_for_http_response_with_body">3.2. Supported Return Result Types for HTTP Response with Body</a></li>
+</ul>
+</li>
+<li><a href="#rest-client-headers-basic">4. HTTP Headers Handling</a>
+<ul class="sectlevel2">
+<li><a href="#basic_rules">4.1. Basic Rules</a></li>
+<li><a href="#supported_data_types">4.2. Supported Data Types</a></li>
+<li><a href="#rest-client-headers-static">4.3. Static HTTP Headers</a></li>
+<li><a href="#rest-client-headers-repeating">4.4. Repeating HTTP Headers</a></li>
+</ul>
+</li>
+<li><a href="#rest-client-params-basic">5. HTTP Parameters Handling</a>
+<ul class="sectlevel2">
+<li><a href="#basic_rules_2">5.1. Basic Rules</a></li>
+<li><a href="#supported_data_types_2">5.2. Supported Data Types</a></li>
+<li><a href="#complex_model_support">5.3. Complex Model Support</a></li>
+<li><a href="#rest-client-query-params-static">5.4. Static Query Parameters</a></li>
+<li><a href="#rest-client-query-params-repeating">5.5. Repeating Query Parameters</a></li>
+</ul>
+</li>
+<li><a href="#rest-client-path-variables-basic">6. The <code>path variables</code> Support</a>
+<ul class="sectlevel2">
+<li><a href="#basic_rules_3">6.1. Basic Rules</a></li>
+<li><a href="#supported_data_types_3">6.2. Supported Data Types</a></li>
+</ul>
+</li>
+<li><a href="#rest-client-internals-basic-section">7. Support of Internal Data Types</a>
+<ul class="sectlevel2">
+<li><a href="#basic_rules_4">7.1. Basic Rules</a></li>
+<li><a href="#supported_internal_data_types">7.2. Supported Internal Data Types</a></li>
+</ul>
+</li>
+<li><a href="#rest-client-versioning-section">8. Versioning of REST Clients</a>
+<ul class="sectlevel2">
+<li><a href="#versioning_based_on_http_header_analysis">8.1. Versioning Based on HTTP Header Analysis</a></li>
+<li><a href="#versioning_based_on_url_path_fragment_analysis">8.2. Versioning Based on URL Path Fragment Analysis</a></li>
+</ul>
+</li>
+<li><a href="#rest-client-base-url-path-section">9. Base URL Path for All Handlers</a></li>
+<li><a href="#rest-client-expressions-section">10. Expressions</a></li>
+<li><a href="#rest-controller-request-id-section">11. Request ID</a></li>
+<li><a href="#rest-client-partial-implementation-section">12. Partial Implementation</a></li>
+<li><a href="#rest-client-rest-client-generator-config-section">13. Configuring the Code Generation Process</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="rest-controller.html#rest-controller-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> REST Controller</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="validation.html#validation-section"><strong>Validation  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<div class="paragraph">
+<p>&#169; 2019-2022 rxmicro.io.
+Free use of this software is granted under the terms of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/LICENSE" target="_blank" rel="noopener"><code>Apache License 2.0</code></a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Copies of this entity may be made for Your own use and for distribution to others, provided that You do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.</p>
+</div>
+<div class="paragraph">
+<p>If You find errors or omissions in this entity, please don’t hesitate to submit an
+<a href="https://github.com/rxmicro/rxmicro-usage/issues" target="_blank" rel="noopener"><strong>issue</strong></a> or open <a href="https://github.com/rxmicro/rxmicro-usage/pulls" target="_blank" rel="noopener"><strong>a pull request</strong></a> with a fix.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>REST Client is an interface that contains at least one declarative HTTP request handler.</p>
+</div>
+<div class="paragraph">
+<p>To create REST clients, the RxMicro framework provides the following modules:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <a href="https://github.com/rxmicro/rxmicro/tree/v0.11/rxmicro-rest" target="_blank" rel="noopener"><code>rxmicro.rest</code></a> is a basic module that defines basic <code>RxMicro Annotations</code>, required when using the
+<a href="https://en.wikipedia.org/wiki/Representational_state_transfer" target="_blank" rel="noopener"><code>REST</code></a> architecture of building program systems;</p>
+</li>
+<li>
+<p>The <a href="https://github.com/rxmicro/rxmicro/tree/v0.11/rxmicro-rest-client" target="_blank" rel="noopener"><code>rxmicro.rest.client</code></a> is a basic module used to create and run REST clients;</p>
+</li>
+<li>
+<p>The <a href="https://github.com/rxmicro/rxmicro/tree/v0.11/rxmicro-rest-client-jdk" target="_blank" rel="noopener"><code>rxmicro.rest.client.jdk</code></a> is an HTTP client implementation module based on <a href="https://openjdk.java.net/groups/net/httpclient/intro.html" target="_blank" rel="noopener"><code>Java HTTP Client</code></a>;</p>
+</li>
+<li>
+<p>The <a href="https://github.com/rxmicro/rxmicro/tree/v0.11/rxmicro-rest-client-exchange-json" target="_blank" rel="noopener"><code>rxmicro.rest.client.exchange.json</code></a> is a module for converting Java models to <a href="https://www.json.org/" target="_blank" rel="noopener"><code>JSON</code></a> format and vice versa;</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Due to transit dependencies only two modules usually need to be added to a project:
+<a href="https://github.com/rxmicro/rxmicro/tree/v0.11/rxmicro-rest-client-jdk" target="_blank" rel="noopener"><code>rxmicro.rest.client.jdk</code></a> and <a href="https://github.com/rxmicro/rxmicro/tree/v0.11/rxmicro-rest-client-exchange-json" target="_blank" rel="noopener"><code>rxmicro.rest.client.exchange.json</code></a>.<br>
+<em>(All other modules are automatically added to the project!)</em></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rest_client_implementation_requirements"><a class="anchor" href="#rest_client_implementation_requirements"></a><a class="link" href="#rest_client_implementation_requirements">1. REST Client Implementation Requirements</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="rest_client_interface_requirements"><a class="anchor" href="#rest_client_interface_requirements"></a><a class="link" href="#rest_client_interface_requirements">1.1. REST Client Interface Requirements</a></h3>
+<div class="paragraph">
+<p>REST Client is a Java interface that annotated by the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-client/src/main/java/io/rxmicro/rest/client/RestClient.java" target="_blank" rel="noopener"><code>@RestClient</code></a> annotation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">import java.util.concurrent.CompletableFuture;
+
+import io.rxmicro.rest.client.RestClient;
+import io.rxmicro.rest.method.GET;
+
+@RestClient
+public interface RESTClient {
+
+    @GET("/")
+    CompletableFuture&lt;Model&gt; getContent();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>that must meet the following requirements:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The interface must be a <code>public</code> one.</p>
+</li>
+<li>
+<p>The interface must be annotated by the required <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-client/src/main/java/io/rxmicro/rest/client/RestClient.java" target="_blank" rel="noopener"><code>@RestClient</code></a> annotation.</p>
+</li>
+<li>
+<p>The interface couldn&#8217;t extend any other interfaces.</p>
+</li>
+<li>
+<p>The interface couldn&#8217;t be a nested one.</p>
+</li>
+</ol>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="http_request_handler_requirements"><a class="anchor" href="#http_request_handler_requirements"></a><a class="link" href="#http_request_handler_requirements">1.2. HTTP Request Handler Requirements</a></h3>
+<div class="paragraph">
+<p>HTTP request handler is a method, that must meet the following requirements:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The method couldn&#8217;t be a <code>private</code> one.</p>
+</li>
+<li>
+<p>The method couldn&#8217;t be an <code>abstract</code> one.</p>
+</li>
+<li>
+<p>The method couldn&#8217;t be a <code>static</code> one.</p>
+</li>
+<li>
+<p>The method must be annotated by <strong>only one</strong> of the following annotations:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/method/GET.java" target="_blank" rel="noopener"><code>GET</code></a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/method/POST.java" target="_blank" rel="noopener"><code>POST</code></a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/method/PUT.java" target="_blank" rel="noopener"><code>PUT</code></a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/method/DELETE.java" target="_blank" rel="noopener"><code>DELETE</code></a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/method/PATCH.java" target="_blank" rel="noopener"><code>PATCH</code></a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/method/HEAD.java" target="_blank" rel="noopener"><code>HEAD</code></a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/method/OPTIONS.java" target="_blank" rel="noopener"><code>OPTIONS</code></a>.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>The method must return one of the following reactive types:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletableFuture.html" target="_blank" rel="noopener"><code>CompletableFuture</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletionStage.html" target="_blank" rel="noopener"><code>CompletionStage</code></a>;</p>
+</li>
+<li>
+<p><a href="https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html" target="_blank" rel="noopener"><code>Mono</code></a>;</p>
+</li>
+<li>
+<p><a href="http://reactivex.io/RxJava/javadoc/io/reactivex/Completable.html" target="_blank" rel="noopener"><code>Completable</code></a>;</p>
+</li>
+<li>
+<p><a href="http://reactivex.io/RxJava/javadoc/io/reactivex/Single.html" target="_blank" rel="noopener"><code>Single</code></a>.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>If the method returns a reactive type, that this type must be parametrized by a HTTP response model type.
+(The additional types such as <code>java.lang.Void</code> and <code>java.util.Optional</code> are supported also.
+<em>(Read more: <a href="core.html#core-reactive-bussiness-process-reactive-class-mapping-table">core.html</a>)</em>).</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>A REST client can contain <code>static</code>, <code>private</code> and <code>default</code> methods, but such methods couldn&#8217;t be HTTP request handlers!</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The
+<a href="https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html" target="_blank" rel="noopener"><code>Flux</code></a> and
+<a href="http://reactivex.io/RxJava/javadoc/io/reactivex/Flowable.html" target="_blank" rel="noopener"><code>Flowable</code></a>
+types are developed to handle data stream that may arrive within a certain period of time.</p>
+</div>
+<div class="paragraph">
+<p>For such cases the HTTP protocol provides the special <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding" target="_blank" rel="noopener"><code>Transfer-Encoding</code></a> mechanism.</p>
+</div>
+<div class="paragraph">
+<p>But this mechanism is not supported by the RxMicro framework yet, so the
+<a href="https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html" target="_blank" rel="noopener"><code>Flux</code></a> and
+<a href="http://reactivex.io/RxJava/javadoc/io/reactivex/Flowable.html" target="_blank" rel="noopener"><code>Flowable</code></a>
+types cannot be used in the HTTP request handler.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The RxMicro framework supports the following parameter types for the HTTP request handler:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Handler without parameters.<br>
+<em>(This type is recommended for the simplest <code>stateless</code> REST clients without parameters.)</em></p>
+</li>
+<li>
+<p>List of primitive parameters.<br>
+<em>(This type is recommended for REST clients, the behavior of which depends on 1-2 parameters.)</em></p>
+</li>
+<li>
+<p>Custom class modeling an HTTP request.<br>
+<em>(This type is recommended for REST clients, the behavior of which depends on 3 or more parameters.)</em></p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When using the
+<a href="https://projectreactor.io/docs/core/release/reference/index.html" target="_blank" rel="noopener"><strong>Project Reactor</strong></a> and <a href="https://github.com/ReactiveX/RxJava/blob/3.x/README.md" target="_blank" rel="noopener"><strong>RxJava</strong></a>
+reactive libraries, You need:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Add dependencies to <code>pom.xml</code>.</p>
+</li>
+<li>
+<p>Add modules to <code>module-info.java</code>.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Adding dependencies to <code>pom.xml</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;io.projectreactor&lt;/groupId&gt;
+        &lt;artifactId&gt;reactor-core&lt;/artifactId&gt;
+        &lt;version&gt;${projectreactor.version}&lt;/version&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;io.reactivex.rxjava3&lt;/groupId&gt;
+        &lt;artifactId&gt;rxjava&lt;/artifactId&gt;
+        &lt;version&gt;${rxjava.version}&lt;/version&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><a href="https://mvnrepository.com/artifact/io.projectreactor/reactor-core" target="_blank" rel="noopener">The latest stable version of the <code>Project Reactor</code> library</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td><a href="https://mvnrepository.com/artifact/io.reactivex.rxjava3/rxjava" target="_blank" rel="noopener">The latest stable version of the <code>RxJava3</code> library</a>.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Adding modules to <code>module-info.java</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">module example {
+    requires reactor.core; <i class="conum" data-value="1"></i><b>(1)</b>
+    requires io.reactivex.rxjava3; <i class="conum" data-value="2"></i><b>(2)</b>
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>reactor.core</code> module when using the <a href="https://projectreactor.io/docs/core/release/reference/index.html" target="_blank" rel="noopener"><strong>Project Reactor</strong></a> library.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <code>io.reactivex.rxjava3</code> module when using the <a href="https://github.com/ReactiveX/RxJava/blob/3.x/README.md" target="_blank" rel="noopener"><strong>RxJava</strong></a> library.</td>
+</tr>
+</table>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rest-client-annotations-section"><a class="anchor" href="#rest-client-annotations-section"></a><a class="link" href="#rest-client-annotations-section">2. <code>RxMicro Annotations</code></a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework supports the following <code>RxMicro Annotations</code>, which are used to create and configure REST Clients.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Supported <code>RxMicro Annotations</code>.</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Annotation</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-client/src/main/java/io/rxmicro/rest/client/RestClient.java" target="_blank" rel="noopener"><code>@RestClient</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes that an interface is a dynamic generated REST client.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/method/GET.java" target="_blank" rel="noopener"><code>@GET</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a method, that must handle a <code>GET</code> HTTP request.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/method/POST.java" target="_blank" rel="noopener"><code>@POST</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a method, that must handle a <code>POST</code> HTTP request.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/method/PUT.java" target="_blank" rel="noopener"><code>@PUT</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a method, that must handle a <code>PUT</code> HTTP request.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/method/DELETE.java" target="_blank" rel="noopener"><code>@DELETE</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a method, that must handle a <code>DELETE</code> HTTP request.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/method/PATCH.java" target="_blank" rel="noopener"><code>@PATCH</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a method, that must handle a <code>PATCH</code> HTTP request.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/method/HEAD.java" target="_blank" rel="noopener"><code>@HEAD</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a method, that must handle a <code>HEAD</code> HTTP request.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/method/OPTIONS.java" target="_blank" rel="noopener"><code>@OPTIONS</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a method, that must handle a <code>OPTIONS</code> HTTP request.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/BaseUrlPath.java" target="_blank" rel="noopener"><code>@BaseUrlPath</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="#rest-client-base-url-path-section">a base URL path for the all request handlers at the REST client</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/Version.java" target="_blank" rel="noopener"><code>@Version</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="#rest-client-versioning-section">a version of the REST client</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/Header.java" target="_blank" rel="noopener"><code>@Header</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes that a field of Java model class is <a href="#rest-client-headers-basic">a HTTP header</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/HeaderMappingStrategy.java" target="_blank" rel="noopener"><code>@HeaderMappingStrategy</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Declares <a href="#rest-client-headers-basic">a strategy of header name formation based on Java model field name analysis</a>.</p>
+<p class="tableblock"><em>(By default, the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-model/src/main/java/io/rxmicro/model/MappingStrategy.java#L76" target="_blank" rel="noopener"><code>CAPITALIZE_WITH_HYPHEN</code></a> strategy is used.
+Thus, by using this strategy, the <code>Header-Name</code> name header corresponds to the <code>headerName</code> field name.)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/AddHeader.java" target="_blank" rel="noopener"><code>@AddHeader</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="#rest-client-headers-static">a static HTTP header</a> that must be added to the request, created by REST client implementation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/SetHeader.java" target="_blank" rel="noopener"><code>@SetHeader</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="#rest-client-headers-static">a static HTTP header</a> that must be set to the request, created by REST client implementation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/RepeatHeader.java" target="_blank" rel="noopener"><code>@RepeatHeader</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes the header, <a href="#rest-client-headers-repeating">which name needs to be repeated for each element in the list</a>.</p>
+<p class="tableblock"><em>(This annotation applies only to fields with the <code>java.util.List&lt;?&gt;</code> type.)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/Parameter.java" target="_blank" rel="noopener"><code>@Parameter</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes that a field of Java model class is <a href="#rest-client-headers-basic">a HTTP parameter</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/ParameterMappingStrategy.java" target="_blank" rel="noopener"><code>@ParameterMappingStrategy</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Declares <a href="#rest-client-params-basic">a strategy of parameter name formation based on Java model field name analysis</a>.</p>
+<p class="tableblock"><em>(By default, the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-model/src/main/java/io/rxmicro/model/MappingStrategy.java#L41" target="_blank" rel="noopener"><code>LOWERCASE_WITH_UNDERSCORED</code></a> strategy is used.
+Thus, by using this strategy, the <code>header_name</code> name header corresponds to the <code>headerName</code> field name.)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/AddQueryParameter.java" target="_blank" rel="noopener"><code>@AddQueryParameter</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="#rest-client-query-params-static">a static query parameter</a> that must be added to the request, created by REST client implementation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/SetQueryParameter.java" target="_blank" rel="noopener"><code>@SetQueryParameter</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes <a href="#rest-client-query-params-static">a static query parameter</a> that must be set to the request, created by REST client implementation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/RepeatQueryParameter.java" target="_blank" rel="noopener"><code>@RepeatQueryParameter</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes the query parameter, <a href="#rest-client-query-params-repeating">which name needs to be repeated for each element in the list</a>.</p>
+<p class="tableblock"><em>(This annotation applies only to fields with the <code>java.util.List&lt;?&gt;</code> type.)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/PathVariable.java" target="_blank" rel="noopener"><code>@PathVariable</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes that a field of Java model class is <a href="#rest-client-path-variables-basic">a <code>path variable</code></a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/RequestId.java" target="_blank" rel="noopener"><code>@RequestId</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Declares the Java model field as a field, that the RxMicro framework must used as <a href="#rest-client-request-id-section">a unique request ID</a> and sent it to the server.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/ResponseStatusCode.java" target="_blank" rel="noopener"><code>@ResponseStatusCode</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates to the RxMicro framework that the value of the Java model field should be used as <a href="#rest-client-internals-basic-section">a status code that received from the server</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/ResponseBody.java" target="_blank" rel="noopener"><code>@ResponseBody</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates to the RxMicro framework that the value of the Java model field should be used as <a href="#rest-client-internals-basic-section">a body that received from the server</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-client/src/main/java/io/rxmicro/rest/client/PartialImplementation.java" target="_blank" rel="noopener"><code>@PartialImplementation</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes an abstract class that contains <a href="#rest-client-partial-implementation-section">a partial implementation of the annotated by this annotation REST client interface</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-client/src/main/java/io/rxmicro/rest/client/RestClientGeneratorConfig.java" target="_blank" rel="noopener"><code>@RestClientGeneratorConfig</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allows <a href="#rest-client-rest-client-generator-config-section">to configure the process of code generation by the <code>RxMicro Annotation Processor</code> for REST clients</a>.</p></td>
+</tr>
+</tbody>
+</table>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="http_request_handler_return_types"><a class="anchor" href="#http_request_handler_return_types"></a><a class="link" href="#http_request_handler_return_types">3. HTTP Request Handler Return Types</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The HTTP request handler supports two categories of returned results:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>HTTP response without body;</p>
+</li>
+<li>
+<p>HTTP response with body;</p>
+</li>
+</ul>
+</div>
+<div style="page-break-after: always;"></div>
+<div class="sect2">
+<h3 id="supported_return_result_types_for_http_response_without_body"><a class="anchor" href="#supported_return_result_types_for_http_response_without_body"></a><a class="link" href="#supported_return_result_types_for_http_response_without_body">3.1. Supported Return Result Types for HTTP Response without Body</a></h3>
+<div class="paragraph">
+<p>The RxMicro framework supports the following return result types for an HTTP response without body:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+public interface RestClientWithoutBody {
+
+    <i class="conum" data-value="1"></i><b>(1)</b>
+
+    @GET("/jse/completedFuture1")
+    CompletableFuture&lt;Void&gt; completedFuture1();
+
+    @GET("/jse/completedFuture2")
+    CompletableFuture&lt;Void&gt; completedFuture2(final Request request);
+
+    @GET("/jse/completedFuture3")
+    CompletableFuture&lt;Void&gt; completedFuture3(final String requestParameter);
+
+    <i class="conum" data-value="2"></i><b>(2)</b>
+
+    @GET("/jse/completionStage1")
+    CompletionStage&lt;Void&gt; completionStage1();
+
+    @GET("/jse/completionStage2")
+    CompletionStage&lt;Void&gt; completionStage2(final Request request);
+
+    @GET("/jse/completionStage3")
+    CompletionStage&lt;Void&gt; completionStage3(final String requestParameter);
+
+    <i class="conum" data-value="3"></i><b>(3)</b>
+
+    @GET("/spring-reactor/mono1")
+    Mono&lt;Void&gt; mono1();
+
+    @GET("/spring-reactor/mono2")
+    Mono&lt;Void&gt; mono2(final Request request);
+
+    @GET("/spring-reactor/mono3")
+    Mono&lt;Void&gt; mono3(final String requestParameter);
+
+    <i class="conum" data-value="4"></i><b>(4)</b>
+
+    @GET("/rxjava3/completable1")
+    Completable completable1();
+
+    @GET("/rxjava3/completable2")
+    Completable completable2(final Request request);
+
+    @GET("/rxjava3/completable3")
+    Completable completable3(final String requestParameter);
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletableFuture.html" target="_blank" rel="noopener"><code>CompletableFuture&lt;Void&gt;</code></a>
+type is recommended when using the <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/package-summary.html" target="_blank" rel="noopener"><strong>java.util.concurrent</strong></a> library.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Instead of the <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletableFuture.html" target="_blank" rel="noopener"><code>CompletableFuture&lt;Void&gt;</code></a> type, can also be used the
+<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletionStage.html" target="_blank" rel="noopener"><code>CompletionStage&lt;Void&gt;</code></a> type.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>When using the <a href="https://projectreactor.io/docs/core/release/reference/index.html" target="_blank" rel="noopener"><strong>Project Reactor</strong></a> library, only the
+<a href="https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html" target="_blank" rel="noopener"><code>Mono&lt;Void&gt;</code></a> type can be used.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>When using the <a href="https://github.com/ReactiveX/RxJava/blob/3.x/README.md" target="_blank" rel="noopener"><strong>RxJava</strong></a> library, only the
+<a href="http://reactivex.io/RxJava/javadoc/io/reactivex/Completable.html" target="_blank" rel="noopener"><code>Completable</code></a> type can be used.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>All the above mentioned HTTP request handlers shouldn&#8217;t throw any exceptions:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(RestClientWithoutBody.class)
+final class RestClientWithoutBodyTest {
+
+    private RestClientWithoutBody restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    static Stream&lt;Consumer&lt;RestClientWithoutBody&gt;&gt; clientMethodsProvider() {
+        return Stream.of(
+                client -&gt; client.completedFuture1().join(),
+                client -&gt; client.completedFuture2(new Request("param")).join(),
+                client -&gt; client.completedFuture3("param").join(),
+
+                client -&gt; client.completionStage1().toCompletableFuture().join(),
+                client -&gt; client.completionStage2(
+                        new Request("param")).toCompletableFuture().join(),
+                client -&gt; client.completionStage3("param").toCompletableFuture().join(),
+
+                client -&gt; client.mono1().block(),
+                client -&gt; client.mono2(new Request("param")).block(),
+                client -&gt; client.mono3("param").block(),
+
+                client -&gt; client.completable1().blockingAwait(),
+                client -&gt; client.completable2(new Request("param")).blockingAwait(),
+                client -&gt; client.completable3("param").blockingAwait()
+        );
+    }
+
+    private void prepare() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder().setAnyRequest().build(),
+                true
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("clientMethodsProvider")
+    @BeforeThisTest(method = "prepare")
+    void Should_be_invoked_successfully(final Consumer&lt;RestClientWithoutBody&gt; clientMethod) {
+        assertDoesNotThrow(() -&gt; clientMethod.accept(restClient));
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-handlers" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-handlers</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="supported_return_result_types_for_http_response_with_body"><a class="anchor" href="#supported_return_result_types_for_http_response_with_body"></a><a class="link" href="#supported_return_result_types_for_http_response_with_body">3.2. Supported Return Result Types for HTTP Response with Body</a></h3>
+<div class="paragraph">
+<p>The RxMicro framework supports the following return result types for an HTTP response with body:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+public interface RestClientWithBody {
+
+    <i class="conum" data-value="1"></i><b>(1)</b>
+
+    @GET("/jse/completedFuture1")
+    CompletableFuture&lt;Response&gt; completedFuture1();
+
+    @GET("/jse/completedFuture2")
+    CompletableFuture&lt;Response&gt; completedFuture2(final Request request);
+
+    @GET("/jse/completedFuture3")
+    CompletableFuture&lt;Response&gt; completedFuture3(final String requestParameter);
+
+    <i class="conum" data-value="2"></i><b>(2)</b>
+
+    @GET("/jse/completionStage1")
+    CompletionStage&lt;Response&gt; completionStage1();
+
+    @GET("/jse/completionStage2")
+    CompletionStage&lt;Response&gt; completionStage2(final Request request);
+
+    @GET("/jse/completionStage3")
+    CompletionStage&lt;Response&gt; completionStage3(final String requestParameter);
+
+    <i class="conum" data-value="3"></i><b>(3)</b>
+
+    @GET("/spring-reactor/mono1")
+    Mono&lt;Response&gt; mono1();
+
+    @GET("/spring-reactor/mono2")
+    Mono&lt;Response&gt; mono2(final Request request);
+
+    @GET("/spring-reactor/mono3")
+    Mono&lt;Response&gt; mono3(final String requestParameter);
+
+    <i class="conum" data-value="4"></i><b>(4)</b>
+
+    @GET("/rxjava3/single1")
+    Single&lt;Response&gt; single1();
+
+    @GET("/rxjava3/single2")
+    Single&lt;Response&gt; single2(final Request request);
+
+    @GET("/rxjava3/single3")
+    Single&lt;Response&gt; single3(final String requestParameter);
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletableFuture.html" target="_blank" rel="noopener"><code>CompletableFuture&lt;MODEL&gt;</code></a>
+type is recommended when using the <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/package-summary.html" target="_blank" rel="noopener"><strong>java.util.concurrent</strong></a> library.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Instead of the <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletableFuture.html" target="_blank" rel="noopener"><code>CompletableFuture&lt;MODEL&gt;</code></a> type, can also be used the
+<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletionStage.html" target="_blank" rel="noopener"><code>CompletionStage&lt;MODEL&gt;</code></a> type.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>When using the <a href="https://projectreactor.io/docs/core/release/reference/index.html" target="_blank" rel="noopener"><strong>Project Reactor</strong></a> library, only the
+<a href="https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html" target="_blank" rel="noopener"><code>Mono&lt;MODEL&gt;</code></a> type can be used.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>When using the <a href="https://github.com/ReactiveX/RxJava/blob/3.x/README.md" target="_blank" rel="noopener"><strong>RxJava</strong></a> library, only the
+<a href="http://reactivex.io/RxJava/javadoc/io/reactivex/Single.html" target="_blank" rel="noopener"><code>Single&lt;MODEL&gt;</code></a> type can be used.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><strong>Note that the reactive types must be parameterized by the HTTP response model class!</strong></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>All of the above mentioned handlers return the <code>Response</code> class instance with the <code>Hello World!</code> message:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(RestClientWithBody.class)
+final class RestClientWithBodyTest {
+
+    private RestClientWithBody restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    static Stream&lt;Function&lt;RestClientWithBody, Response&gt;&gt; clientMethodsProvider() {
+        return Stream.of(
+                client -&gt; client.completedFuture1().join(),
+                client -&gt; client.completedFuture2(new Request("param")).join(),
+                client -&gt; client.completedFuture3("param").join(),
+
+                client -&gt; client.completionStage1().toCompletableFuture().join(),
+                client -&gt; client.completionStage2(
+                        new Request("param")).toCompletableFuture().join(),
+                client -&gt; client.completionStage3("param").toCompletableFuture().join(),
+
+                client -&gt; client.mono1().block(),
+                client -&gt; client.mono2(new Request("param")).block(),
+                client -&gt; client.mono3("param").block(),
+
+                client -&gt; client.single1().blockingGet(),
+                client -&gt; client.single2(new Request("param")).blockingGet(),
+                client -&gt; client.single3("param").blockingGet()
+        );
+    }
+
+    private void prepare() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder().setAnyRequest().build(),
+                jsonObject("message", "Hello World!"),
+                true
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("clientMethodsProvider")
+    @BeforeThisTest(method = "prepare")
+    void Should_return_message_Hello_World(final Function&lt;RestClientWithBody, Response&gt; clientMethod) {
+        final Response response = assertDoesNotThrow(() -&gt; clientMethod.apply(restClient));
+
+        assertEquals("Hello World!", response.getMessage());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-handlers" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-handlers</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rest-client-headers-basic"><a class="anchor" href="#rest-client-headers-basic"></a><a class="link" href="#rest-client-headers-basic">4. HTTP Headers Handling</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="basic_rules"><a class="anchor" href="#basic_rules"></a><a class="link" href="#basic_rules">4.1. Basic Rules</a></h3>
+<div class="paragraph">
+<p>The RxMicro framework supports HTTP headers in request and response models:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java"><i class="conum" data-value="1"></i><b>(1)</b>
+@HeaderMappingStrategy
+public final class Request {
+
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @Header
+    String endpointVersion;
+
+    <i class="conum" data-value="3"></i><b>(3)</b>
+    @Header("UseProxy")
+    Boolean useProxy;
+
+    public String getEndpointVersion() {
+        return endpointVersion;
+    }
+
+    public Boolean getUseProxy() {
+        return useProxy;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java"><i class="conum" data-value="1"></i><b>(1)</b>
+@HeaderMappingStrategy
+public final class Response {
+
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @Header
+    final String endpointVersion;
+
+    <i class="conum" data-value="3"></i><b>(3)</b>
+    @Header("UseProxy")
+    final Boolean useProxy;
+
+    public Response(final Request request) {
+        this.endpointVersion = request.getEndpointVersion();
+        this.useProxy = request.getUseProxy();
+    }
+
+    public Response(final String endpointVersion,
+                    final Boolean useProxy) {
+        this.endpointVersion = endpointVersion;
+        this.useProxy = useProxy;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/HeaderMappingStrategy.java" target="_blank" rel="noopener"><code>@HeaderMappingStrategy</code></a>
+annotation allows setting common conversion rules for all header names from HTTP to Java format and vice versa in the current model class.<br>
+<em>(By default, the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-model/src/main/java/io/rxmicro/model/MappingStrategy.java#L76" target="_blank" rel="noopener"><code>CAPITALIZE_WITH_HYPHEN</code></a> strategy is used.
+The field name is used as the basic name, and then, following the rules of the specified strategy, the HTTP header name is generated.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>In order to declare a model field as the HTTP header field, it is necessary to use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/Header.java" target="_blank" rel="noopener"><code>@Header</code></a> annotation.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Using the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/Header.java" target="_blank" rel="noopener"><code>@Header</code></a>
+annotation, it is possible to specify the HTTP header name, which does not correspond to the used strategy declared by the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/HeaderMappingStrategy.java" target="_blank" rel="noopener"><code>@HeaderMappingStrategy</code></a> annotation.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The RxMicro framework uses the following algorithm to define the HTTP header name for the specified model field:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>If the field is annotated by the <code>@Header</code> annotation with an explicit indication of the HTTP header name, the specified name is used;</p>
+</li>
+<li>
+<p>If no HTTP header name is specified in the <code>@Header</code> annotation, the RxMicro framework checks for the <code>@HeaderMappingStrategy</code> annotation above the model class;</p>
+</li>
+<li>
+<p>If the model class is annotated by the <code>@HeaderMappingStrategy</code> annotation, then the specified naming strategy is used.<br>
+<em>(The field name is used as the basic name, and then, following the rules of the specified strategy, the HTTP header name is generated.)</em></p>
+</li>
+<li>
+<p>If the <code>@HeaderMappingStrategy</code> annotation is missing, the model class field name is used as the HTTP header name.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>After creating model classes, it is necessary to create a request handler that uses the following models:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+public interface SimpleUsageRestClient {
+
+    @GET("/get1")
+    CompletableFuture&lt;Response&gt; get1(final Request request); <i class="conum" data-value="1"></i><b>(1)</b>
+
+
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @GET("/get2")
+    <i class="conum" data-value="3"></i><b>(3)</b>
+    @HeaderMappingStrategy
+    CompletableFuture&lt;Response&gt; get2(final @Header String endpointVersion,        <i class="conum" data-value="4"></i><b>(4)</b>
+                                     final @Header("UseProxy") Boolean useProxy); <i class="conum" data-value="5"></i><b>(5)</b>
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>If a separate model class has been created for an HTTP request, then this class must be passed by the method parameter that handles the HTTP request.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Besides supporting HTTP request model classes, the RxMicro framework supports request handlers that accept HTTP headers as method parameters.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>To define a common naming strategy for all HTTP headers which are passed as method parameters, the request handler must be annotated by the <code>@HeaderMappingStrategy</code> annotation.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>To declare a method parameter as an HTTP header field, use the <code>@Header</code> annotation.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Using the <code>@Header</code> annotation, it is possible to specify an HTTP header name that does not correspond to the strategy used, declared by the <code>@HeaderMappingStrategy</code> annotation.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The RxMicro framework recommends for request handlers that depend on 3 or more
+HTTP headers
+to create separate classes of request model.</p>
+</div>
+<div class="paragraph">
+<p><strong>Upon implementation of</strong>
+<strong>HTTP headers</strong>
+<strong>directly into the handler, the code becomes hard to read!</strong></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Despite the different approaches to HTTP header handling support, as to the message generated by the HTTP protocol, the two above-mentioned handlers are absolutely equal:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(SimpleUsageRestClient.class)
+final class SimpleUsageRestClientTest {
+
+    private static final String ENDPOINT_VERSION = "v1";
+
+    private static final Boolean USE_PROXY = true;
+
+    private SimpleUsageRestClient restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    static Stream&lt;Function&lt;SimpleUsageRestClient, Response&gt;&gt; restClientExecutableProvider() {
+        return Stream.of(
+                client -&gt; client.get1(new Request(ENDPOINT_VERSION, USE_PROXY)).join(),
+                client -&gt; client.get2(ENDPOINT_VERSION, USE_PROXY).join()
+        );
+    }
+
+    private void prepare() {
+        final HttpHeaders headers = HttpHeaders.of(
+                "Endpoint-Version", ENDPOINT_VERSION, <i class="conum" data-value="2"></i><b>(2)</b>
+                "UseProxy", USE_PROXY                 <i class="conum" data-value="3"></i><b>(3)</b>
+        );
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(GET)
+                        .setAnyPath()
+                        .setHeaders(headers)
+                        .build(),
+                new HttpResponseMock.Builder()
+                        .setHeaders(headers)
+                        .build(),
+                true
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("restClientExecutableProvider")
+    @BeforeThisTest(method = "prepare")
+    void Should_process_HTTP_headers(
+            final Function&lt;SimpleUsageRestClient, Response&gt; clientMethod) {
+        final Response response = assertDoesNotThrow(() -&gt;
+                clientMethod.apply(restClient)); <i class="conum" data-value="1"></i><b>(1)</b>
+
+        assertEquals(ENDPOINT_VERSION, response.getEndpointVersion()); <i class="conum" data-value="4"></i><b>(4)</b>
+        assertEquals(USE_PROXY, response.getUseProxy());               <i class="conum" data-value="4"></i><b>(4)</b>
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>When performing a request to different URL Paths, the result is the same.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <code>Endpoint-Version</code> name corresponds to the <code>endpointVersion</code> field of the request model.<br>
+<em>(This correspondence is formed basing on the default strategy use, which is defined by the <code>@HeaderMappingStrategy</code> annotation.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The <code>UseProxy</code> name corresponds to the <code>useProxy</code> field of the request model, since this name is specified in the <code>@Header</code> annotation.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>After executing the request in the resulting HTTP response, the <code>Endpoint-Version</code> and <code>UseProxy</code> headers are equal to <code>v1</code> and <code>true</code> respectively.
+<em>(The handler returns the same header values it received from an HTTP request.)</em></td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-headers" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-headers</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="supported_data_types"><a class="anchor" href="#supported_data_types"></a><a class="link" href="#supported_data_types">4.2. Supported Data Types</a></h3>
+<div class="paragraph">
+<p>The RxMicro framework supports the following Java types, which can be HTTP request model headers:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>? extends Enum&lt;?&gt;</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Boolean</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Byte</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Short</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Integer</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Long</code>;</p>
+</li>
+<li>
+<p><code>java.math.BigInteger</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Float</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Double</code>;</p>
+</li>
+<li>
+<p><code>java.math.BigDecimal</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Character</code>;</p>
+</li>
+<li>
+<p><code>java.lang.String</code>;</p>
+</li>
+<li>
+<p><code>java.time.Instant</code>;</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For floating point numbers, it is suggested to use the <code>java.math.BigDecimal</code> type instead of <code>java.lang.Float</code> or <code>java.lang.Double</code>.</p>
+</div>
+<div class="paragraph">
+<p>Using the <code>java.math.BigDecimal</code> allows excluding errors of decimal number notation.
+<strong>This is particularly important if the decimal number is used to represent currency-related data!</strong></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>and also the <code>java.util.List&lt;T&gt;</code>, <code>java.util.Set&lt;T&gt;</code> and the <code>java.util.Map&lt;String, T&gt;</code> type is parameterized by any of the above mentioned primitive types.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If the <code>java.util.Map&lt;String, T&gt;</code> type is used, then REST model can contain dynamic properties, where <code>keys</code> are the names of properties and <code>values</code> are the properties values.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="rest-client-headers-static"><a class="anchor" href="#rest-client-headers-static"></a><a class="link" href="#rest-client-headers-static">4.3. Static HTTP Headers</a></h3>
+<div class="paragraph">
+<p>For static header installation, the RxMicro framework provides the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/AddHeader.java" target="_blank" rel="noopener"><code>@AddHeader</code></a> and
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/SetHeader.java" target="_blank" rel="noopener"><code>@SetHeader</code></a> annotations:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+<i class="conum" data-value="1"></i><b>(1)</b>
+@SetHeader(name = "Mode", value = "Demo")
+public interface StaticHeadersRestClient {
+
+    @GET("/get1")
+    CompletableFuture&lt;Void&gt; get1();
+
+    @GET("/get2")
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @SetHeader(name = "Debug", value = "true")
+    CompletableFuture&lt;Void&gt; get2();
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>If the HTTP header is set for the REST client, it is added to the HTTP requests for each handler.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>If the HTTP header is set for the handler, it is added to the HTTP requests only for that handler.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>In terms of the HTTP protocol, static headers do not differ from any others:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(StaticHeadersRestClient.class)
+final class StaticHeadersRestClientTest {
+
+    private StaticHeadersRestClient restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    private void prepareParentHeaderOnly() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(GET)
+                        .setPath("/get1")
+                        .setHeaders(HttpHeaders.of(
+                                "Mode", "Demo"
+                        ))
+                        .build(),
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepareParentHeaderOnly")
+    void Should_use_parent_header_only() {
+        assertDoesNotThrow(() -&gt; restClient.get1().join());
+    }
+
+    private void prepareParentAndChildHeaders() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(GET)
+                        .setPath("/get2")
+                        .setHeaders(HttpHeaders.of(
+                                "Mode", "Demo",
+                                "Debug", "true"
+                        ))
+                        .build(),
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepareParentAndChildHeaders")
+    void Should_use_parent_and_child_headers() {
+        assertDoesNotThrow(() -&gt; restClient.get2().join());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In order to understand the differences between the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/AddHeader.java" target="_blank" rel="noopener"><code>@AddHeader</code></a> and
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/SetHeader.java" target="_blank" rel="noopener"><code>@SetHeader</code></a> annotations, check out the following example:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-rest-client/rest-client-headers/src/main/java/io/rxmicro/examples/rest/client/headers/ComplexStaticHeadersRestClient.java" target="_blank" rel="noopener"><code>ComplexStaticHeadersRestClient.java</code></a></p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-rest-client/rest-client-headers/src/test/java/io/rxmicro/examples/rest/client/headers/ComplexStaticHeadersRestClientTest.java" target="_blank" rel="noopener"><code>ComplexStaticHeadersRestClientTest.java</code></a></p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-headers" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-headers</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="rest-client-headers-repeating"><a class="anchor" href="#rest-client-headers-repeating"></a><a class="link" href="#rest-client-headers-repeating">4.4. Repeating HTTP Headers</a></h3>
+<div class="paragraph">
+<p>If the HTTP header of an HTTP request is a list of values, the list elements are transferred by default via the HTTP protocol as a string separated by the <code>|</code> symbol.</p>
+</div>
+<div class="paragraph">
+<p>If You want the HTTP header to be repeated for each value, You need to use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/RepeatHeader.java" target="_blank" rel="noopener"><code>@RepeatHeader</code></a> annotation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+public interface RepeatingHeadersRestClient {
+
+    @PUT("/")
+    @HeaderMappingStrategy
+    CompletableFuture&lt;Void&gt; put(@Header List&lt;Status&gt; singleHeader,
+                                @Header @RepeatHeader List&lt;Status&gt; repeatingHeader);
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><strong>The use of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/RepeatHeader.java" target="_blank" rel="noopener"><code>@RepeatHeader</code></a> annotation is supported for request models only!</strong></p>
+</div>
+<div class="paragraph">
+<p>For response models it makes no sense, because the RxMicro framework converts any of the supported formats into a list of values.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>As a result of converting the Java model to HTTP response, the result will be as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(RepeatingHeadersRestClient.class)
+final class RepeatingHeadersRestClientTest {
+
+    private RepeatingHeadersRestClient restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    private void prepare() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(PUT)
+                        .setPath("/")
+                        .setHeaders(HttpHeaders.of(
+                                "Single-Header", "created|approved|rejected", <i class="conum" data-value="1"></i><b>(1)</b>
+                                "Repeating-Header", "created",
+                                "Repeating-Header", "approved",               <i class="conum" data-value="2"></i><b>(2)</b>
+                                "Repeating-Header", "rejected"
+                        ))
+                        .build(),
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepare")
+    void Should_support_repeating_headers() {
+        final List&lt;Status&gt; headers = List.of(created, approved, rejected);
+        assertDoesNotThrow(() -&gt; restClient.put(headers, headers).join());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>By default, HTTP header list elements are transferred via the HTTP protocol as a string separated by the <code>|</code> symbol.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>If the field is annotated by the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/RepeatHeader.java" target="_blank" rel="noopener"><code>@RepeatHeader</code></a> annotation, then the header is repeated for each element of the list.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-headers" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-headers</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rest-client-params-basic"><a class="anchor" href="#rest-client-params-basic"></a><a class="link" href="#rest-client-params-basic">5. HTTP Parameters Handling</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="basic_rules_2"><a class="anchor" href="#basic_rules_2"></a><a class="link" href="#basic_rules_2">5.1. Basic Rules</a></h3>
+<div class="paragraph">
+<p>The RxMicro framework supports HTTP parameters in request and response models:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java"><i class="conum" data-value="1"></i><b>(1)</b>
+@ParameterMappingStrategy
+public final class Request {
+
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    String endpointVersion;
+
+    <i class="conum" data-value="3"></i><b>(3)</b>
+    @Parameter("use-Proxy")
+    Boolean useProxy;
+
+    public String getEndpointVersion() {
+        return endpointVersion;
+    }
+
+    public Boolean getUseProxy() {
+        return useProxy;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java"><i class="conum" data-value="1"></i><b>(1)</b>
+@ParameterMappingStrategy
+public final class Response {
+
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    final String endpointVersion;
+
+    <i class="conum" data-value="3"></i><b>(3)</b>
+    @Parameter("use-Proxy")
+    final Boolean useProxy;
+
+    public Response(final Request request) {
+        this.endpointVersion = request.getEndpointVersion();
+        this.useProxy = request.getUseProxy();
+    }
+
+    public Response(final String endpointVersion,
+                    final Boolean useProxy) {
+        this.endpointVersion = endpointVersion;
+        this.useProxy = useProxy;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/ParameterMappingStrategy.java" target="_blank" rel="noopener"><code>@ParameterMappingStrategy</code></a>
+annotation allows setting common conversion rules for all parameter names from HTTP to Java format and vice versa in the current model class.
+<em>(By default, the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-model/src/main/java/io/rxmicro/model/MappingStrategy.java#L41" target="_blank" rel="noopener"><code>LOWERCASE_WITH_UNDERSCORED</code></a> strategy is used.
+The field name is used as the basic name, and then, following the rules of the specified strategy, the HTTP parameter name is generated.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>In order to declare a model field as the HTTP parameter field, it is necessary to use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/Parameter.java" target="_blank" rel="noopener"><code>@Parameter</code></a> annotation.
+<em>(Unlike the <code>@Header</code> annotation, the <code>@Parameter</code> annotation is optional.
+Thus, if the model field is not annotated by any annotation, then by default it is assumed that there is the <code>@Parameter</code> annotation above the model field.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Using the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/Parameter.java" target="_blank" rel="noopener"><code>@Parameter</code></a>
+annotation, it is possible to specify the HTTP parameter name, which does not correspond to the used strategy declared by the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/ParameterMappingStrategy.java" target="_blank" rel="noopener"><code>@ParameterMappingStrategy</code></a> annotation.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The RxMicro framework uses the following algorithm to define the HTTP parameter name for the specified model field:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>If the field is annotated by the <code>@Parameter</code> annotation with an explicit indication of the HTTP parameter name, the specified name is used;</p>
+</li>
+<li>
+<p>If no HTTP parameter name is specified in the <code>@Parameter</code> annotation, the RxMicro framework checks for the <code>@ParameterMappingStrategy</code> annotation above the model class;</p>
+</li>
+<li>
+<p>If the model class is annotated by the <code>@ParameterMappingStrategy</code> annotation, then the specified naming strategy is used.
+<em>(The field name is used as the basic name, and then, following the rules of the specified strategy, the HTTP parameter name is generated.)</em></p>
+</li>
+<li>
+<p>If the <code>@ParameterMappingStrategy</code> annotation is missing, the model class field name is used as the HTTP parameter name.</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><strong>Unlike the <code>@Header</code> annotation, the <code>@Parameter</code> annotation is optional!</strong></p>
+</div>
+<div class="paragraph">
+<p>Thus, if the model field is not annotated by any annotation, then <strong>by default it is assumed that there is the <code>@Parameter</code> annotation above the model field!</strong></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>After creating model classes, it is necessary to create an HTTP request handler that uses the following models:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+public interface SimpleUsageRestClient {
+
+    @GET("/get1")
+    CompletableFuture&lt;Response&gt; get1(final Request request); <i class="conum" data-value="1"></i><b>(1)</b>
+
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @GET("/get2")
+    <i class="conum" data-value="3"></i><b>(3)</b>
+    @ParameterMappingStrategy
+    CompletableFuture&lt;Response&gt; get2(final String endpointVersion,        <i class="conum" data-value="4"></i><b>(4)</b>
+                                     final @Parameter("use-Proxy") Boolean useProxy); <i class="conum" data-value="5"></i><b>(5)</b>
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>If a separate model class has been created for an HTTP request, then this class must be passed by the method parameter that handles the HTTP request.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Besides supporting HTTP request model classes, the RxMicro framework supports request handlers that accept HTTP request parameters as method parameters.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>To define a common naming strategy for all HTTP parameters which are passed as method parameters, the request handler must be annotated by the <code>@ParameterMappingStrategy</code> annotation.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>To declare a method parameter as an HTTP parameter field, You do not need to use any additional annotations.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Using the <code>@Parameter</code> annotation, it is possible to specify an HTTP parameter name that does not correspond to the strategy used, declared by the <code>@ParameterMappingStrategy</code> annotation.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><strong>Note that the RxMicro framework does not distinguish whether HTTP request parameters will be transferred to the handler using the start line or HTTP body!</strong></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The RxMicro framework recommends for request handlers that depend on 3 or more
+HTTP parameters
+to create separate classes of request model.</p>
+</div>
+<div class="paragraph">
+<p><strong>Upon implementation of</strong>
+<strong>HTTP parameters</strong>
+<strong>directly into the handler, the code becomes hard to read!</strong></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Despite the different approaches to HTTP parameter handling support, as to the message generated by the HTTP protocol, the two above-mentioned handlers are absolutely equal:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(SimpleUsageRestClient.class)
+final class SimpleUsageRestClientTest {
+
+    private static final String ENDPOINT_VERSION = "v1";
+
+    private static final Boolean USE_PROXY = true;
+
+    private static final QueryParams QUERY_PARAMETERS = QueryParams.of(
+            "endpoint_version", ENDPOINT_VERSION,
+            "use-Proxy", USE_PROXY
+    );
+
+    private static final Object BODY = jsonObject(
+            "endpoint_version", ENDPOINT_VERSION,
+            "use-Proxy", USE_PROXY
+    );
+
+    private SimpleUsageRestClient restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    private void prepare1() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(HttpMethod.GET)
+                        .setPath("/get1")
+                        .setQueryParameters(QUERY_PARAMETERS)
+                        .build(),
+                BODY,
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepare1")
+    void Should_use_handler_with_request_class() {
+        final Response response =
+                assertDoesNotThrow(() -&gt;
+                        restClient.get1(new Request(ENDPOINT_VERSION, USE_PROXY)).join());
+
+        assertEquals(ENDPOINT_VERSION, response.getEndpointVersion());
+        assertEquals(USE_PROXY, response.getUseProxy());
+    }
+
+    private void prepare2() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(HttpMethod.GET)
+                        .setPath("/get2")
+                        .setQueryParameters(QUERY_PARAMETERS)
+                        .build(),
+                BODY,
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepare2")
+    void Should_use_handler_with_request_params() {
+        final Response response =
+                assertDoesNotThrow(() -&gt;
+                        restClient.get2(ENDPOINT_VERSION, USE_PROXY).join());
+
+        assertEquals(ENDPOINT_VERSION, response.getEndpointVersion());
+        assertEquals(USE_PROXY, response.getUseProxy());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-params" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-params</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="supported_data_types_2"><a class="anchor" href="#supported_data_types_2"></a><a class="link" href="#supported_data_types_2">5.2. Supported Data Types</a></h3>
+<div class="paragraph">
+<p>The RxMicro framework supports the following Java types, which can be HTTP request model parameters:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>? extends Enum&lt;?&gt;</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Boolean</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Byte</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Short</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Integer</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Long</code>;</p>
+</li>
+<li>
+<p><code>java.math.BigInteger</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Float</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Double</code>;</p>
+</li>
+<li>
+<p><code>java.math.BigDecimal</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Character</code>;</p>
+</li>
+<li>
+<p><code>java.lang.String</code>;</p>
+</li>
+<li>
+<p><code>java.time.Instant</code>;</p>
+</li>
+<li>
+<p><code>? extends Object</code>;</p>
+</li>
+<li>
+<p><code>java.util.List&lt;? extends Object&gt;</code>;</p>
+</li>
+<li>
+<p><code>java.util.Set&lt;? extends Object&gt;</code>;</p>
+</li>
+<li>
+<p><code>java.util.Map&lt;java.lang.String, ? extends Object&gt;</code>;</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For floating point numbers, it is suggested to use the <code>java.math.BigDecimal</code> type instead of <code>java.lang.Float</code> or <code>java.lang.Double</code>.</p>
+</div>
+<div class="paragraph">
+<p>Using the <code>java.math.BigDecimal</code> allows excluding errors of decimal number notation.
+<strong>This is particularly important if the decimal number is used to represent currency-related data!</strong></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>and also the <code>java.util.List&lt;T&gt;</code>, <code>java.util.Set&lt;T&gt;</code> and the <code>java.util.Map&lt;String, T&gt;</code> type is parameterized by any of the above mentioned primitive types.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If the <code>java.util.Map&lt;String, T&gt;</code> type is used, then REST model can contain dynamic properties, where <code>keys</code> are the names of properties and <code>values</code> are the properties values.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="complex_model_support"><a class="anchor" href="#complex_model_support"></a><a class="link" href="#complex_model_support">5.3. Complex Model Support</a></h3>
+<div class="paragraph">
+<p>Unlike HTTP headers, HTTP parameters can be transferred in the request body.</p>
+</div>
+<div class="paragraph">
+<p>Therefore, besides primitives the RxMicro framework also supports nested JSON objects and arrays.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Therefore, the list of supported types includes the following types:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>? extends Object</code> - custom class of the nested Java model;</p>
+</li>
+<li>
+<p><code>java.util.List&lt;? extends Object&gt;</code> - list of the nested Java model custom classes;</p>
+</li>
+<li>
+<p><code>java.util.Set&lt;? extends Object&gt;</code> - set of the nested Java model custom classes;</p>
+</li>
+<li>
+<p><code>java.util.Map&lt;String, ? extends Object&gt;</code> - map of the nested Java model custom classes;</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Nested Model Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@ParameterMappingStrategy
+public final class NestedModel {
+
+    String stringParameter;
+
+    BigDecimal bigDecimalParameter;
+
+    Instant instantParameter;
+
+    public NestedModel(final String stringParameter,
+                       final BigDecimal bigDecimalParameter,
+                       final Instant instantParameter) {
+        this.stringParameter = stringParameter;
+        this.bigDecimalParameter = bigDecimalParameter;
+        this.instantParameter = instantParameter;
+    }
+
+    public NestedModel() {
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(stringParameter, bigDecimalParameter, instantParameter);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final NestedModel that = (NestedModel) o;
+        return stringParameter.equals(that.stringParameter) &amp;&amp;
+                bigDecimalParameter.equals(that.bigDecimalParameter) &amp;&amp;
+                instantParameter.equals(that.instantParameter);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As well as examples of more complex Java models that use a nested model:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@ParameterMappingStrategy
+public final class ComplexRequest {
+
+    final Integer integerParameter; <i class="conum" data-value="1"></i><b>(1)</b>
+
+    final Status enumParameter; <i class="conum" data-value="1"></i><b>(1)</b>
+
+    final List&lt;Status&gt; enumsParameter; <i class="conum" data-value="2"></i><b>(2)</b>
+
+    final NestedModel nestedModelParameter; <i class="conum" data-value="3"></i><b>(3)</b>
+
+    final List&lt;NestedModel&gt; nestedModelsParameter; <i class="conum" data-value="4"></i><b>(4)</b>
+
+    public ComplexRequest(final Integer integerParameter,
+                          final Status enumParameter,
+                          final List&lt;Status&gt; enumsParameter,
+                          final NestedModel nestedModelParameter,
+                          final List&lt;NestedModel&gt; nestedModelsParameter) {
+        this.integerParameter = integerParameter;
+        this.enumParameter = enumParameter;
+        this.enumsParameter = enumsParameter;
+        this.nestedModelParameter = nestedModelParameter;
+        this.nestedModelsParameter = nestedModelsParameter;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@ParameterMappingStrategy
+public final class ComplexResponse {
+
+    Integer integerParameter; <i class="conum" data-value="1"></i><b>(1)</b>
+
+    Status enumParameter; <i class="conum" data-value="1"></i><b>(1)</b>
+
+    List&lt;Status&gt; enumsParameter; <i class="conum" data-value="2"></i><b>(2)</b>
+
+    NestedModel nestedModelParameter; <i class="conum" data-value="3"></i><b>(3)</b>
+
+    List&lt;NestedModel&gt; nestedModelsParameter; <i class="conum" data-value="4"></i><b>(4)</b>
+
+    public Integer getIntegerParameter() {
+        return integerParameter;
+    }
+
+    public Status getEnumParameter() {
+        return enumParameter;
+    }
+
+    public List&lt;Status&gt; getEnumsParameter() {
+        return enumsParameter;
+    }
+
+    public NestedModel getNestedModelParameter() {
+        return nestedModelParameter;
+    }
+
+    public List&lt;NestedModel&gt; getNestedModelsParameter() {
+        return nestedModelsParameter;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Primitive JSON type field.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Primitive JSON array type.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Nested JSON object.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>JSON array of JSON nested objects.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>After creating model classes, it is necessary to create a request handler that uses the following models:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+public interface ComplexModelRestClient {
+
+    @POST("/")
+    CompletableFuture&lt;ComplexResponse&gt; post(ComplexRequest request);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Since the request is transferred in an HTTP body, the sent and received JSON objects must be the same:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(ComplexModelRestClient.class)
+final class ComplexModelRestClientTest {
+
+    private final Integer integerParameter = 1;
+
+    private final Status enumParameter = created;
+
+    private final List&lt;Status&gt; enumsParameter = List.of(created, approved);
+
+    private final NestedModel nestedModelParameter =
+            new NestedModel("test", new BigDecimal("3.14"), Instant.now());
+
+    private final List&lt;NestedModel&gt; nestedModelsParameter = List.of(
+            new NestedModel("test1", new BigDecimal("1.1"), Instant.now()),
+            new NestedModel("test2", new BigDecimal("1.2"), Instant.now())
+    );
+
+    private ComplexModelRestClient restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    void prepare() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(POST)
+                        .setPath("/")
+                        .setAnyBody()
+                        .build(),
+                new HttpResponseMock.Builder()
+                        .setReturnRequestBody()
+                        .build(),
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepare")
+    void Should_support_complex_requests_and_responses() {
+        final ComplexResponse response = assertDoesNotThrow(() -&gt;
+                restClient.post(new ComplexRequest(
+                        integerParameter,
+                        enumParameter,
+                        enumsParameter,
+                        nestedModelParameter,
+                        nestedModelsParameter
+                )).join());
+
+        assertEquals(integerParameter, response.getIntegerParameter());
+        assertEquals(enumParameter, response.getEnumParameter());
+        assertEquals(enumsParameter, response.getEnumsParameter());
+        assertEquals(nestedModelParameter, response.getNestedModelParameter());
+        assertEquals(nestedModelsParameter, response.getNestedModelsParameter());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-params" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-params</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="rest-client-query-params-static"><a class="anchor" href="#rest-client-query-params-static"></a><a class="link" href="#rest-client-query-params-static">5.4. Static Query Parameters</a></h3>
+<div class="paragraph">
+<p>For setting static query parameters, the RxMicro framework provides the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/AddQueryParameter.java" target="_blank" rel="noopener"><code>@AddQueryParameter</code></a> and
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/SetQueryParameter.java" target="_blank" rel="noopener"><code>@SetQueryParameter</code></a> annotations:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+<i class="conum" data-value="1"></i><b>(1)</b>
+@SetQueryParameter(name = "mode", value = "demo")
+public interface StaticQueryParametersRestClient {
+
+    @GET("/get1")
+    CompletableFuture&lt;Void&gt; get1();
+
+    @GET("/get2")
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @SetQueryParameter(name = "debug", value = "true")
+    CompletableFuture&lt;Void&gt; get2();
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>If the static query parameter is set for the REST client, it is added to the HTTP requests for each handler.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>If the static query parameter is set for the handler, it is added to the HTTP requests only for that handler.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>In terms of the HTTP protocol, static query parameters do not differ from any standard parameter:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(StaticQueryParametersRestClient.class)
+final class StaticQueryParametersRestClientTest {
+
+    private StaticQueryParametersRestClient restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    private void prepareParentParamOnly() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(GET)
+                        .setPath("/get1")
+                        .setQueryParameters(QueryParams.of(
+                                "mode", "demo"
+                        ))
+                        .build(),
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepareParentParamOnly")
+    void Should_use_parent_param_only() {
+        assertDoesNotThrow(() -&gt; restClient.get1().join());
+    }
+
+    private void prepareParentAndChildParams() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(GET)
+                        .setPath("/get2")
+                        .setQueryParameters(QueryParams.of(
+                                "debug", true,
+                                "mode", "demo"
+                        ))
+                        .build(),
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepareParentAndChildParams")
+    void Should_use_parent_and_child_params() {
+        assertDoesNotThrow(() -&gt; restClient.get2().join());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In order to understand the differences between the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/AddQueryParameter.java" target="_blank" rel="noopener"><code>@AddQueryParameter</code></a> and
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/SetQueryParameter.java" target="_blank" rel="noopener"><code>@SetQueryParameter</code></a> annotations, check out the following example:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-rest-client/rest-client-params/src/main/java/io/rxmicro/examples/rest/client/params/ComplexStaticQueryParametersRestClient.java" target="_blank" rel="noopener"><code>ComplexStaticQueryParametersRestClient.java</code></a></p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-rest-client/rest-client-params/src/test/java/io/rxmicro/examples/rest/client/params/ComplexStaticQueryParametersRestClientTest.java" target="_blank" rel="noopener"><code>ComplexStaticQueryParametersRestClientTest.java</code></a></p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-params" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-params</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="rest-client-query-params-repeating"><a class="anchor" href="#rest-client-query-params-repeating"></a><a class="link" href="#rest-client-query-params-repeating">5.5. Repeating Query Parameters</a></h3>
+<div class="paragraph">
+<p>If the static query parameter of an HTTP request is a list of values, the list elements are transferred by default via the HTTP protocol as a string separated by the <code>|</code> symbol.</p>
+</div>
+<div class="paragraph">
+<p>If You want the static query parameter to be repeated for each value, You need to use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/RepeatQueryParameter.java" target="_blank" rel="noopener"><code>@RepeatQueryParameter</code></a> annotation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+public interface RepeatingQueryParamsRestClient {
+
+    @PUT(value = "/", httpBody = false)
+    @ParameterMappingStrategy
+    CompletableFuture&lt;Void&gt; put(List&lt;Status&gt; singleHeader,
+                                @RepeatQueryParameter List&lt;Status&gt; repeatingHeader);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As a result of converting the Java model to HTTP response, the result will be as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(RepeatingQueryParamsRestClient.class)
+final class RepeatingQueryParamsRestClientTest {
+
+    private RepeatingQueryParamsRestClient restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    private void prepare() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(PUT)
+                        .setPath("/")
+                        .setQueryParameters(QueryParams.of(
+                                "single_header", "created|approved|rejected", <i class="conum" data-value="1"></i><b>(1)</b>
+                                "repeating_header", "created",
+                                "repeating_header", "approved",               <i class="conum" data-value="2"></i><b>(2)</b>
+                                "repeating_header", "rejected"
+                        ))
+                        .build(),
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepare")
+    void Should_support_repeating_headers() {
+        final List&lt;Status&gt; headers = List.of(created, approved, rejected);
+        assertDoesNotThrow(() -&gt; restClient.put(headers, headers).join());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>By default, static query parameter list elements are transferred via the HTTP protocol as a string separated by the <code>|</code> symbol.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>If the field is annotated by the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/RepeatQueryParameter.java" target="_blank" rel="noopener"><code>@RepeatQueryParameter</code></a> annotation, then the static query parameter is repeated for each element of the list.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-params" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-params</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rest-client-path-variables-basic"><a class="anchor" href="#rest-client-path-variables-basic"></a><a class="link" href="#rest-client-path-variables-basic">6. The <code>path variables</code> Support</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="basic_rules_3"><a class="anchor" href="#basic_rules_3"></a><a class="link" href="#basic_rules_3">6.1. Basic Rules</a></h3>
+<div class="paragraph">
+<p>The RxMicro framework supports <code>path variables</code> in request models:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class Request {
+
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @PathVariable
+    String category;
+
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @PathVariable("class")
+    String type;
+
+    @PathVariable
+    String subType;
+
+    public String getCategory() {
+        return category;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getSubType() {
+        return subType;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>In order to declare a model field as the <code>path variable</code>, it is necessary to use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/PathVariable.java" target="_blank" rel="noopener"><code>@PathVariable</code></a> annotation.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Using the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/PathVariable.java" target="_blank" rel="noopener"><code>@PathVariable</code></a> annotation, it is possible to specify the <code>path variable</code> name.<br>
+<em>(If no name is specified, the model field name is used as the <code>path variable</code> name.)</em></td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Unlike HTTP headers and parameters that are available also on the client side, <code>path variables</code> are available <strong>only</strong> within the HTTP request handlers.</p>
+</div>
+<div class="paragraph">
+<p><strong>So for simplicity it is recommended to always use the model field name as the <code>path variable</code> name!</strong></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>After creating model classes, it is necessary to create an HTTP request handler that uses the following model:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+public interface RESTClient {
+
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @GET("/${category}/${class}-${subType}")
+    CompletableFuture&lt;Void&gt; consume(final Request request);
+
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @GET("/${category}/${class}-${subType}")
+    CompletableFuture&lt;Void&gt; consume(@PathVariable String category,       <i class="conum" data-value="2"></i><b>(2)</b>
+                                    @PathVariable("class") String type,  <i class="conum" data-value="3"></i><b>(3)</b>
+                                    @PathVariable String subType);
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>When using <code>path variables</code> in request models, be sure to use <strong>all</strong> <code>path variables</code> in the URL Path.
+<em>(Based on the analysis of the URL Path, and considering all <code>path variables</code>, the RxMicro framework generates the final URL to which the HTTP request will be sent.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>In order to declare a method parameter as <code>path variable</code>, You must use the <code>@PathVariable</code> annotation.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Using the <code>@PathVariable</code> annotation it is possible to specify the <code>path variable</code> name, which does not match the name of the method parameter.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The RxMicro framework recommends for request handlers that depend on 3 or more
+<code>path variables</code>
+to create separate classes of request model.</p>
+</div>
+<div class="paragraph">
+<p><strong>Upon implementation of</strong>
+<strong><code>path variables</code></strong>
+<strong>directly into the handler, the code becomes hard to read!</strong></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Despite the different approaches to <code>path variables</code> handling support, in terms of the final URL the two above-mentioned handlers are absolutely equal:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(RESTClient.class)
+final class RESTClientTest {
+
+    private RESTClient restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    static Stream&lt;Consumer&lt;RESTClient&gt;&gt; clientMethodsProvider() {
+        return Stream.of(
+                client -&gt; client.consume(new Request("CATEGORY", "TYPE", "SUB-TYPE")).join(),
+                client -&gt; client.consume("CATEGORY", "TYPE", "SUB-TYPE").join()
+        );
+    }
+
+    private void prepare() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(HttpMethod.GET)
+                        .setPath("/CATEGORY/TYPE-SUB-TYPE") <i class="conum" data-value="1"></i><b>(1)</b>
+                        .build(),
+                true
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("clientMethodsProvider")
+    @BeforeThisTest(method = "prepare")
+    void Should_return_message_Hello_World(final Consumer&lt;RESTClient&gt; clientMethod) {
+        assertDoesNotThrow(() -&gt; clientMethod.accept(restClient));
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>As a result of the HTTP request handler execution, the RxMicro framework generates the same URL: <code>/CATEGORY/TYPE-SUB-TYPE</code></td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-path-variables" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-path-variables</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="supported_data_types_3"><a class="anchor" href="#supported_data_types_3"></a><a class="link" href="#supported_data_types_3">6.2. Supported Data Types</a></h3>
+<div class="paragraph">
+<p>The RxMicro framework supports the following Java types, which can be <code>path variables</code> of the request model:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>? extends Enum&lt;?&gt;</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Boolean</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Byte</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Short</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Integer</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Long</code>;</p>
+</li>
+<li>
+<p><code>java.math.BigInteger</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Float</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Double</code>;</p>
+</li>
+<li>
+<p><code>java.math.BigDecimal</code>;</p>
+</li>
+<li>
+<p><code>java.lang.Character</code>;</p>
+</li>
+<li>
+<p><code>java.lang.String</code>;</p>
+</li>
+<li>
+<p><code>java.time.Instant</code>;</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For floating point numbers, it is suggested to use the <code>java.math.BigDecimal</code> type instead of <code>java.lang.Float</code> or <code>java.lang.Double</code>.</p>
+</div>
+<div class="paragraph">
+<p>Using the <code>java.math.BigDecimal</code> allows excluding errors of decimal number notation.
+<strong>This is particularly important if the decimal number is used to represent currency-related data!</strong></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rest-client-internals-basic-section"><a class="anchor" href="#rest-client-internals-basic-section"></a><a class="link" href="#rest-client-internals-basic-section">7. Support of Internal Data Types</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="basic_rules_4"><a class="anchor" href="#basic_rules_4"></a><a class="link" href="#basic_rules_4">7.1. Basic Rules</a></h3>
+<div class="paragraph">
+<p>The RxMicro framework works with internal data.
+Due to this, the developer can extract additional information about the HTTP response.</p>
+</div>
+<div class="paragraph">
+<p>To work with internal data, it is necessary to create a response model:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class Response {
+
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @ResponseStatusCode
+    Integer status;
+
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    HttpVersion version;
+
+    <i class="conum" data-value="3"></i><b>(3)</b>
+    HttpHeaders headers;
+
+    <i class="conum" data-value="4"></i><b>(4)</b>
+    @ResponseBody
+    byte[] body;
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public HttpVersion getVersion() {
+        return version;
+    }
+
+    public HttpHeaders getHeaders() {
+        return headers;
+    }
+
+    public byte[] getBody() {
+        return body;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>To get the HTTP status code, it is necessary to use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/ResponseStatusCode.java" target="_blank" rel="noopener"><code>@ResponseStatusCode</code></a> annotation.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>To get the HTTP protocol version, it is necessary to use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-http/src/main/java/io/rxmicro/http/HttpVersion.java" target="_blank" rel="noopener"><code>HttpVersion</code></a> type.<br>
+<em>(Currently only <code>1.0</code> and <code>1.1</code> HTTP versions are supported.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>To get all HTTP headers, it is necessary to use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-http/src/main/java/io/rxmicro/http/HttpHeaders.java" target="_blank" rel="noopener"><code>HttpHeaders</code></a> type.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>To get the response body content as a byte array, it is necessary to use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/ResponseBody.java" target="_blank" rel="noopener"><code>@ResponseBody</code></a> annotation.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>After creating model classes, it is necessary to create a REST client method that uses this model:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+public interface RESTClient {
+
+    @GET("/")
+    CompletableFuture&lt;Response&gt; get();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After creating the REST client, let&#8217;s check that everything works:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(RESTClient.class)
+final class RESTClientTest {
+
+    private RESTClient restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    @Mock
+    private HttpHeaders headers;
+
+    private void prepare() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(GET)
+                        .setPath("/")
+                        .build(),
+                new HttpResponseMock.Builder()
+                        .setStatus(201)
+                        .setVersion(HTTP_1_0)
+                        .setHeaders(headers)
+                        .setBody("&lt;BODY&gt;")
+                        .build(),
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepare")
+    void Should_support_internals() {
+        final Response response = assertDoesNotThrow(() -&gt; restClient.get().join());
+
+        assertEquals(201, response.getStatus());
+        assertEquals(HTTP_1_0, response.getVersion());
+        assertSame(headers, response.getHeaders());
+        assertArrayEquals("&lt;BODY&gt;".getBytes(UTF_8), response.getBody());
+
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-internals" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-internals</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="supported_internal_data_types"><a class="anchor" href="#supported_internal_data_types"></a><a class="link" href="#supported_internal_data_types">7.2. Supported Internal Data Types</a></h3>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. Supported internal data types for a response model.</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Java type</strong></th>
+<th class="tableblock halign-left valign-top"><strong>RxMicro Annotation</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Is the annotation required?</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-http/src/main/java/io/rxmicro/http/HttpVersion.java" target="_blank" rel="noopener"><code>HttpVersion</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">None</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HTTP protocol version</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-http/src/main/java/io/rxmicro/http/HttpHeaders.java" target="_blank" rel="noopener"><code>HttpHeaders</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">None</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HTTP header model</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Integer.html" target="_blank" rel="noopener"><code>Integer</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/ResponseStatusCode.java" target="_blank" rel="noopener"><code>@ResponseStatusCode</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Yes</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HTTP response status code</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>byte[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/ResponseBody.java" target="_blank" rel="noopener"><code>@ResponseBody</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Yes</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HTTP response body content</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Currently only <code>1.0</code> and <code>1.1</code> HTTP versions are supported.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rest-client-versioning-section"><a class="anchor" href="#rest-client-versioning-section"></a><a class="link" href="#rest-client-versioning-section">8. Versioning of REST Clients</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework supports versioning of REST Clients using two strategies:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Versioning based on HTTP header analysis with the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-http/src/main/java/io/rxmicro/http/HttpStandardHeaderNames.java#L406" target="_blank" rel="noopener"><code>Api-Version</code></a> name.</p>
+</li>
+<li>
+<p>Versioning based on URL Path fragment analysis.</p>
+</li>
+</ul>
+</div>
+<div style="page-break-after: always;"></div>
+<div class="sect2">
+<h3 id="versioning_based_on_http_header_analysis"><a class="anchor" href="#versioning_based_on_http_header_analysis"></a><a class="link" href="#versioning_based_on_http_header_analysis">8.1. Versioning Based on HTTP Header Analysis</a></h3>
+<div class="paragraph">
+<p>The RxMicro framework allows creating identical REST clients that differ only in version:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+@Version(value = "v1", strategy = Version.Strategy.HEADER) <i class="conum" data-value="1"></i><b>(1)</b>
+public interface OldRestClient {
+
+    @PATCH("/patch")
+    CompletableFuture&lt;Void&gt; update();
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>REST client of the old <code>v1</code> version, using the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/Version.java#L89" target="_blank" rel="noopener"><code>Version.Strategy.HEADER</code></a> strategy;</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+@Version(value = "v2", strategy = Version.Strategy.HEADER) <i class="conum" data-value="1"></i><b>(1)</b>
+public interface NewRestClient {
+
+    @PATCH("/patch")
+    CompletableFuture&lt;Void&gt; update();
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>REST client of the new <code>v2</code> version, using the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/Version.java#L89" target="_blank" rel="noopener"><code>Version.Strategy.HEADER</code></a> strategy;</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The correctness of HTTP request generation for these REST clients can be checked with the following tests:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(OldRestClient.class)
+final class OldRestClientTest {
+
+    private OldRestClient restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    private void prepare() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(HttpMethod.PATCH)
+                        .setPath("/patch")
+                        .setHeaders(HttpHeaders.of(
+                                API_VERSION, "v1"
+                        ))
+                        .build(),
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepare")
+    void Should_add_version_url_path() {
+        assertDoesNotThrow(() -&gt; restClient.update().join());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(NewRestClient.class)
+final class NewRestClientTest {
+
+    private NewRestClient restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    private void prepare() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(HttpMethod.PATCH)
+                        .setPath("/patch")
+                        .setHeaders(HttpHeaders.of(
+                                API_VERSION, "v2"
+                        ))
+                        .build(),
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepare")
+    void Should_add_version_url_path() {
+        assertDoesNotThrow(() -&gt; restClient.update().join());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-versioning-header" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-versioning-header</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="versioning_based_on_url_path_fragment_analysis"><a class="anchor" href="#versioning_based_on_url_path_fragment_analysis"></a><a class="link" href="#versioning_based_on_url_path_fragment_analysis">8.2. Versioning Based on URL Path Fragment Analysis</a></h3>
+<div class="paragraph">
+<p>The RxMicro framework allows creating identical REST clients that differ only in version:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+@Version(value = "v1", strategy = Version.Strategy.URL_PATH) <i class="conum" data-value="1"></i><b>(1)</b>
+public interface OldRestClient {
+
+    @PATCH("/patch")
+    CompletableFuture&lt;Void&gt; update();
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>REST client of the old <code>v1</code> version, using the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/Version.java#L70" target="_blank" rel="noopener"><code>Version.Strategy.URL_PATH</code></a> strategy;</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+@Version(value = "v2", strategy = Version.Strategy.URL_PATH) <i class="conum" data-value="1"></i><b>(1)</b>
+public interface NewRestClient {
+
+    @PATCH("/patch")
+    CompletableFuture&lt;Void&gt; update();
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>REST client of the new <code>v2</code> version, using the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/Version.java#L70" target="_blank" rel="noopener"><code>Version.Strategy.URL_PATH</code></a> strategy;</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The correctness of HTTP request generation for these REST clients can be checked with the following tests:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(OldRestClient.class)
+final class OldRestClientTest {
+
+    private OldRestClient restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    private void prepare() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(HttpMethod.PATCH)
+                        .setPath("/v1/patch")
+                        .build(),
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepare")
+    void Should_add_version_url_path() {
+        assertDoesNotThrow(() -&gt; restClient.update().join());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(NewRestClient.class)
+final class NewRestClientTest {
+
+    private NewRestClient restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    private void prepare() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(HttpMethod.PATCH)
+                        .setPath("/v2/patch")
+                        .build(),
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepare")
+    void Should_add_version_url_path() {
+        assertDoesNotThrow(() -&gt; restClient.update().join());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-versioning-url-path" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-versioning-url-path</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rest-client-base-url-path-section"><a class="anchor" href="#rest-client-base-url-path-section"></a><a class="link" href="#rest-client-base-url-path-section">9. Base URL Path for All Handlers</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To configure a base URL Path for all methods sending an HTTP request, the RxMicro framework provides the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest/src/main/java/io/rxmicro/rest/BaseUrlPath.java" target="_blank" rel="noopener"><code>@BaseUrlPath</code></a> annotation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+@BaseUrlPath("base-url-path")
+public interface RESTClient {
+
+    @GET("/path")
+    CompletableFuture&lt;Void&gt; path();
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(RESTClient.class)
+final class RESTClientTest {
+
+    private RESTClient restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    private void prepare() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(HttpMethod.GET)
+                        .setPath("/base-url-path/path")
+                        .build(),
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepare")
+    void Should_support_base_url() {
+        assertDoesNotThrow(() -&gt; restClient.path().join());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-base-url-path" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-base-url-path</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rest-client-expressions-section"><a class="anchor" href="#rest-client-expressions-section"></a><a class="link" href="#rest-client-expressions-section">10. Expressions</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework supports expressions for REST clients.</p>
+</div>
+<div class="paragraph">
+<p>Expressions can be useful to send configuration parameters to the server.</p>
+</div>
+<div class="paragraph">
+<p>To use expressions You need to create a configuration class:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class CustomRestClientConfig extends RestClientConfig {
+
+    private boolean useProxy = true;
+
+    private Mode mode = Mode.PRODUCTION;
+
+    public boolean isUseProxy() {
+        return useProxy;
+    }
+
+    public CustomRestClientConfig setUseProxy(final boolean useProxy) {
+        this.useProxy = useProxy;
+        return this;
+    }
+
+    public Mode getMode() {
+        return mode;
+    }
+
+    public CustomRestClientConfig setMode(final Mode mode) {
+        this.mode = mode;
+        return this;
+    }
+
+    @Override
+    public CustomRestClientConfig setSchema(final ProtocolSchema schema) {
+        return (CustomRestClientConfig) super.setSchema(schema);
+    }
+
+    @Override
+    public CustomRestClientConfig setHost(final String host) {
+        return (CustomRestClientConfig) super.setHost(host);
+    }
+
+    @Override
+    public CustomRestClientConfig setPort(final int port) {
+        return (CustomRestClientConfig) super.setPort(port);
+    }
+
+    public enum Mode {
+
+        PRODUCTION,
+
+        TEST
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>, which must meet the following requirements:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The class must be public.</p>
+</li>
+<li>
+<p>The class must contain a public constructor without parameters.</p>
+</li>
+<li>
+<p>The class must extend the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-client/src/main/java/io/rxmicro/rest/client/RestClientConfig.java" target="_blank" rel="noopener"><code>RestClientConfig</code></a> class.</p>
+</li>
+<li>
+<p>To set property values, the class must contain <a href="https://www.w3schools.com/java/java_encapsulation.asp" target="_blank" rel="noopener"><code>setters</code></a>.<br>
+<em>(Only those fields, that will contain <code>setters</code>, can be initialized!)</em></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>To attach this configuration class to a REST client, You must specify it in the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-client/src/main/java/io/rxmicro/rest/client/RestClient.java" target="_blank" rel="noopener"><code>@RestClient</code></a> annotation parameter:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient(
+        configClass = CustomRestClientConfig.class,    <i class="conum" data-value="1"></i><b>(1)</b>
+        configNameSpace = "custom"                     <i class="conum" data-value="2"></i><b>(2)</b>
+)
+@AddHeader(name = "Use-Proxy", value = "${useProxy}")  <i class="conum" data-value="3"></i><b>(3)</b>
+public interface RESTClient {
+
+    @PUT("/")
+    @AddHeader(name = "Debug", value = "Use-Proxy=${useProxy}, Mode=${mode}")             <i class="conum" data-value="3"></i><b>(3)</b>
+    @AddHeader(name = "Endpoint", value = "Schema=${schema}, Host=${host}, Port=${port}") <i class="conum" data-value="3"></i><b>(3)</b>
+    CompletableFuture&lt;Void&gt; put();
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Attaching the configuration class to a REST client.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <code>name space</code> specification for this configuration file.<br>
+<em>(For more information on <code>name space</code>, refer to the <a href="core.html#configuration-section">core.html</a> section)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>After attaching the configuration class, its <code>properties</code> can be used in expressions.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><a href="core.html#core-config-user-defined-config">All packages with custom config classes must be exported to <code>rxmicro.reflection</code> module!</a></p>
+</div>
+<div class="paragraph">
+<p>So dont&#8217;t forget to add the following <code>opens</code> instruction to your <code>module-info.java</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">exports io.rxmicro.examples.rest.client.expressions to
+        rxmicro.reflection;</code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The functionality of expressions can be demonstrated through the test:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(RESTClient.class)
+final class RESTClientTest {
+
+    @WithConfig("custom")
+    private static final CustomRestClientConfig config =
+            new CustomRestClientConfig()
+                    .setHost("rxmicro.io")
+                    .setPort(8443)
+                    .setSchema(ProtocolSchema.HTTPS)
+                    .setUseProxy(false)
+                    .setMode(CustomRestClientConfig.Mode.TEST);
+
+    private RESTClient restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    private void prepare() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(HttpMethod.PUT)
+                        .setPath("/")
+                        .setHeaders(HttpHeaders.of(
+                                "Use-Proxy", "false",
+                                "Debug", "Use-Proxy=false, Mode=TEST",
+                                "Endpoint", "Schema=HTTPS, Host=rxmicro.io, Port=8443"
+                        ))
+                        .build(),
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepare")
+    void Should_support_expressions() {
+        assertDoesNotThrow(() -&gt; restClient.put().join());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-expressions" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-expressions</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rest-controller-request-id-section"><a class="anchor" href="#rest-controller-request-id-section"></a><a class="link" href="#rest-controller-request-id-section">11. Request ID</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Request Id feature described at <a href="monitoring.html#monitoring-request-id-section">Monitoring</a> section.</p>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rest-client-partial-implementation-section"><a class="anchor" href="#rest-client-partial-implementation-section"></a><a class="link" href="#rest-client-partial-implementation-section">12. Partial Implementation</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If the REST client generated by the <code>RxMicro Annotation Processor</code> contains errors, incorrect or non-optimized logic, the developer can use the <code>Partial Implementation</code> feature.</p>
+</div>
+<div class="paragraph">
+<p>This feature allows You to implement HTTP request handlers for the REST client on Your own, instead of generating them by the RxMicro framework.</p>
+</div>
+<div class="paragraph">
+<p>To activate this feature, You need to use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-client/src/main/java/io/rxmicro/rest/client/PartialImplementation.java" target="_blank" rel="noopener"><code>@PartialImplementation</code></a>
+annotation, and specify an abstract class that contains a partial implementation of HTTP request handler(s) for REST client:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+<i class="conum" data-value="1"></i><b>(1)</b>
+@PartialImplementation(AbstractRESTClient.class)
+public interface RESTClient {
+
+    @GET("/")
+    CompletableFuture&lt;Void&gt; generatedMethod();
+
+    CompletableFuture&lt;Void&gt; userDefinedMethod();
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Using the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-client/src/main/java/io/rxmicro/rest/client/PartialImplementation.java" target="_blank" rel="noopener"><code>@PartialImplementation</code></a>
+annotation, the <code>AbstractRESTClient</code> class is specified.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>An <code>AbstractRESTClient</code> contains the following content:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">abstract class AbstractRESTClient extends AbstractRestClient implements RESTClient {
+
+    @Override
+    public final CompletableFuture&lt;Void&gt; userDefinedMethod() {
+        return CompletableFuture.completedFuture(null);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>An abstract class that contains a partial implementation must meet the following requirements:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The class must be an <code>abstract</code> one.</p>
+</li>
+<li>
+<p>The class must extend the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-client/src/main/java/io/rxmicro/rest/client/detail/AbstractRestClient.java" target="_blank" rel="noopener"><code>AbstractRestClient</code></a> one.</p>
+</li>
+<li>
+<p>The class must implement the REST client interface.</p>
+</li>
+<li>
+<p>The class must contain an implementation of all methods that are not generated automatically.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>In terms of infrastructure, the HTTP request handlers generated and defined by the developer for REST client do not differ:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(RESTClient.class)
+final class RESTClientTest {
+
+    private RESTClient restClient;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    @Alternative
+    private HttpClientFactory httpClientFactory;
+
+    private void prepareGeneratedMethod() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setMethod(GET)
+                        .setPath("/")
+                        .build(),
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepareGeneratedMethod")
+    void Should_invoke_generated_method() {
+        assertDoesNotThrow(() -&gt; restClient.generatedMethod().join());
+    }
+
+    private void prepareUserDefinedMethod() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                new HttpRequestMock.Builder()
+                        .setAnyRequest()
+                        .build(),
+                true
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepareUserDefinedMethod")
+    void Should_invoke_user_defined_method() {
+        assertDoesNotThrow(() -&gt; restClient.userDefinedMethod().join());
+
+        final HttpClient httpClient = getPreparedHttpClientMock();
+        verify(httpClient, never()).sendAsync(anyString(), anyString(), any());
+        verify(httpClient, never()).sendAsync(anyString(), anyString(), any(), any());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-partial-implementation" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-rest-client/rest-client-partial-implementation</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rest-client-rest-client-generator-config-section"><a class="anchor" href="#rest-client-rest-client-generator-config-section"></a><a class="link" href="#rest-client-rest-client-generator-config-section">13. Configuring the Code Generation Process</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework provides an option to configure the code generation process for REST client.
+For this purpose, it is necessary to use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-client/src/main/java/io/rxmicro/rest/client/RestClientGeneratorConfig.java" target="_blank" rel="noopener"><code>@RestClientGeneratorConfig</code></a>
+annotation, that annotates the <code>module-info.java</code> module descriptor:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">import io.rxmicro.rest.client.RestClientGeneratorConfig;
+import io.rxmicro.rest.model.ClientExchangeFormatModule;
+import io.rxmicro.rest.model.GenerateOption;
+
+@RestClientGeneratorConfig(
+        exchangeFormat = ClientExchangeFormatModule.AUTO_DETECT,                    <i class="conum" data-value="1"></i><b>(1)</b>
+        generateRequestValidators = GenerateOption.DISABLED,                        <i class="conum" data-value="2"></i><b>(2)</b>
+        generateResponseValidators = GenerateOption.DISABLED,                       <i class="conum" data-value="3"></i><b>(3)</b>
+        requestValidationMode =
+                RestClientGeneratorConfig.RequestValidationMode.RETURN_ERROR_SIGNAL <i class="conum" data-value="4"></i><b>(4)</b>
+)
+module rest.client.generator {
+    requires rxmicro.rest.client;
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>exchangeFormat</code> parameter allows You to specify a format for message exchange with a server.<br>
+<em>(By default, it is used the message exchange format which added to the <code>module-info.java</code> descriptor.
+If several modules supporting the message exchange format are added to the <code>module-info.java</code> descriptor, then using the <code>exchangeFormat</code>, You need to specify which module should be used for REST clients.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <code>generateRequestValidators</code> parameter allows enabling/disabling the option of generating HTTP request validators for all REST client methods in the project.<br>
+<em>(The <code>DISABLED</code> value means that validators won&#8217;t be generated by the <code>RxMicro Annotation Processor</code>.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The <code>generateResponseValidators</code> parameter allows enabling/disabling the option of generating HTTP response validators for all REST client methods in the project.<br>
+<em>(The <code>AUTO_DETECT</code> value means that validators will be generated only if the developer adds the <a href="validation.html#validation-section"><code>rxmicro.validation</code></a> module to the <code>module-info.java</code> descriptor.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>The <code>requestValidationMode</code> parameter specifies how the HTTP request parameters should be checked.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If the <code>requestValidationMode</code> parameter is equal to the <code>RETURN_ERROR_SIGNAL</code>, then error handling should be performed in reactive style:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">restClient.put("not_valid_email")
+        .exceptionally(throwable -&gt; {
+            // do something with ValidationException
+            return null;
+        });</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If the <code>requestValidationMode</code> parameter is equal to the <code>THROW_EXCEPTION</code>, then it is necessary to catch the exception</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">try {
+    restClient.put("not_valid_email");
+} catch (final ValidationException e) {
+    // do something with ValidationException
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The RxMicro team strong recommends using the <code>AUTO_DETECT</code> generate option always!
+(This is default value for <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-client/src/main/java/io/rxmicro/rest/client/RestClientGeneratorConfig.java" target="_blank" rel="noopener"><code>@RestClientGeneratorConfig</code></a> annotation).</p>
+</div>
+<div class="paragraph">
+<p><em>(HTTP request validation can be useful for identifying errors in business task implementation algorithms.
+For example, instead of returning an incorrect request model to a server, the REST client will throw an error.
+This approach increases the speed of error search and debugging of the source code that performs the business task.)</em></p>
+</div>
+<div class="paragraph">
+<p><strong>FYI:</strong> By default the request validators are generated but not invoked!
+To activate the validation of requests it is necessary to set <code>enableAdditionalValidations</code> property:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">new Configs.Builder()
+        .withConfigs(new RestClientConfig()
+                .setEnableAdditionalValidations(true)) <i class="conum" data-value="1"></i><b>(1)</b>
+        .build();</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Enables the requests validators</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>or</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">export rest-client.enableAdditionalValidations=true <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Enables the response validators</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>or using any other <a href="core.html#core-config-types">supported config types</a></p>
+</div>
+<div class="paragraph">
+<p>Thus the RxMicro team recommends the following approach:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Your project configuration must enable generation of validators for all possible model classes.</p>
+</li>
+<li>
+<p>Your <code>development</code> and <code>staging</code> environment must enable additional validation.</p>
+</li>
+<li>
+<p>Your <code>production</code> environment must disable additional validation!</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="rest-controller.html#rest-controller-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> REST Controller</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="validation.html#validation-section"><strong>Validation  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-166298262-2"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-166298262-2');
+</script>
+</div>
+</div>
+</div>
+</body>
+</html>

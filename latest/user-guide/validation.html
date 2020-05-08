@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.15">
+<meta name="description" content="A modern, JVM-based, full stack framework designed to develop distributed reactive applications that use a microservice architecture.">
+<meta name="keywords" content="rx, rxmicro, reactive java, reactive jvm, microservice java, reactive microservice, micro service java, reactive micro service">
+<meta name="author" content="nedis">
+<title>Validation</title>
+<link rel="stylesheet" href="../styles/rxmicro-doc.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body id="validation-section" class="article toc2 toc-left">
+<div id="header">
+<h1>Validation</h1>
+<div class="details">
+<span id="author" class="author">nedis</span><br>
+<span id="email" class="email"><a href="mailto:rxmicro.io@gmail.com">rxmicro.io@gmail.com</a></span><br>
+<span id="revnumber">version 0.11,</span>
+<span id="revdate">2022-12-14 20:00:09 UTC</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#validation-prepare-section">1. Preparatory Steps</a>
+<ul class="sectlevel2">
+<li><a href="#adding_the_required_dependencies">1.1. Adding the Required Dependencies:</a></li>
+<li><a href="#adding_the_rxmicro_validation_module_to_module_info_java">1.2. Adding the <code>rxmicro.validation</code> Module to <code>module-info.java</code></a></li>
+</ul>
+</li>
+<li><a href="#validation-std-constraints-section">2. Built-in Constraints.</a></li>
+<li><a href="#http_requests_server_validation">3. HTTP Requests Server Validation</a></li>
+<li><a href="#validation-response-section">4. HTTP Responses Server Validation</a></li>
+<li><a href="#http_responses_client_validation">5. HTTP Responses Client Validation</a></li>
+<li><a href="#http_requests_client_validation">6. HTTP Requests Client Validation</a></li>
+<li><a href="#creating_custom_constraints">7. Creating Custom Constraints</a></li>
+<li><a href="#validation-disable-section">8. Disabling Validation</a>
+<ul class="sectlevel2">
+<li><a href="#removing_the_rxmicro_validation_module">8.1. Removing the <code>rxmicro.validation</code> Module</a></li>
+<li><a href="#using_generateoption_disabled_option">8.2. Using <code>GenerateOption.DISABLED</code> Option</a></li>
+<li><a href="#using_disablevalidation_annotation">8.3. Using <code>@DisableValidation</code> Annotation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="rest-client.html#rest-client-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> REST Client</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="project-documentation.html#project-documentation-section"><strong>REST-based Microservice Documentation  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<div class="paragraph">
+<p>&#169; 2019-2022 rxmicro.io.
+Free use of this software is granted under the terms of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/LICENSE" target="_blank" rel="noopener"><code>Apache License 2.0</code></a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Copies of this entity may be made for Your own use and for distribution to others, provided that You do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.</p>
+</div>
+<div class="paragraph">
+<p>If You find errors or omissions in this entity, please don’t hesitate to submit an
+<a href="https://github.com/rxmicro/rxmicro-usage/issues" target="_blank" rel="noopener"><strong>issue</strong></a> or open <a href="https://github.com/rxmicro/rxmicro-usage/pulls" target="_blank" rel="noopener"><strong>a pull request</strong></a> with a fix.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The RxMicro framework supports validation of HTTP requests and responses.</p>
+</div>
+<div class="paragraph">
+<p>All classes and annotations required for data validation are available in the
+<a href="https://github.com/rxmicro/rxmicro/tree/v0.11/rxmicro-validation" target="_blank" rel="noopener"><code>rxmicro.validation</code></a> module.</p>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="validation-prepare-section"><a class="anchor" href="#validation-prepare-section"></a><a class="link" href="#validation-prepare-section">1. Preparatory Steps</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To activate the validation module in a microservices project, the following steps must be taken:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Add the required dependencies to <code>pom.xml</code>.</p>
+</li>
+<li>
+<p>Add the <code>rxmicro.validation</code> module to <code>module-info.java</code>.</p>
+</li>
+</ol>
+</div>
+<div class="sect2">
+<h3 id="adding_the_required_dependencies"><a class="anchor" href="#adding_the_required_dependencies"></a><a class="link" href="#adding_the_required_dependencies">1.1. Adding the Required Dependencies:</a></h3>
+<div class="paragraph">
+<p>To activate the validation module in a microservices project, it is necessary to add the <code>rxmicro-validation</code> library:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;io.rxmicro&lt;/groupId&gt;
+        &lt;artifactId&gt;rxmicro-validation&lt;/artifactId&gt;
+        &lt;version&gt;${rxmicro.version}&lt;/version&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="adding_the_rxmicro_validation_module_to_module_info_java"><a class="anchor" href="#adding_the_rxmicro_validation_module_to_module_info_java"></a><a class="link" href="#adding_the_rxmicro_validation_module_to_module_info_java">1.2. Adding the <code>rxmicro.validation</code> Module to <code>module-info.java</code></a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">module example {
+    requires rxmicro.validation; <i class="conum" data-value="1"></i><b>(1)</b>
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Adding the request and response validation module.</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="validation-std-constraints-section"><a class="anchor" href="#validation-std-constraints-section"></a><a class="link" href="#validation-std-constraints-section">2. Built-in Constraints.</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework supports the following built-in constraints, that are available at the
+<a href="https://github.com/rxmicro/rxmicro/tree/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint" target="_blank" rel="noopener"><code>io.rxmicro.validation.constraint</code></a> package:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Supported Built-in Constraints.</caption>
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Annotation</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Supported Type</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/AllowEmptyString.java" target="_blank" rel="noopener"><code>@AllowEmptyString</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element may be optional, i.e. <code>empty string</code> BUT must be not <code>null</code>!</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/AssertFalse.java" target="_blank" rel="noopener"><code>@AssertFalse</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Boolean.html" target="_blank" rel="noopener"><code>java.lang.Boolean</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be <code>false</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/AssertFalse.java" target="_blank" rel="noopener"><code>@AssertTrue</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Boolean.html" target="_blank" rel="noopener"><code>java.lang.Boolean</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be <code>true</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Base64URLEncoded.java" target="_blank" rel="noopener"><code>@Base64URLEncoded</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>The annotated element must be a valid Base64 string:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://tools.ietf.org/html/rfc4648#section-4" target="_blank" rel="noopener">Base</a>;</p>
+</li>
+<li>
+<p><a href="https://tools.ietf.org/html/rfc4648#section-5" target="_blank" rel="noopener">URL</a></p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/CountryCode.java" target="_blank" rel="noopener"><code>@CountryCode</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>The annotated element must be a valid country code:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2" target="_blank" rel="noopener">ISO 3166-1 alpha2</a>;</p>
+</li>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3" target="_blank" rel="noopener">ISO 3166-1 alpha3</a>;</p>
+</li>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/ISO_3166-1_numeric" target="_blank" rel="noopener">ISO 3166-1 numeric</a>;</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/DigitsOnly.java" target="_blank" rel="noopener"><code>@DigitsOnly</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a string value with digit characters only.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Email.java" target="_blank" rel="noopener"><code>@Email</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a <a href="https://tools.ietf.org/html/rfc5322#section-3.4.1" target="_blank" rel="noopener">well-formed email address</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/EndsWith.java" target="_blank" rel="noopener"><code>@EndsWith</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element value must end with the provided suffix.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Enumeration.java" target="_blank" rel="noopener"><code>@Enumeration</code></a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Character.html" target="_blank" rel="noopener"><code>java.lang.Character</code></a></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be an element of the predefined enumeration.</p>
+<p class="tableblock"><em>This validation rule is useful when a Java <code>enum</code> type is not applicable.</em>
+<em>For example: if an enum item name equals to a Java keyword.</em>
+<em>To solve this issue use <code>@Enumeration</code> annotation, otherwise use a Java <code>enum</code>.</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Future.java" target="_blank" rel="noopener"><code>@Future</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Instant.html" target="_blank" rel="noopener"><code>java.time.Instant</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be an instant in the future.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/FutureOrPresent.java" target="_blank" rel="noopener"><code>@FutureOrPresent</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Instant.html" target="_blank" rel="noopener"><code>java.time.Instant</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be an instant in the present or in the future.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/HostName.java" target="_blank" rel="noopener"><code>@HostName</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a valid <a href="https://tools.ietf.org/html/rfc1034#section-3.1" target="_blank" rel="noopener">host name</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/IP.java" target="_blank" rel="noopener"><code>@IP</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>The annotated element must be a valid IP address:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/IPv4" target="_blank" rel="noopener">IP version 4</a>;</p>
+</li>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/IPv6" target="_blank" rel="noopener">IP version 6</a>;</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Lat.java" target="_blank" rel="noopener"><code>@Lat</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/math/BigDecimal.html" target="_blank" rel="noopener"><code>java.math.BigDecimal</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a <a href="https://en.wikipedia.org/wiki/Latitude" target="_blank" rel="noopener">valid latitude coordinate</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/LatinAlphabetOnly.java" target="_blank" rel="noopener"><code>@LatinAlphabetOnly</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a string with latin alphabet letters only.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Length.java" target="_blank" rel="noopener"><code>@Length</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must have the expected string length.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Lng.java" target="_blank" rel="noopener"><code>@Lng</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/math/BigDecimal.html" target="_blank" rel="noopener"><code>java.math.BigDecimal</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a <a href="https://en.wikipedia.org/wiki/Longitude" target="_blank" rel="noopener">valid longitude coordinate</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Lowercase.java" target="_blank" rel="noopener"><code>@Lowercase</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must a lowercase string.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/MaxDouble.java" target="_blank" rel="noopener"><code>@MaxDouble</code></a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Float.html" target="_blank" rel="noopener"><code>java.lang.Float</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Double.html" target="_blank" rel="noopener"><code>java.lang.Double</code></a>;</p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a double whose value must be lower to the specified maximum.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/MaxInt.java" target="_blank" rel="noopener"><code>@MaxInt</code></a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Byte.html" target="_blank" rel="noopener"><code>java.lang.Byte</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Short.html" target="_blank" rel="noopener"><code>java.lang.Short</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Integer.html" target="_blank" rel="noopener"><code>java.lang.Integer</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Long.html" target="_blank" rel="noopener"><code>java.lang.Long</code></a>;</p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a <code>byte</code> or <code>short</code> or <code>integer</code> or <code>long</code> whose value must be lower or equal to the specified maximum.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/MaxLength.java" target="_blank" rel="noopener"><code>@MaxLength</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must have a string length whose value must be lower or equal to the specified maximum.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/MaxNumber.java" target="_blank" rel="noopener"><code>@MaxNumber</code></a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Byte.html" target="_blank" rel="noopener"><code>java.lang.Byte</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Short.html" target="_blank" rel="noopener"><code>java.lang.Short</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Integer.html" target="_blank" rel="noopener"><code>java.lang.Integer</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Long.html" target="_blank" rel="noopener"><code>java.lang.Long</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/math/BigInteger.html" target="_blank" rel="noopener"><code>java.math.BigInteger</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Float.html" target="_blank" rel="noopener"><code>java.lang.Float</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Double.html" target="_blank" rel="noopener"><code>java.lang.Double</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/math/BigDecimal.html" target="_blank" rel="noopener"><code>java.math.BigDecimal</code></a>;</p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a number whose value must be lower or equal to the specified maximum.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/MaxSize.java" target="_blank" rel="noopener"><code>@MaxSize</code></a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html" target="_blank" rel="noopener"><code>java.util.List</code></a></p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Set.html" target="_blank" rel="noopener"><code>java.util.Set</code></a></p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html" target="_blank" rel="noopener"><code>java.util.Map</code></a></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must have a list size whose value must be lower or equal to the specified maximum.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/MinDouble.java" target="_blank" rel="noopener"><code>@MinDouble</code></a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Float.html" target="_blank" rel="noopener"><code>java.lang.Float</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Double.html" target="_blank" rel="noopener"><code>java.lang.Double</code></a>;</p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a double whose value must be higher or equal to the specified minimum.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/MinInt.java" target="_blank" rel="noopener"><code>@MinInt</code></a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Byte.html" target="_blank" rel="noopener"><code>java.lang.Byte</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Short.html" target="_blank" rel="noopener"><code>java.lang.Short</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Integer.html" target="_blank" rel="noopener"><code>java.lang.Integer</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Long.html" target="_blank" rel="noopener"><code>java.lang.Long</code></a>;</p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a <code>byte</code> or <code>short</code> or <code>integer</code> or <code>long</code> whose value must be higher or equal to the specified minimum.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/MinLength.java" target="_blank" rel="noopener"><code>@MinLength</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must have a string length whose value must be higher or equal to the specified minimum.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/MinNumber.java" target="_blank" rel="noopener"><code>@MinNumber</code></a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Byte.html" target="_blank" rel="noopener"><code>java.lang.Byte</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Short.html" target="_blank" rel="noopener"><code>java.lang.Short</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Integer.html" target="_blank" rel="noopener"><code>java.lang.Integer</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Long.html" target="_blank" rel="noopener"><code>java.lang.Long</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/math/BigInteger.html" target="_blank" rel="noopener"><code>java.math.BigInteger</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Float.html" target="_blank" rel="noopener"><code>java.lang.Float</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Double.html" target="_blank" rel="noopener"><code>java.lang.Double</code></a>;</p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/math/BigDecimal.html" target="_blank" rel="noopener"><code>java.math.BigDecimal</code></a>;</p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a number whose value must be higher or equal to the specified minimum.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/MinSize.java" target="_blank" rel="noopener"><code>@MinSize</code></a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html" target="_blank" rel="noopener"><code>java.util.List</code></a></p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Set.html" target="_blank" rel="noopener"><code>java.util.Set</code></a></p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html" target="_blank" rel="noopener"><code>java.util.Map</code></a></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must have a list size whose value must be higher or equal to the specified minimum.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Nullable.java" target="_blank" rel="noopener"><code>@Nullable</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>? extends java.lang.Object</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element may be optional, i.e. <code>null</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/NullableArrayItem.java" target="_blank" rel="noopener"><code>@NullableArrayItem</code></a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html" target="_blank" rel="noopener"><code>java.util.List</code></a></p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Set.html" target="_blank" rel="noopener"><code>java.util.Set</code></a></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated array element may be optional, i.e. <code>null</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Numeric.java" target="_blank" rel="noopener"><code>@Numeric</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/math/BigDecimal.html" target="_blank" rel="noopener"><code>java.math.BigDecimal</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a decimal within accepted range (scale and precision).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Past.java" target="_blank" rel="noopener"><code>@Past</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Instant.html" target="_blank" rel="noopener"><code>java.time.Instant</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be an instant in the past.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/PastOrPresent.java" target="_blank" rel="noopener"><code>@PastOrPresent</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Instant.html" target="_blank" rel="noopener"><code>java.time.Instant</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be an instant in the past or in the present.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Pattern.java" target="_blank" rel="noopener"><code>@Pattern</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated <code>String</code> must match the specified regular expression.
+The regular expression follows the Java regular expression conventions.</p>
+<p class="tableblock"><em>(See <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html" target="_blank" rel="noopener"><code>java.util.regex.Pattern</code></a>)</em>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Phone.java" target="_blank" rel="noopener"><code>@Phone</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a <a href="https://en.wikipedia.org/wiki/National_conventions_for_writing_telephone_numbers" target="_blank" rel="noopener">valid phone number</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Size.java" target="_blank" rel="noopener"><code>@Size</code></a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html" target="_blank" rel="noopener"><code>java.util.List</code></a></p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Set.html" target="_blank" rel="noopener"><code>java.util.Set</code></a></p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html" target="_blank" rel="noopener"><code>java.util.Map</code></a></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must have the expected list size.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Skype.java" target="_blank" rel="noopener"><code>@Skype</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a valid <code>skype</code> number.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/StartsWith.java" target="_blank" rel="noopener"><code>@StartsWith</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element value must start with the provided prefix.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/SubEnum.java" target="_blank" rel="noopener"><code>@SubEnum</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Enum.html" target="_blank" rel="noopener"><code>? extends java.lang.Enum</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be an enumeration with predefined sub sequence.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Telegram.java" target="_blank" rel="noopener"><code>@Telegram</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a <a href="https://en.wikipedia.org/wiki/National_conventions_for_writing_telephone_numbers" target="_blank" rel="noopener">valid <code>telegram</code> number</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/TruncatedTime.java" target="_blank" rel="noopener"><code>@TruncatedTime</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Instant.html" target="_blank" rel="noopener"><code>java.time.Instant</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be an instant with truncated time value.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/UniqueItems.java" target="_blank" rel="noopener"><code>@UniqueItems</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html" target="_blank" rel="noopener"><code>java.util.List</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must contain unique items.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Uppercase.java" target="_blank" rel="noopener"><code>@Uppercase</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must an uppercase string.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/URI.java" target="_blank" rel="noopener"><code>@URI</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a valid <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/net/URI.html" target="_blank" rel="noopener"><code>java.net.URI</code></a> address.</p>
+<p class="tableblock"><em>(See <a href="https://en.wikipedia.org/wiki/Uniform_Resource_Identifier" target="_blank" rel="noopener">Uniform Resource Identifier</a>)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/URLEncoded.java" target="_blank" rel="noopener"><code>@URLEncoded</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a <a href="https://en.wikipedia.org/wiki/Percent-encoding" target="_blank" rel="noopener">valid URL encoded value</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Viber.java" target="_blank" rel="noopener"><code>@Viber</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a <a href="https://en.wikipedia.org/wiki/National_conventions_for_writing_telephone_numbers" target="_blank" rel="noopener">valid <code>viber</code> number</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/WhatsApp.java" target="_blank" rel="noopener"><code>@WhatsApp</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" target="_blank" rel="noopener"><code>java.lang.String</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The annotated element must be a <a href="https://en.wikipedia.org/wiki/National_conventions_for_writing_telephone_numbers" target="_blank" rel="noopener">valid <code>whatsapp</code> number</a>.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The RxMicro framework analyzes built-in constraints when <a href="project-documentation.html#project-documentation-section">drawing up the project documentation.</a></p>
+</div>
+<div class="paragraph">
+<p><strong>Therefore, a properly selected annotation, in addition to its main purpose, makes it possible to automatically generate more accurate project documentation!</strong></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="http_requests_server_validation"><a class="anchor" href="#http_requests_server_validation"></a><a class="link" href="#http_requests_server_validation">3. HTTP Requests Server Validation</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>After activation of the <code>rxmicro.validation</code> module in the <code>module-info.java</code> descriptor</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">module examples.validation.server.basic {
+    requires rxmicro.rest.server.netty;
+    requires rxmicro.rest.server.exchange.json;
+    requires rxmicro.validation; <i class="conum" data-value="1"></i><b>(1)</b>
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><code>rxmicro.validation</code> is a module for request and response validation.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>the developer can use <a href="#validation-std-constraints-section">built-in constraints</a> to validate HTTP request parameters:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">final class MicroService {
+
+    @PUT(value = "/", httpBody = false)
+    void consume(final @Email String email) { <i class="conum" data-value="1"></i><b>(1)</b>
+        System.out.println("Email: " + email);
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>email</code> parameter is annotated by the <code>@Email</code> annotation.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Due to this annotation the <code>RxMicro Annotation Processor</code> will automatically generate a validator for <code>email</code> HTTP parameter:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroRestBasedMicroServiceTest(MicroService.class)
+final class MicroServiceTest {
+
+    private BlockingHttpClient blockingHttpClient;
+
+    private SystemOut systemOut;
+
+    @ParameterizedTest
+    @CsvSource({
+            "/,                     Parameter \"email\" is required!",  <i class="conum" data-value="1"></i><b>(1)</b>
+            "/?email=,              Parameter \"email\" is required!",
+            "/?email=rxmicro,       Invalid parameter \"email\": Expected a valid email format!",
+            "/?email=rxmicro.io,    Invalid parameter \"email\": Expected a valid email format!",
+            "/?email=@rxmicro.io,   Invalid parameter \"email\": Expected a valid email format!",
+            "/?email=rxmicro.io@,   Invalid parameter \"email\": Expected a valid email format!",
+            "/?email=@.rxmicro.io,  Invalid parameter \"email\": Expected a valid email format!",
+            "/?email=rxmicro.io@.,  Invalid parameter \"email\": Expected a valid domain name!"
+    })
+    void Should_return_invalid_request_status(final String path,
+                                              final String expectedErrorMessage) {
+        final ClientHttpResponse response = blockingHttpClient.put(path);
+
+        assertEquals(jsonErrorObject(expectedErrorMessage), response.getBody()); <i class="conum" data-value="2"></i><b>(2)</b>
+        assertEquals(400, response.getStatusCode()); <i class="conum" data-value="2"></i><b>(2)</b>
+        assertTrue(systemOut.isEmpty(), "System.out is not empty: " + systemOut.asString()); <i class="conum" data-value="3"></i><b>(3)</b>
+    }
+
+    @Test
+    void Should_handle_request() {
+        final ClientHttpResponse response = blockingHttpClient.put("/?email=welcome@rxmicro.io");
+
+        assertEquals("Email: welcome@rxmicro.io", systemOut.asString()); <i class="conum" data-value="4"></i><b>(4)</b>
+        assertEquals(200, response.getStatusCode()); <i class="conum" data-value="4"></i><b>(4)</b>
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>When activating the <code>rxmicro.validation</code> module, all query parameters are automatically considered as required.<br>
+<em>(Therefore the <code>RxMicro Annotation Processor</code> automatically adds a <code>required</code> validator for each parameter.
+If the parameter should be <code>optional</code>, the model field should be annotated with the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Nullable.java" target="_blank" rel="noopener"><code>@Nullable</code></a> annotation.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>If request parameters are invalid, HTTP server automatically returns a status code <code>400</code> and JSON object of <a href="rest-controller.html#rest-controller-errors-model-inline">standard structure with detailed error description.</a></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>If an HTTP request validation error occurs, the request handler isn&#8217;t invoked from the REST controller.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>If the request parameters are valid, control is transferred to the request handler from the REST controller.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-validation/validation-server-basic" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-validation/validation-server-basic</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="validation-response-section"><a class="anchor" href="#validation-response-section"></a><a class="link" href="#validation-response-section">4. HTTP Responses Server Validation</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In addition to validating HTTP requests, the RxMicro framework also provides the option to validate HTTP responses.</p>
+</div>
+<div class="paragraph">
+<p><em>(HTTP response validation can be useful for identifying errors in business task implementation algorithms.
+For example, instead of returning an incorrect response model to a client, the microservice will throw an error.
+This approach increases the speed of error search and debugging of the source code that performs the business task.)</em></p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If current implementation of the business task doesn&#8217;t contain any errors, then HTTP response validation will consume computing resources senselessly.
+In this case, HTTP response validation must be disabled!</p>
+</div>
+<div class="paragraph">
+<p><strong>By default the response validators are generated but not invoked!</strong></p>
+</div>
+<div class="paragraph">
+<p>To activate the validation of responses it is necessary to set <code>enableAdditionalValidations</code> property:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">new Configs.Builder()
+        .withConfigs(new RestServerConfig()
+                .setEnableAdditionalValidations(true)) <i class="conum" data-value="1"></i><b>(1)</b>
+        .build();</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Enables the response validators</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>or</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">export rest-server.enableAdditionalValidations=true <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Enables the response validators</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>or using any other <a href="core.html#core-config-types">supported config types</a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The HTTP response model class can contain any built-in or custom constraint annotations:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class Response {
+
+    final String message; <i class="conum" data-value="1"></i><b>(1)</b>
+
+    public Response(final String message) {
+        this.message = message;
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>In this example, the <code>message</code> field doesn&#8217;t explicitly contain any constraint annotations.
+But since to the <code>module-info.java</code> descriptor was added the <code>rxmicro.validation</code> module, then all model fields not marked with the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/constraint/Nullable.java" target="_blank" rel="noopener"><code>@Nullable</code></a> annotation are automatically required.
+<em>(In other words, such fields are implicitly marked by a virtual constraint annotation <code>@Required</code>.)</em></td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>To emulate an incorrect business value, <code>null</code> value is passed in the request handler to the <code>message</code> field:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">final class MicroService {
+
+    @GET("/")
+    CompletableFuture&lt;Response&gt; get() {
+        return CompletableFuture.completedFuture(new Response(null));
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In case of invalid HTTP response, the RxMicro framework returns HTTP response with a status <code>500</code> and <a href="rest-controller.html#rest-controller-errors-model-inline">standard error model</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RxMicroRestBasedMicroServiceTest(MicroService.class)
+final class MicroServiceTest {
+
+    private BlockingHttpClient blockingHttpClient;
+
+    @Test
+    void Should_produce_internal_error() {
+        final ClientHttpResponse response = blockingHttpClient.get("/");
+
+        assertEquals(
+                jsonErrorObject("Response is invalid: Parameter \"message\" is required!"),
+                response.getBody()
+        );
+        assertEquals(500, response.getStatusCode());
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-validation/validation-server-response" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-validation/validation-server-response</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="http_responses_client_validation"><a class="anchor" href="#http_responses_client_validation"></a><a class="link" href="#http_responses_client_validation">5. HTTP Responses Client Validation</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>After activation of the <code>rxmicro.validation</code> module in the <code>module-info.java</code> descriptor</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">module examples.validation.client.basic {
+    requires rxmicro.rest.client;
+    requires rxmicro.rest.client.exchange.json;
+    requires rxmicro.validation; <i class="conum" data-value="1"></i><b>(1)</b>
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><code>rxmicro.validation</code> is a module for request and response validation.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>the developer can use <a href="#validation-std-constraints-section">built-in constraints</a> to validate HTTP request parameters:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class Response {
+
+    <i class="conum" data-value="1"></i><b>(1)</b>
+    @Email
+    String email;
+
+    public String getEmail() {
+        return email;
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>email</code> parameter is annotated by the <code>@Email</code> annotation.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>After setting up the model class, this model must be used in the REST client:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestClient
+public interface RESTClient {
+
+    @GET("/")
+    CompletableFuture&lt;Response&gt; get();
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When converting the content of an HTTP response to the <code>Response</code> class object, the validator will be invoked automatically:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@InitMocks
+@RxMicroComponentTest(RESTClient.class)
+final class RESTClientTest {
+
+    private static final HttpRequestMock HTTP_REQUEST_MOCK = new HttpRequestMock.Builder()
+            .setMethod(HttpMethod.GET)
+            .setPath("/")
+            .build();
+
+    private RESTClient restClient;
+
+    @Alternative
+    @Mock
+    private HttpClientFactory httpClientFactory;
+
+    private void prepareValidResponse() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                HTTP_REQUEST_MOCK,
+                jsonObject("email", "welcome@rxmicro.io") <i class="conum" data-value="1"></i><b>(1)</b>
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepareValidResponse")
+    void Should_return_received_email() {
+        final Response response = restClient.get().join();
+        assertEquals("welcome@rxmicro.io", response.getEmail()); <i class="conum" data-value="1"></i><b>(1)</b>
+    }
+
+    private void prepareInvalidResponse() {
+        prepareHttpClientMock(
+                httpClientFactory,
+                HTTP_REQUEST_MOCK,
+                jsonObject("email", "rxmicro.io") <i class="conum" data-value="2"></i><b>(2)</b>
+        );
+    }
+
+    @Test
+    @BeforeThisTest(method = "prepareInvalidResponse")
+    void Should_throw_UnexpectedResponseException() {
+        final Throwable throwable =
+                <i class="conum" data-value="4"></i><b>(4)</b>
+                getRealThrowable(assertThrows(RuntimeException.class, () -&gt; restClient.get().join())); <i class="conum" data-value="2"></i><b>(2)</b>
+        assertEquals(UnexpectedResponseException.class, throwable.getClass()); <i class="conum" data-value="3"></i><b>(3)</b>
+        assertEquals(
+                "Response is invalid: " +
+                        "Invalid parameter \"email\": Expected a valid email format!", <i class="conum" data-value="3"></i><b>(3)</b>
+                throwable.getMessage()
+        );
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>If the REST client receives a valid HTTP response, no errors will occur.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>If the <code>email</code> field is incorrect in the HTTP response, the REST client will return an error signal.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>If the HTTP response is incorrect, the <code>UnexpectedResponseException</code> class exception is returned with a detailed text message.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td><strong>Since <code>CompletableFuture</code> when receiving an error signal ALWAYS returns the <code>CompletionException</code> class exception, to get the original exception class, which was thrown during the lazy evaluation, it is necessary to use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-common/src/main/java/io/rxmicro/common/util/Exceptions.java#L123" target="_blank" rel="noopener"><code>Exceptions.getRealThrowable(Throwable)</code></a> utility method!</strong></td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Check out the following example to find out the features of the RxMicro framework for HTTP request validation in REST clients:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-validation/validation-client-all-types" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-validation/validation-client-all-types</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-validation/validation-client-basic" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-validation/validation-client-basic</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="http_requests_client_validation"><a class="anchor" href="#http_requests_client_validation"></a><a class="link" href="#http_requests_client_validation">6. HTTP Requests Client Validation</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In addition to validating HTTP responses, the RxMicro framework also provides the option to validate HTTP requests.</p>
+</div>
+<div class="paragraph">
+<p><em>(HTTP request validation can be useful for identifying errors in business task implementation algorithms.
+For example, instead of returning an incorrect request model to a server, the REST client will throw an error.
+This approach increases the speed of error search and debugging of the source code that performs the business task.)</em></p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If current implementation of the business task doesn&#8217;t contain any errors, then HTTP request validation will consume computing resources senselessly.
+In this case, HTTP request validation must be disabled!</p>
+</div>
+<div class="paragraph">
+<p><strong>By default the request validators are generated but not invoked!</strong>
+To activate the validation of requests it is necessary to set <code>enableAdditionalValidations</code> property:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">new Configs.Builder()
+        .withConfigs(new RestClientConfig()
+                .setEnableAdditionalValidations(true)) <i class="conum" data-value="1"></i><b>(1)</b>
+        .build();</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Enables the requests validators</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>or</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">export rest-client.enableAdditionalValidations=true <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Enables the response validators</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>or using any other <a href="core.html#core-config-types">supported config types</a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="creating_custom_constraints"><a class="anchor" href="#creating_custom_constraints"></a><a class="link" href="#creating_custom_constraints">7. Creating Custom Constraints</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If built-in constraints are not enough, the developer can create custom constraint.
+To do so, the following steps must be taken:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create a constraint annotation.</p>
+</li>
+<li>
+<p>Implement a validator.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>A validation annotation is an annotation that meets the following requirements:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java"><i class="conum" data-value="1"></i><b>(1)</b>
+@Retention(CLASS)
+<i class="conum" data-value="2"></i><b>(2)</b>
+@Target({FIELD, METHOD, PARAMETER})
+<i class="conum" data-value="3"></i><b>(3)</b>
+@ConstraintRule(
+        supportedTypes = {
+                BigDecimal.class                        <i class="conum" data-value="4"></i><b>(4)</b>
+        },
+        validatorClass = {
+                ExpectedZeroConstraintValidator.class   <i class="conum" data-value="5"></i><b>(5)</b>
+        }
+)
+public @interface ExpectedZero {
+
+    boolean off() default false; <i class="conum" data-value="6"></i><b>(6)</b>
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The annotation is only available at the compilation level.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>This annotation allows validating class fields, class methods (<code>setters</code> and <code>getters</code>) and method parameters.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/base/ConstraintRule.java" target="_blank" rel="noopener"><code>@ConstraintRule</code></a> annotation is used to indicate:</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>data type;</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>validator class.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Each constraint annotation requires a required <code>boolean off() default false;</code> parameter, that allows You to disable the validator.<br>
+<em>(This feature is useful for model inheritance when a parameter from a child class should not be validated and a parameter from a parent class should be validated!)</em></td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Validator is a class that meets the following requirements:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class ExpectedZeroConstraintValidator
+        implements ConstraintValidator&lt;BigDecimal&gt; { <i class="conum" data-value="1"></i><b>(1)</b>
+
+    @Override
+    public void validateNonNull(final BigDecimal value,
+                                final HttpModelType httpModelType,
+                                final String modelName) throws ValidationException {
+        if (value.compareTo(BigDecimal.ZERO) != 0) { <i class="conum" data-value="2"></i><b>(2)</b>
+            throw new ValidationException(
+                "Invalid ? \"?\": Expected a zero value!",
+                httpModelType, modelName
+            );
+        }
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The validator class must implement the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/ConstraintValidator.java" target="_blank" rel="noopener"><code>ConstraintValidator</code></a> interface parameterized by the data type.<br>
+<em>(If constraint annotation can be applied to different data types, a separate validator class must be created for each data type.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>If the parameter is incorrect, the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-http/src/main/java/io/rxmicro/http/error/ValidationException.java" target="_blank" rel="noopener"><code>ValidationException</code></a> exception with a clear error message must be thrown.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Using a custom validator is no different from using a predefined validator:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">final class MicroService {
+
+    @PATCH("/")
+    void consume(final @ExpectedZero BigDecimal value) {
+        System.out.println(value);
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@ParameterizedTest
+@CsvSource({
+        "/,                     Parameter \"value\" is required!",
+        "/?value=,              Parameter \"value\" is required!",
+        "/?value=1.23,          Invalid parameter \"value\": Expected a zero value!",
+        "/?value=-3.45,         Invalid parameter \"value\": Expected a zero value!"
+})
+void Should_return_invalid_request_status(final String path,
+                                          final String expectedErrorMessage) {
+    final ClientHttpResponse response = blockingHttpClient.patch(path);
+
+    assertEquals(jsonErrorObject(expectedErrorMessage), response.getBody());
+    assertEquals(400, response.getStatusCode());
+    assertEquals("", systemOut.asString());
+}
+
+@ParameterizedTest
+@ValueSource(strings = {"0", "0.0", "0.000", "-0.0"})
+void Should_handle_request(final String value) {
+    final ClientHttpResponse response = blockingHttpClient.patch("/?value=" + value);
+
+    assertEquals(new BigDecimal(value).toString(), systemOut.asString());
+    assertEquals(200, response.getStatusCode());
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-validation/validation-server-custom" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-validation/validation-server-custom</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="validation-disable-section"><a class="anchor" href="#validation-disable-section"></a><a class="link" href="#validation-disable-section">8. Disabling Validation</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To disable the generation of validators, You must perform one of the following steps:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Delete the <code>rxmicro.validation</code> module from the <code>module-info.java</code> descriptor.</p>
+</li>
+<li>
+<p>Use <code>GenerateOption.DISABLED</code> options to disable specific categories of validators.</p>
+</li>
+<li>
+<p>Use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/DisableValidation.java" target="_blank" rel="noopener"><code>@DisableValidation</code></a>
+annotation to disable validators of a selected group of classes in the project.</p>
+</li>
+</ol>
+</div>
+<div class="sect2">
+<h3 id="removing_the_rxmicro_validation_module"><a class="anchor" href="#removing_the_rxmicro_validation_module"></a><a class="link" href="#removing_the_rxmicro_validation_module">8.1. Removing the <code>rxmicro.validation</code> Module</a></h3>
+<div class="paragraph">
+<p>The easiest and fastest way to disable the generation of validators for <strong>all</strong> classes in the current module is to remove the <code>rxmicro.validation</code> module from the <code>module-info.java</code> descriptor.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><strong>After deleting the <code>rxmicro.validation</code> module DON&#8217;T FORGET to recompile the whole project for the changes to take effect: <code>mvn clean compile</code>!</strong></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="using_generateoption_disabled_option"><a class="anchor" href="#using_generateoption_disabled_option"></a><a class="link" href="#using_generateoption_disabled_option">8.2. Using <code>GenerateOption.DISABLED</code> Option</a></h3>
+<div class="paragraph">
+<p>To disable the generation of validators by category, it is necessary to use annotations:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="rest-controller.html#rest-controller-rest-server-generator-config-section"><code>@RestServerGeneratorConfig</code></a> (to set up the REST controllers).</p>
+</li>
+<li>
+<p><a href="rest-client.html#rest-client-rest-client-generator-config-section"><code>@RestClientGeneratorConfig</code></a> (to set up the REST clients).</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestServerGeneratorConfig(
+        generateRequestValidators = GenerateOption.DISABLED,    <i class="conum" data-value="1"></i><b>(1)</b>
+        generateResponseValidators = GenerateOption.DISABLED    <i class="conum" data-value="2"></i><b>(2)</b>
+)
+@RestClientGeneratorConfig(
+        generateRequestValidators = GenerateOption.DISABLED,    <i class="conum" data-value="3"></i><b>(3)</b>
+        generateResponseValidators = GenerateOption.DISABLED    <i class="conum" data-value="4"></i><b>(4)</b>
+)
+module examples.validation {
+    requires rxmicro.rest.server;
+    requires rxmicro.rest.client;
+    requires rxmicro.validation;
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Validators for all models of HTTP requests in the current project won&#8217;t be generated.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Validators for all models of HTTP responses in the current project won&#8217;t be generated.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Validators for all models of HTTP requests in the current project won&#8217;t be generated.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Validators for all models of HTTP responses in the current project won&#8217;t be generated.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><strong>Upon activation of the <code>rxmicro.validation</code> module, by default the RxMicro framework generates only HTTP request validators for REST controllers and HTTP response validators for REST clients!</strong></p>
+</div>
+<div class="paragraph">
+<p>All other categories of validators must be manually activated using the <code>@RestServerGeneratorConfig</code> and <code>@RestClientGeneratorConfig</code> annotations!</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><strong>After changing the settings using the <code>@RestServerGeneratorConfig</code> and <code>@RestClientGeneratorConfig</code> annotations DON&#8217;T FORGET to recompile the whole project for the changes to take effect: <code>mvn clean compile</code>!</strong></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="using_disablevalidation_annotation"><a class="anchor" href="#using_disablevalidation_annotation"></a><a class="link" href="#using_disablevalidation_annotation">8.3. Using <code>@DisableValidation</code> Annotation</a></h3>
+<div class="paragraph">
+<p>The <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-validation/src/main/java/io/rxmicro/validation/DisableValidation.java" target="_blank" rel="noopener"><code>@DisableValidation</code></a>
+annotation provides an opportunity to disable the generation of validators for the selected group of classes in the project:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>If a model class is annotated by this annotation, then <strong>only</strong> for this model class the validator won&#8217;t be generated.</p>
+</li>
+<li>
+<p>If this annotation annotates the <code>package-info.java</code> class, then for <strong>all classes from the specified package and all its subpackages</strong> no validators will be generated.</p>
+</li>
+<li>
+<p>If this annotation annotates the <code>module-info.java</code> descriptor, then for <strong>all classes in the current module</strong> no validators will be generated.<br>
+<em>(This behavior is similar to the removal of the <code>rxmicro.validation</code> module from the <code>module-info.java</code> descriptor.)</em></p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><strong>After adding the <code>@DisableValidation</code> annotation DON&#8217;T FORGET to recompile the whole project for the changes to take effect: <code>mvn clean compile</code>!</strong></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="rest-client.html#rest-client-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> REST Client</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="project-documentation.html#project-documentation-section"><strong>REST-based Microservice Documentation  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-166298262-2"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-166298262-2');
+</script>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

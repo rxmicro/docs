@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.15">
+<meta name="description" content="A modern, JVM-based, full stack framework designed to develop distributed reactive applications that use a microservice architecture.">
+<meta name="keywords" content="rx, rxmicro, reactive java, reactive jvm, microservice java, reactive microservice, micro service java, reactive micro service">
+<meta name="author" content="nedis">
+<title>Appendices</title>
+<link rel="stylesheet" href="../styles/rxmicro-doc.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body id="appendices-section" class="article toc2 toc-left">
+<div id="header">
+<h1>Appendices</h1>
+<div class="details">
+<span id="author" class="author">nedis</span><br>
+<span id="email" class="email"><a href="mailto:rxmicro.io@gmail.com">rxmicro.io@gmail.com</a></span><br>
+<span id="revnumber">version 0.11,</span>
+<span id="revdate">2022-12-14 20:00:09 UTC</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#appendices-faq-section">1. Appendix A: FAQ</a>
+<ul class="sectlevel2">
+<li><a href="#does_the_rxmicro_framework_modify_my_byte_code">1.1. Does the RxMicro framework modify my byte code?</a></li>
+<li><a href="#can_the_rxmicro_framework_be_used_for_purposes_other_than_microservices">1.2. Can the RxMicro framework be used for purposes other than microservices?</a></li>
+<li><a href="#why_i_receive_class_not_found_error">1.3. Why I receive <code>class not found</code> error?</a></li>
+<li><a href="#why_i_receive_the_kotlin_standard_library_is_not_found_in_the_module_graph_error">1.4. Why I receive <code>The Kotlin standard library is not found in the module graph</code> error?</a></li>
+<li><a href="#why_i_receive_java_lang_nullpointerexception_autorelease_couldnt_be_null_error_during_unit_testing">1.5. Why I receive <code>java.lang.NullPointerException: autoRelease couldn&#8217;t be null</code> error during unit testing?</a></li>
+<li><a href="#why_i_receive_java_lang_reflect_inaccessibleobjectexception_unable_to_make_microservicetest_accessible_module_module_name_does_not_opens_test_package_to_unnamed_module_error_during_unit_testing">1.6. Why I receive <code>java.lang.reflect.InaccessibleObjectException: Unable to make MicroServiceTest() accessible: module module.name does not "opens test.package" to unnamed module</code> error during unit testing?</a></li>
+</ul>
+</li>
+<li><a href="#appendices-links-section">2. Appendix B: Useful Links</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="testing.html#testing-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> Testing</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<div class="paragraph">
+<p>&#169; 2019-2022 rxmicro.io.
+Free use of this software is granted under the terms of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/LICENSE" target="_blank" rel="noopener"><code>Apache License 2.0</code></a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Copies of this entity may be made for Your own use and for distribution to others, provided that You do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.</p>
+</div>
+<div class="paragraph">
+<p>If You find errors or omissions in this entity, please don’t hesitate to submit an
+<a href="https://github.com/rxmicro/rxmicro-usage/issues" target="_blank" rel="noopener"><strong>issue</strong></a> or open <a href="https://github.com/rxmicro/rxmicro-usage/pulls" target="_blank" rel="noopener"><strong>a pull request</strong></a> with a fix.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="appendices-faq-section"><a class="anchor" href="#appendices-faq-section"></a><a class="link" href="#appendices-faq-section">1. Appendix A: FAQ</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section covers a list of possible questions that You can ask yourself when You use the RxMicro framework.</p>
+</div>
+<div class="sect2">
+<h3 id="does_the_rxmicro_framework_modify_my_byte_code"><a class="anchor" href="#does_the_rxmicro_framework_modify_my_byte_code"></a><a class="link" href="#does_the_rxmicro_framework_modify_my_byte_code">1.1. Does the RxMicro framework modify my byte code?</a></h3>
+<div class="paragraph">
+<p>No.
+Your classes are Your classes.
+The RxMicro framework does not transform classes or modify the Java byte code You write.
+The RxMicro framework produces additional classes only.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="can_the_rxmicro_framework_be_used_for_purposes_other_than_microservices"><a class="anchor" href="#can_the_rxmicro_framework_be_used_for_purposes_other_than_microservices"></a><a class="link" href="#can_the_rxmicro_framework_be_used_for_purposes_other_than_microservices">1.2. Can the RxMicro framework be used for purposes other than microservices?</a></h3>
+<div class="paragraph">
+<p>Yes.
+The RxMicro framework is very modular and You can choose to use any module You need.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="why_i_receive_class_not_found_error"><a class="anchor" href="#why_i_receive_class_not_found_error"></a><a class="link" href="#why_i_receive_class_not_found_error">1.3. Why I receive <code>class not found</code> error?</a></h3>
+<div class="paragraph">
+<p>When You use the RxMicro framework You can receive one of the following errors:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Class rxmicro.$$RestControllerAggregatorImpl not found</code>;</p>
+</li>
+<li>
+<p><code>Class rxmicro.$$RestClientFactoryImpl not found</code>;</p>
+</li>
+<li>
+<p><code>Class rxmicro.$$RepositoryFactoryImpl not found</code>;</p>
+</li>
+<li>
+<p><code>Class rxmicro.$$BeanFactoryImpl not found</code>;</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These errors mean that the <code>RxMicro Annotation Processor</code> does not generate the required additional classes.</p>
+</div>
+<div class="paragraph">
+<p>To fix it, please verify that:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>pom.xml</code> for Your project contains <a href="quick-start.html#quick-start-maven-compiler-plugin-settings-section">the valid settings for <code>maven-compiler-plugin</code></a> and</p>
+</li>
+<li>
+<p>You executed command: <code>mvn clean compile</code>!</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="why_i_receive_the_kotlin_standard_library_is_not_found_in_the_module_graph_error"><a class="anchor" href="#why_i_receive_the_kotlin_standard_library_is_not_found_in_the_module_graph_error"></a><a class="link" href="#why_i_receive_the_kotlin_standard_library_is_not_found_in_the_module_graph_error">1.4. Why I receive <code>The Kotlin standard library is not found in the module graph</code> error?</a></h3>
+<div class="paragraph">
+<p>Sometimes this issue occurs during the work with java code using IntelliJ IDEA.
+To fix this issue it is necessary to rebuild Your project: <code>Build</code> &#8594; <code>Rebuild project</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="why_i_receive_java_lang_nullpointerexception_autorelease_couldnt_be_null_error_during_unit_testing"><a class="anchor" href="#why_i_receive_java_lang_nullpointerexception_autorelease_couldnt_be_null_error_during_unit_testing"></a><a class="link" href="#why_i_receive_java_lang_nullpointerexception_autorelease_couldnt_be_null_error_during_unit_testing">1.5. Why I receive <code>java.lang.NullPointerException: autoRelease couldn&#8217;t be null</code> error during unit testing?</a></h3>
+<div class="paragraph">
+<p>If You declare an alternative of the <code>HttpClientFactory</code> mock and don&#8217;t configure it this error can happen.</p>
+</div>
+<div class="paragraph">
+<p>To fix this issue it is necessary to configure the <code>@Mock</code> annotation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Alternative
+@Mock(answer = Answers.RETURNS_DEEP_STUBS) <i class="conum" data-value="1"></i><b>(1)</b>
+private HttpClientFactory httpClientFactory;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Set <code>Answers.RETURNS_DEEP_STUBS</code> as answer value.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="why_i_receive_java_lang_reflect_inaccessibleobjectexception_unable_to_make_microservicetest_accessible_module_module_name_does_not_opens_test_package_to_unnamed_module_error_during_unit_testing"><a class="anchor" href="#why_i_receive_java_lang_reflect_inaccessibleobjectexception_unable_to_make_microservicetest_accessible_module_module_name_does_not_opens_test_package_to_unnamed_module_error_during_unit_testing"></a><a class="link" href="#why_i_receive_java_lang_reflect_inaccessibleobjectexception_unable_to_make_microservicetest_accessible_module_module_name_does_not_opens_test_package_to_unnamed_module_error_during_unit_testing">1.6. Why I receive <code>java.lang.reflect.InaccessibleObjectException: Unable to make MicroServiceTest() accessible: module module.name does not "opens test.package" to unnamed module</code> error during unit testing?</a></h3>
+<div class="paragraph">
+<p>If <code>test.package</code> name matches to the <code>production.package</code> name, then You need just to add <code>io.rxmicro.annotation.processor.RxMicroTestsAnnotationProcessor</code> annotation processor.
+(Read more at <a href="quick-start.html#testing-prepare-maven-compiler-plugin-settings-section">quick-start.html</a>).</p>
+</div>
+<div class="paragraph">
+<p>If <code>test.package</code> name does not match to the <code>production.package</code> name, then You need configure the <code>maven-surefire-plugin</code> manually:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;plugin&gt;
+    &lt;artifactId&gt;maven-surefire-plugin&lt;/artifactId&gt;
+    &lt;version&gt;${maven-surefire-plugin.version}&lt;/version&gt;
+    &lt;configuration&gt;
+        &lt;argLine&gt;
+            @{argLine}
+            --add-opens module.name/test.package=ALL-UNNAMED <i class="conum" data-value="1"></i><b>(1)</b>
+        &lt;/argLine&gt;
+    &lt;/configuration&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Opens all classes from <code>test.package</code> package defined at the <code>module.name</code> module to all unnamed modules!</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="appendices-links-section"><a class="anchor" href="#appendices-links-section"></a><a class="link" href="#appendices-links-section">2. Appendix B: Useful Links</a></h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro" target="_blank" rel="noopener">RxMicro Source Code Repository</a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/documentation" target="_blank" rel="noopener">RxMicro Documentation Repository</a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/" target="_blank" rel="noopener">RxMicro Examples Repository</a>;</p>
+</li>
+<li>
+<p><a href="https://hub.docker.com/u/rxmicro" target="_blank" rel="noopener">RxMicro Docker Repository</a>;</p>
+</li>
+<li>
+<p><a href="https://mvnrepository.com/artifact/io.rxmicro">RxMicro on Maven Central</a></p>
+</li>
+</ul>
+</div>
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="testing.html#testing-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> Testing</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-166298262-2"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-166298262-2');
+</script>
+</div>
+</div>
+</div>
+</body>
+</html>

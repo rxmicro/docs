@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.15">
+<meta name="description" content="A modern, JVM-based, full stack framework designed to develop distributed reactive applications that use a microservice architecture.">
+<meta name="keywords" content="rx, rxmicro, reactive java, reactive jvm, microservice java, reactive microservice, micro service java, reactive micro service">
+<meta name="author" content="nedis">
+<title>What are Microservices?</title>
+<link rel="stylesheet" href="../styles/rxmicro-doc.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body id="microservice-section" class="article">
+<div id="header">
+<h1>What are Microservices?</h1>
+<div class="details">
+<span id="author" class="author">nedis</span><br>
+<span id="email" class="email"><a href="mailto:rxmicro.io@gmail.com">rxmicro.io@gmail.com</a></span><br>
+<span id="revnumber">version 0.11,</span>
+<span id="revdate">2022-12-14 20:00:09 UTC</span>
+</div>
+</div>
+<div id="content">
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="introduction.html#introduction-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> Introduction</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="quick-start.html#quick-start-section"><strong>Quick Start  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<div class="paragraph">
+<p>&#169; 2019-2022 rxmicro.io.
+Free use of this software is granted under the terms of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/LICENSE" target="_blank" rel="noopener"><code>Apache License 2.0</code></a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Copies of this entity may be made for Your own use and for distribution to others, provided that You do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.</p>
+</div>
+<div class="paragraph">
+<p>If You find errors or omissions in this entity, please don’t hesitate to submit an
+<a href="https://github.com/rxmicro/rxmicro-usage/issues" target="_blank" rel="noopener"><strong>issue</strong></a> or open <a href="https://github.com/rxmicro/rxmicro-usage/pulls" target="_blank" rel="noopener"><strong>a pull request</strong></a> with a fix.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Microservices - also known as the microservice architecture - is an architectural style that structures an application as a collection of services that are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Highly maintainable and testable.</p>
+</li>
+<li>
+<p>Loosely coupled.</p>
+</li>
+<li>
+<p>Independently deployable.</p>
+</li>
+<li>
+<p>Organized around business capabilities.</p>
+</li>
+<li>
+<p>Owned by a small team.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><em>(Read more at <a href="https://microservices.io/" target="_blank" rel="noopener"><code>https://microservices.io/</code></a>&#8230;&#8203;)</em></p>
+</div>
+<div class="paragraph">
+<p>Thus, a microservice project consists of several microservices.
+Each microservice must fulfill only one business task.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s look at a microservice that displays the current date and time in UTC format:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class MicroService1 {
+
+    public static void main(final String[] args) {
+        System.out.println(Instant.now());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Does this microprogram constitute a microservice?<br>
+Yes, since this microprogram fulfills a business task.<br>
+Unfortunately, this program has a serious disadvantage: it interacts with clients through the console.
+Therefore, <strong>only a client&#8217;s program with a console interface launched in a session of the current logged-in OS user will be able to interact with this microservice!</strong>
+This restriction makes it impossible to scale this microservice!</p>
+</div>
+<div class="paragraph">
+<p>Can we improve this situation?
+Yes, we can:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class MicroService2 {
+
+    public static void main(final String[] args) throws Exception {
+        Files.write(
+                Paths.get("/var/microservice/now-instant.txt"),
+                Instant.now().toString().getBytes(UTF_8)
+        );
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This microservice uses a file system to interact with client&#8217;s programs.
+In this way, the only requirement for the client&#8217;s program is to be run on the same computer on which the microservice is running.
+The situation has improved, but it is still impossible to scale this microservice horizontally!</p>
+</div>
+<div class="paragraph">
+<p>Can we improve this situation?
+Yes, we can:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class MicroService3 {
+
+    public static void main(final String[] args) throws Exception {
+        try (final ServerSocket serverSocket = new ServerSocket(8080)) {
+            try (final Socket clientSocket = serverSocket.accept()) {
+                try (final OutputStream out = clientSocket.getOutputStream()) {
+                    // read command from input stream
+                    out.write(Instant.now().toString().getBytes(UTF_8));
+                }
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now, the microservice uses the network to interact with clients.
+This implementation of the microservice is scalable as the microservice can now be run on several networked computers.
+The situation has improved markedly, but there are problems with networking:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Presence of firewalls.</p>
+</li>
+<li>
+<p>The need to create an interaction protocol.</p>
+</li>
+<li>
+<p>Independence from the programming language is an important criterion for the interaction protocol.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Can we improve this situation?
+Yes, for this purpose You can use the HTTP protocol with the REST architecture style:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class MicroService4 {
+
+    public static void main(final String[] args) throws IOException {
+        final HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8080), 0);
+        server.createContext("/now-instant", exchange -&gt; {
+            final String content = Instant.now().toString();
+            exchange.sendResponseHeaders(200, content.length());
+            exchange.getResponseHeaders().add("Content-Type", "text/txt");
+            try (final OutputStream body = exchange.getResponseBody()) {
+                body.write(content.getBytes(UTF_8));
+            }
+        });
+        server.start();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>That&#8217;s why microservices are often referred to as REST-based microservices</strong></p>
+</div>
+<div class="paragraph">
+<p>For simple tasks, the entire logic of the microservice can be found in one class, which is often called <strong>microservice</strong>.
+If a microservice has to solve a complex task, then this microservice is divided into two logical components:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>REST controller, the main task of which is:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>to accept HTTP requests;</p>
+</li>
+<li>
+<p>to validate HTTP requests;</p>
+</li>
+<li>
+<p>to convert HTTP requests into Java models;</p>
+</li>
+<li>
+<p>to invoke request handlers;</p>
+</li>
+<li>
+<p>once the response model is received, convert it to an HTTP response.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Business service, the main task of which is:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>if the task is of medium complexity, then independently calculate the result and return it to the REST controller;</p>
+</li>
+<li>
+<p>if it is a high-complexity task, then decompose it into sub-tasks and delegate its execution to other microservices.
+After all sub-tasks have been completed, merge the result and return it to the REST controller.</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Therefore, the following is implied in this guide:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>If You find the term <strong>microservice</strong>, it means <strong>REST-based microservice</strong>, unless stated otherwise!</p>
+</li>
+<li>
+<p>If You find the term <strong>REST controller</strong>, it means a logical component of the microservice that performs its direct functions!</p>
+</li>
+</ol>
+</div>
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="introduction.html#introduction-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> Introduction</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="quick-start.html#quick-start-section"><strong>Quick Start  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-166298262-2"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-166298262-2');
+</script>
+</div>
+</body>
+</html>

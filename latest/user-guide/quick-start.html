@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.15">
+<meta name="description" content="A modern, JVM-based, full stack framework designed to develop distributed reactive applications that use a microservice architecture.">
+<meta name="keywords" content="rx, rxmicro, reactive java, reactive jvm, microservice java, reactive microservice, micro service java, reactive micro service">
+<meta name="author" content="nedis">
+<title>Quick Start</title>
+<link rel="stylesheet" href="../styles/rxmicro-doc.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body id="quick-start-section" class="article toc2 toc-left">
+<div id="header">
+<h1>Quick Start</h1>
+<div class="details">
+<span id="author" class="author">nedis</span><br>
+<span id="email" class="email"><a href="mailto:rxmicro.io@gmail.com">rxmicro.io@gmail.com</a></span><br>
+<span id="revnumber">version 0.11,</span>
+<span id="revdate">2022-12-14 20:00:09 UTC</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#creating_a_project">1. Creating a Project</a>
+<ul class="sectlevel2">
+<li><a href="#using_the_intellij_idea">1.1. Using the <code>IntelliJ IDEA</code></a></li>
+<li><a href="#using_the_terminal">1.2. Using the Terminal</a></li>
+<li><a href="#using_other_ide">1.3. Using Other IDE</a></li>
+</ul>
+</li>
+<li><a href="#configuring_the_project">2. Configuring the Project</a>
+<ul class="sectlevel2">
+<li><a href="#definition_the_versions_of_the_used_libraries">2.1. Definition the Versions of the Used Libraries</a></li>
+<li><a href="#adding_the_required_dependencies">2.2. Adding the Required Dependencies</a></li>
+<li><a href="#quick-start-maven-compiler-plugin-settings-section">2.3. Configuring the <code>maven-compiler-plugin</code></a></li>
+<li><a href="#the_final_version_of_pom_xml_file">2.4. The Final Version of <code>pom.xml</code> File</a></li>
+</ul>
+</li>
+<li><a href="#creating_the_source_code">3. Creating the Source Code</a>
+<ul class="sectlevel2">
+<li><a href="#a_module_info_java_descriptor">3.1. A <code>module-info.java</code> Descriptor</a></li>
+<li><a href="#an_http_response_model_class">3.2. An HTTP Response Model Class</a></li>
+<li><a href="#a_rest_based_microservice_class">3.3. A REST-Based Microservice Class</a></li>
+<li><a href="#a_structure_of_the_microservice_project">3.4. A Structure of the Microservice Project</a></li>
+</ul>
+</li>
+<li><a href="#compiling_the_project">4. Compiling the Project</a>
+<ul class="sectlevel2">
+<li><a href="#using_the_maven">4.1. Using the <code>maven</code></a></li>
+<li><a href="#using_the_intellij_idea_2">4.2. Using the <code>IntelliJ IDEA</code></a>
+<ul class="sectlevel3">
+<li><a href="#enable_annotation_processing">4.2.1. Enable Annotation Processing</a></li>
+<li><a href="#rebuilding_the_project">4.2.2. Rebuilding the Project</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#starting_the_microservice">5. Starting the Microservice</a>
+<ul class="sectlevel2">
+<li><a href="#using_the_ide">5.1. Using the IDE:</a></li>
+<li><a href="#using_the_terminal_2">5.2. Using the Terminal:</a></li>
+</ul>
+</li>
+<li><a href="#verifying_the_microservice">6. Verifying the Microservice</a></li>
+<li><a href="#automated_test">7. Automated Test</a>
+<ul class="sectlevel2">
+<li><a href="#configuring_the_project_2">7.1. Configuring the Project</a>
+<ul class="sectlevel3">
+<li><a href="#adding_the_required_dependencies_2">7.1.1. Adding the Required Dependencies</a></li>
+<li><a href="#configuring_the_maven_compiler_plugin">7.1.2. Configuring the <code>maven-compiler-plugin</code></a></li>
+<li><a href="#configuring_the_maven_surefire_plugin">7.1.3. Configuring the <code>maven-surefire-plugin</code></a></li>
+</ul>
+</li>
+<li><a href="#creating_a_test_class">7.2. Creating a Test Class</a></li>
+<li><a href="#starting_the_test_class">7.3. Starting the Test Class</a></li>
+</ul>
+</li>
+<li><a href="#the_project_at_the_github">8. The Project at the Github</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="microservice.html#microservice-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> What are microservices?</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="core.html#core-section"><strong>Core Concepts  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<div class="paragraph">
+<p>&#169; 2019-2022 rxmicro.io.
+Free use of this software is granted under the terms of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/LICENSE" target="_blank" rel="noopener"><code>Apache License 2.0</code></a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Copies of this entity may be made for Your own use and for distribution to others, provided that You do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.</p>
+</div>
+<div class="paragraph">
+<p>If You find errors or omissions in this entity, please don’t hesitate to submit an
+<a href="https://github.com/rxmicro/rxmicro-usage/issues" target="_blank" rel="noopener"><strong>issue</strong></a> or open <a href="https://github.com/rxmicro/rxmicro-usage/pulls" target="_blank" rel="noopener"><strong>a pull request</strong></a> with a fix.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This section describes in detail the steps to be taken in order to create the REST-based microservice that returns the <code>"Hello World!"</code> message, using the RxMicro framework.</p>
+</div>
+<div class="paragraph">
+<p>In order to successfully execute these instructions, You need to install
+<a href="https://openjdk.java.net/projects/jdk/11/" target="_blank" rel="noopener">JDK 11 LTS</a> or higher on Your computer.
+For Your convenience it is also recommended to use a modern IDE, for example <a href="https://www.jetbrains.com/idea/" target="_blank" rel="noopener">IntelliJ IDEA</a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The features of the <strong>IntelliJ IDEA Community Edition</strong> version are enough for a complete and convenient work on a project that uses the RxMicro framework.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The RxMicro framework consists of several dozens of modules, so for convenient handling it is recommended to install <a href="https://maven.apache.org/" target="_blank" rel="noopener"><code>maven</code></a> on Your computer.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Any modern IDE for Java (<code>IntelliJ IDEA, Eclipse, NetBeans</code>) already contains a built-in <code>maven</code>, so there is no need in its additional installation on Your computer.</p>
+</div>
+<div class="paragraph">
+<p>To run <code>maven</code> commands, You can use Your IDE instead of the terminal.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="creating_a_project"><a class="anchor" href="#creating_a_project"></a><a class="link" href="#creating_a_project">1. Creating a Project</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For creating a project, it is recommended to use a modern IDE, for example <a href="https://www.jetbrains.com/idea/" target="_blank" rel="noopener">IntelliJ IDEA</a></p>
+</div>
+<div class="sect2">
+<h3 id="using_the_intellij_idea"><a class="anchor" href="#using_the_intellij_idea"></a><a class="link" href="#using_the_intellij_idea">1.1. Using the <code>IntelliJ IDEA</code></a></h3>
+<div class="paragraph">
+<p>To create a new project, proceed as follows: <code>File</code> &#8594; <code>New</code> &#8594; <code>Project</code> or <code>Create a New Project</code>.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/quick-start/create-maven-project-step1.jpg" alt="create maven project step1">
+</div>
+<div class="title">Figure 1. Creating the simplest project in IntelliJ IDEA: Choosing a project type.</div>
+</div>
+<div class="paragraph">
+<p>In the appeared dialog box select the <code>Maven</code> type, make sure that <code>Project SDK</code> version 11 or higher will be used, remove the <code>Create from archetype</code> checkbox and click <code>Next</code>.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/quick-start/create-maven-project-step2.jpg" alt="create maven project step2">
+</div>
+<div class="title">Figure 2. Creating the simplest project in IntelliJ IDEA: Basic settings.</div>
+</div>
+<div class="paragraph">
+<p>In the appeared dialog box type <code>Name</code>, <code>Location</code> (if the default value is wrong) and <code>GroupId</code>
+(if the default value is wrong), and click <code>Finish</code>.</p>
+</div>
+<div class="paragraph">
+<p>As a result, IntelliJ IDEA will generate the following project template using maven settings:</p>
+</div>
+<div id="image-basic-project-template-inline" class="imageblock">
+<div class="content">
+<img src="../images/quick-start/create-maven-project-step3.jpg" alt="create maven project step3">
+</div>
+<div class="title">Figure 3. Creating the simplest project in IntelliJ IDEA: Basic project template.</div>
+</div>
+<div class="paragraph">
+<p>After creating the standard template, activate the <code>Enable Auto-Import</code> option.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If for some reason the <code>IntelliJ IDEA</code> or another IDE You use for Java coding (e.g. <code>Eclipse</code> or <code>NetBeans</code>) has generated another project template, delete unnecessary files, create un-created folders and leave only the following sections in <code>pom.xml</code>: <code>modelVersion, groupId, artifactId, version</code>.</p>
+</div>
+<div class="paragraph">
+<p>As a result, Your template should fully match the template: <a href="#image-basic-project-template-inline">Figure 3, &#8220;Creating the simplest project in IntelliJ IDEA: Basic project template.&#8221;</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="using_the_terminal"><a class="anchor" href="#using_the_terminal"></a><a class="link" href="#using_the_terminal">1.2. Using the Terminal</a></h3>
+<div class="paragraph">
+<p>It is possible to create a new maven project without using the IDE.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If You don&#8217;t intend to write the source code of a project in notepad, but rather use the IDE to do this, You should directly create a maven project using the IDE.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>To do this, open the terminal and run the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text"><strong>mvn</strong> archetype:generate -DgroupId=io.rxmicro.examples -DartifactId=quick-start -DinteractiveMode=false</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In order to run <code>maven</code> commands in the terminal it is necessary to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Install <code>JDK</code> and <code>maven</code> on Your computer;</p>
+</li>
+<li>
+<p>Set the <code>JAVA_HOME</code> environment variable;</p>
+</li>
+<li>
+<p>Add the path to <code>$MAVEN_HOME/bin</code> folder to the <code>$PATH</code> environment variable.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><em>A detailed instruction on the <code>maven</code> installation for its further use in the terminal can be found at the following link: <a href="https://maven.apache.org/install.html" target="_blank" rel="noopener"><code>Installing Apache Maven</code></a>.</em></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>As a result, the <code>quick-start</code> folder with the basic project template will be created in the current folder.
+After that, the created project must be imported into the IDE.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>By default, <code>mvn archetype:generate</code> doesn&#8217;t generate an empty project, but a project with two <code>App</code> and <code>AppTest</code> classes, as well as a connected junit library of <code>3.8.1</code> version in <code>pom.xml</code>.
+The specified classes and dependencies should be deleted before performing the following steps of this guide.</p>
+</div>
+<div class="paragraph">
+<p>As a result, Your template should fully match the template: <a href="#image-basic-project-template-inline">Figure 3, &#8220;Creating the simplest project in IntelliJ IDEA: Basic project template.&#8221;</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="using_other_ide"><a class="anchor" href="#using_other_ide"></a><a class="link" href="#using_other_ide">1.3. Using Other IDE</a></h3>
+<div class="paragraph">
+<p>Creating the simplest project with other IDEs does not differ much from creating it with IntelliJ IDEA. When creating, You should also specify <code>maven archetype, groupId, artifactId and version</code>.</p>
+</div>
+<div class="paragraph">
+<p>The main thing is that after creation <strong>Your project template should fully match the template: <a href="#image-basic-project-template-inline">Figure 3, &#8220;Creating the simplest project in IntelliJ IDEA: Basic project template.&#8221;</a></strong>.</p>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="configuring_the_project"><a class="anchor" href="#configuring_the_project"></a><a class="link" href="#configuring_the_project">2. Configuring the Project</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Before writing the code of a REST-based microservice, You should configure <code>pom.xml</code> of Your project by performing the following steps:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Define the versions of used libraries.</p>
+</li>
+<li>
+<p>Add the required dependencies to the <code>pom.xml</code>.</p>
+</li>
+<li>
+<p>Configure the <code>maven-compiler-plugin</code>.</p>
+</li>
+</ol>
+</div>
+<div class="sect2">
+<h3 id="definition_the_versions_of_the_used_libraries"><a class="anchor" href="#definition_the_versions_of_the_used_libraries"></a><a class="link" href="#definition_the_versions_of_the_used_libraries">2.1. Definition the Versions of the Used Libraries</a></h3>
+<div class="paragraph">
+<p>To make further updating of library versions convenient, it is recommended to use <code>maven properties</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;properties&gt;
+    &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+    &lt;rxmicro.version&gt;0.11&lt;/rxmicro.version&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+    &lt;maven-compiler-plugin.version&gt;3.10.1&lt;/maven-compiler-plugin.version&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+&lt;/properties&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><a href="https://mvnrepository.com/artifact/io.rxmicro" target="_blank" rel="noopener">The latest stable version of the RxMicro framework</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td><a href="https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin" target="_blank" rel="noopener">The latest stable version of the <code>maven-compiler-plugin</code></a>.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="adding_the_required_dependencies"><a class="anchor" href="#adding_the_required_dependencies"></a><a class="link" href="#adding_the_required_dependencies">2.2. Adding the Required Dependencies</a></h3>
+<div class="paragraph">
+<p>Before using RxMicro modules, the following dependencies must be added to the project:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;io.rxmicro&lt;/groupId&gt;
+        &lt;artifactId&gt;rxmicro-rest-server-netty&lt;/artifactId&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+        &lt;version&gt;${rxmicro.version}&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;io.rxmicro&lt;/groupId&gt;
+        &lt;artifactId&gt;rxmicro-rest-server-exchange-json&lt;/artifactId&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+        &lt;version&gt;${rxmicro.version}&lt;/version&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Library for building REST-based microservices based on HTTP server that uses <a href="https://netty.io/" target="_blank" rel="noopener">Netty</a>;</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Library for converting Java model to <a href="https://www.json.org/" target="_blank" rel="noopener">JSON</a> format and vice versa;</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="quick-start-maven-compiler-plugin-settings-section"><a class="anchor" href="#quick-start-maven-compiler-plugin-settings-section"></a><a class="link" href="#quick-start-maven-compiler-plugin-settings-section">2.3. Configuring the <code>maven-compiler-plugin</code></a></h3>
+<div class="paragraph">
+<p>Since the RxMicro framework uses the <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.compiler/javax/annotation/processing/Processor.html" target="_blank" rel="noopener">Java annotation processors</a>, You need to set up <code>maven-compiler-plugin</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;plugin&gt;
+    &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+    &lt;version&gt;${maven-compiler-plugin.version}&lt;/version&gt;
+    &lt;configuration&gt;
+        &lt;release&gt;11&lt;/release&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+        &lt;annotationProcessorPaths&gt;
+            &lt;annotationProcessorPath&gt;
+                &lt;groupId&gt;io.rxmicro&lt;/groupId&gt;
+                &lt;artifactId&gt;rxmicro-annotation-processor&lt;/artifactId&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+                &lt;version&gt;${rxmicro.version}&lt;/version&gt;
+            &lt;/annotationProcessorPath&gt;
+        &lt;/annotationProcessorPaths&gt;
+    &lt;/configuration&gt;
+    &lt;executions&gt;
+        &lt;execution&gt;
+            &lt;id&gt;source-compile&lt;/id&gt;
+            &lt;goals&gt;
+                &lt;goal&gt;compile&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+                &lt;annotationProcessors&gt;
+                    &lt;annotationProcessor&gt;
+                        io.rxmicro.annotation.processor.RxMicroAnnotationProcessor <i class="conum" data-value="3"></i><b>(3)</b>
+                    &lt;/annotationProcessor&gt;
+                &lt;/annotationProcessors&gt;
+                &lt;generatedSourcesDirectory&gt;
+                    ${project.build.directory}/generated-sources/ <i class="conum" data-value="4"></i><b>(4)</b>
+                &lt;/generatedSourcesDirectory&gt;
+            &lt;/configuration&gt;
+        &lt;/execution&gt;
+    &lt;/executions&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The RxMicro framework requires a Java compiler of v11 or higher;</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The annotation processor library, that will handle all <code>RxMicro Annotations</code>;</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The annotation processor class, that handles the launch configuration;</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Location of the generated Java classes by the <code>RxMicro Annotation Processor</code>;</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="the_final_version_of_pom_xml_file"><a class="anchor" href="#the_final_version_of_pom_xml_file"></a><a class="link" href="#the_final_version_of_pom_xml_file">2.4. The Final Version of <code>pom.xml</code> File</a></h3>
+<div class="paragraph">
+<p>After all the above changes, the final version of the <code>pom.xml</code> file should look like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    &lt;groupId&gt;io.rxmicro.examples&lt;/groupId&gt;
+    &lt;artifactId&gt;quick-start&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+
+    &lt;properties&gt;
+        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+        &lt;rxmicro.version&gt;0.11&lt;/rxmicro.version&gt;
+        &lt;maven-compiler-plugin.version&gt;3.10.1&lt;/maven-compiler-plugin.version&gt;
+    &lt;/properties&gt;
+
+    &lt;build&gt;
+        &lt;pluginManagement&gt;
+            &lt;plugins&gt;
+                &lt;plugin&gt;
+                    &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+                    &lt;version&gt;${maven-compiler-plugin.version}&lt;/version&gt;
+                    &lt;configuration&gt;
+                        &lt;release&gt;11&lt;/release&gt;
+                        &lt;annotationProcessorPaths&gt;
+                            &lt;annotationProcessorPath&gt;
+                                &lt;groupId&gt;io.rxmicro&lt;/groupId&gt;
+                                &lt;artifactId&gt;rxmicro-annotation-processor&lt;/artifactId&gt;
+                                &lt;version&gt;${rxmicro.version}&lt;/version&gt;
+                            &lt;/annotationProcessorPath&gt;
+                        &lt;/annotationProcessorPaths&gt;
+                    &lt;/configuration&gt;
+                    &lt;executions&gt;
+                        &lt;execution&gt;
+                            &lt;id&gt;source-compile&lt;/id&gt;
+                            &lt;goals&gt;
+                                &lt;goal&gt;compile&lt;/goal&gt;
+                            &lt;/goals&gt;
+                            &lt;configuration&gt;
+                                &lt;annotationProcessors&gt;
+                                    &lt;annotationProcessor&gt;
+                            io.rxmicro.annotation.processor.RxMicroAnnotationProcessor
+                                    &lt;/annotationProcessor&gt;
+                                &lt;/annotationProcessors&gt;
+                                &lt;generatedSourcesDirectory&gt;
+                                    ${project.build.directory}/generated-sources/
+                                &lt;/generatedSourcesDirectory&gt;
+                            &lt;/configuration&gt;
+                        &lt;/execution&gt;
+                    &lt;/executions&gt;
+                &lt;/plugin&gt;
+            &lt;/plugins&gt;
+        &lt;/pluginManagement&gt;
+    &lt;/build&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;io.rxmicro&lt;/groupId&gt;
+            &lt;artifactId&gt;rxmicro-rest-server-netty&lt;/artifactId&gt;
+            &lt;version&gt;${rxmicro.version}&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;io.rxmicro&lt;/groupId&gt;
+            &lt;artifactId&gt;rxmicro-rest-server-exchange-json&lt;/artifactId&gt;
+            &lt;version&gt;${rxmicro.version}&lt;/version&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/project&gt;</code></pre>
+</div>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="creating_the_source_code"><a class="anchor" href="#creating_the_source_code"></a><a class="link" href="#creating_the_source_code">3. Creating the Source Code</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The source code of the simplest REST-based microservice consists of one module, one package and two classes.
+The source code of each of these components is described below.</p>
+</div>
+<div class="sect2">
+<h3 id="a_module_info_java_descriptor"><a class="anchor" href="#a_module_info_java_descriptor"></a><a class="link" href="#a_module_info_java_descriptor">3.1. A <code>module-info.java</code> Descriptor</a></h3>
+<div class="paragraph">
+<p>Java 9 has introduced the <a href="https://www.oracle.com/corporate/features/understanding-java-9-modules.html" target="_blank" rel="noopener"><code>JPMS</code></a>.</p>
+</div>
+<div class="paragraph">
+<p>Therefore, the RxMicro framework, which requires the use of <a href="https://openjdk.java.net/projects/jdk/11/" target="_blank" rel="noopener">JDK 11</a> or higher, requires a <code>module-info.java</code> descriptor for any of Your microservice projects.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">module examples.quick.start {
+    requires rxmicro.rest.server.netty;         <i class="conum" data-value="1"></i><b>(1)</b>
+    requires rxmicro.rest.server.exchange.json; <i class="conum" data-value="2"></i><b>(2)</b>
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Module for building REST-based microservices based on HTTP server that uses
+<a href="https://netty.io/" target="_blank" rel="noopener">Netty</a>, with all required transitive dependencies.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Module for converting a Java model to <a href="https://www.json.org/" target="_blank" rel="noopener">JSON</a>
+format and vice versa, with all required transitive dependencies.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Usually <code>module-info.java</code> depends on all RxMicro modules listed in the <code>dependencies</code> section of the <code>pom.xml</code>
+file of any of Your microservice projects.
+Therefore, it is enough to duplicate all the dependencies in <code>module-info.java</code>.</p>
+</div>
+<div class="paragraph">
+<p><em>Thanks to the transitive dependencies of the RxMicro framework, the number of modules required has been greatly reduced</em>.
+<em>Only basic RxMicro modules must be specified!</em></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="an_http_response_model_class"><a class="anchor" href="#an_http_response_model_class"></a><a class="link" href="#an_http_response_model_class">3.2. An HTTP Response Model Class</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">package io.rxmicro.examples.quick.start;
+
+import static java.util.Objects.requireNonNull;
+
+@SuppressWarnings("SameParameterValue")
+final class Response {
+
+    final String message;
+
+    Response(final String message) {
+        this.message = requireNonNull(message);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>According to the <a href="https://json-schema.org/understanding-json-schema/reference/type.html" target="_blank" rel="noopener">specification</a>, JSON format supports the following data types: object, array and primitives: strings, logical type, numeric type and <code>null</code>.</p>
+</div>
+<div class="paragraph">
+<p>To simplify communication between REST-based microservices, the RxMicro framework supports only <strong>JSON object</strong> as a return type of any REST-based microservice.
+Thus, any REST-based microservice built via the RxMicro framework can return <strong>only JSON objects</strong>.
+In case You need to return a primitive or an array, <strong>You need to create a wrapper class</strong>.</p>
+</div>
+<div class="paragraph">
+<p>Therefore, to display the <code>"Hello World!"</code> string, it is necessary to create a <code>Response</code> wrapper class, which is a wrapper above the string data type.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="a_rest_based_microservice_class"><a class="anchor" href="#a_rest_based_microservice_class"></a><a class="link" href="#a_rest_based_microservice_class">3.3. A REST-Based Microservice Class</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">package io.rxmicro.examples.quick.start;
+
+import io.rxmicro.rest.method.GET;
+import io.rxmicro.rest.server.RxMicroRestServer;
+
+import java.util.concurrent.CompletableFuture;
+
+public final class HelloWorldMicroService {
+
+    @GET("/")
+    CompletableFuture&lt;Response&gt; sayHelloWorld() {       <i class="conum" data-value="1"></i><b>(1)</b>
+        return CompletableFuture.supplyAsync(() -&gt;
+                new Response("Hello World!"));          <i class="conum" data-value="2"></i><b>(2)</b>
+    }
+
+    public static void main(final String[] args) {              <i class="conum" data-value="3"></i><b>(3)</b>
+        RxMicroRestServer.startRestServer(HelloWorldMicroService.class);  <i class="conum" data-value="4"></i><b>(4)</b>
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>REST-based microservice contains a handler of HTTP GET method: <code>sayHelloWorld</code>, which doesn&#8217;t accept any parameters and returns a
+<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletableFuture.html" target="_blank" rel="noopener"><code>CompletableFuture</code></a> reactive type.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletableFuture.html#supplyAsync(U)"><code>CompletableFuture.supplyAsync()</code></a>
+static method is used to create an object of <code>CompletableFuture</code> class.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>To launch a REST-based microservice the <code>main</code> method is used.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>The launch is performed using the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-rest-server/src/main/java/io/rxmicro/rest/server/RxMicro.java#L77" target="_blank" rel="noopener"><code>RxMicroRestServer.startRestServer(Class&lt;?&gt;)</code></a>
+static method, which requires the REST-based microservice class as parameter.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Note that the HTTP request handler method doesn&#8217;t need to be <code>public</code>.</p>
+</div>
+<div class="paragraph">
+<p>The <code>protected</code> and <code>&lt;default&gt;</code> modifiers are also supported by the RxMicro framework.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="a_structure_of_the_microservice_project"><a class="anchor" href="#a_structure_of_the_microservice_project"></a><a class="link" href="#a_structure_of_the_microservice_project">3.4. A Structure of the Microservice Project</a></h3>
+<div class="paragraph">
+<p>The above-mentioned components of the microservice project should be located in the project according to the following screenshot:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/quick-start/project-structure.jpg" alt="project structure">
+</div>
+<div class="title">Figure 4. A structure of the microservice project</div>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="compiling_the_project"><a class="anchor" href="#compiling_the_project"></a><a class="link" href="#compiling_the_project">4. Compiling the Project</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="using_the_maven"><a class="anchor" href="#using_the_maven"></a><a class="link" href="#using_the_maven">4.1. Using the <code>maven</code></a></h3>
+<div class="paragraph">
+<p>To compile a project using the <code>maven</code>, open the terminal in the project root folder and proceed with the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text"><strong>mvn</strong> clean compile</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In order to run <code>maven</code> commands in the terminal it is necessary to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Install <code>JDK</code> and <code>maven</code> on Your computer;</p>
+</li>
+<li>
+<p>Set the <code>JAVA_HOME</code> environment variable;</p>
+</li>
+<li>
+<p>Add the path to <code>$MAVEN_HOME/bin</code> folder to the <code>$PATH</code> environment variable.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><em>A detailed instruction on the <code>maven</code> installation for its further use in the terminal can be found at the following link: <a href="https://maven.apache.org/install.html" target="_blank" rel="noopener"><code>Installing Apache Maven</code></a>.</em></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>It is possible to compile the project with <code>maven</code> even without using the terminal.
+Since any modern IDE for Java contains built-in <code>maven</code>, You can use this built-in <code>maven</code> tool.</p>
+</div>
+<div class="paragraph">
+<p>To do this, open the <code>maven panel</code> and execute the specified commands with a mouse or touchpad manipulator.
+For example, the <code>maven panel</code> in IntelliJ IDEA looks like:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/quick-start/maven-panel.jpg" alt="maven panel">
+</div>
+<div class="title">Figure 5. Maven panel in IntelliJ IDEA</div>
+</div>
+<div class="paragraph">
+<p>After successful compilation, the <code>RxMicro Annotation Processor</code> work results are displayed in the terminal:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">[INFO] ------------------------------------------------------------------------
+[INFO]  RX-MICRO ANNOTATIONS PROCESSING
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] Current environment context is:
+  RxMicro version: 0.11
+  Current module:
+    <code>examples.quick.start</code>
+  Available RxMicro modules:
+    <code>rxmicro.common</code>;
+    <code>rxmicro.reflection</code>;
+    <code>rxmicro.model</code>;
+    <code>rxmicro.runtime</code>;
+    <code>rxmicro.config</code>;
+    <code>rxmicro.logger</code>;
+    <code>rxmicro.files</code>;
+    <code>rxmicro.http</code>;
+    <code>rxmicro.rest</code>;
+    <code>rxmicro.rest.server</code>;
+    <code>rxmicro.rest.server.netty</code>;
+    <code>rxmicro.json</code>;
+    <code>rxmicro.exchange.json</code>;
+    <code>rxmicro.rest.server.exchange.json</code>;
+  Include packages: &lt;none&gt;
+  Exclude packages: &lt;none&gt;
+[INFO] Found the following REST controllers:
+  io.rxmicro.examples.quick.start.HelloWorldMicroService:
+    'GET /' -&gt; sayHelloWorld();
+[INFO] Generating java classes...
+[INFO] All java classes generated successful in 0.031 seconds. <i class="conum" data-value="1"></i><b>(1)</b>
+[INFO] ------------------------------------------------------------------------
+[INFO] Annotations processing completed successful.
+[INFO] ------------------------------------------------------------------------</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The given information indicates that all files needed to run the microservice have been generated.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In the <code>target</code> folder You can find all generated and compiled classes of the microservice project.</p>
+</div>
+<div class="paragraph">
+<p>To understand how the RxMicro framework works, please go to <a href="core.html#core-how-it-works-section">core.html</a> section.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="using_the_intellij_idea_2"><a class="anchor" href="#using_the_intellij_idea_2"></a><a class="link" href="#using_the_intellij_idea_2">4.2. Using the <code>IntelliJ IDEA</code></a></h3>
+<div class="paragraph">
+<p>The IntelliJ IDEA allows annotation processors to be launched automatically when building a project.
+So if You want to compile a microservice project using IntelliJ IDEA rather than <code>maven</code>, You need to set up the <code>Annotation Processors</code> section in the IntelliJ IDEA.</p>
+</div>
+<div class="sect3">
+<h4 id="enable_annotation_processing"><a class="anchor" href="#enable_annotation_processing"></a><a class="link" href="#enable_annotation_processing">4.2.1. Enable Annotation Processing</a></h4>
+<div class="paragraph">
+<p>To enable annotation processing while building a project with IntelliJ IDEA, You need to set up the <code>Annotation Processors</code> section.
+To do so, open the menu: <code>File</code> &#8594; <code>Settings</code> and get to the tab:`Build, Execution, Deployment` &#8594; <code>Compiler</code> &#8594; <code>Annotation Processors</code>.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/quick-start/idea-annotation-processing.jpg" alt="idea annotation processing">
+</div>
+<div class="title">Figure 6. Required Annotation Processing settings</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Make sure that <strong>all</strong> Your settings of the <code>Annotation Processors</code> section correspond to the settings shown in the figure above.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="rebuilding_the_project"><a class="anchor" href="#rebuilding_the_project"></a><a class="link" href="#rebuilding_the_project">4.2.2. Rebuilding the Project</a></h4>
+<div class="paragraph">
+<p>After setting up the <code>Annotation Processors</code> section, the project must be rebuilt.
+To do so, run the following command from the main menu: <code>Build</code> &#8594; <code>Rebuild project</code>.</p>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="starting_the_microservice"><a class="anchor" href="#starting_the_microservice"></a><a class="link" href="#starting_the_microservice">5. Starting the Microservice</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="using_the_ide"><a class="anchor" href="#using_the_ide"></a><a class="link" href="#using_the_ide">5.1. Using the IDE:</a></h3>
+<div class="paragraph">
+<p>You can run the REST-based microservice using the IntelliJ IDEA launch context menu</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/quick-start/run-using-ide.jpg" alt="run using ide">
+</div>
+<div class="title">Figure 7. Run the REST-based micro service using IntelliJ IDEA context menu.</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If You get the following error while starting the REST-based <code>HelloWorldMicroService</code> microservice:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/quick-start/kotlin-error-fix.jpg" alt="kotlin error fix">
+</div>
+</div>
+<div class="paragraph">
+<p>rebuild the project!</p>
+</div>
+<div class="paragraph">
+<p><em>(To do this, run the command <strong>Rebuild project</strong> from the main menu: <code>Build</code> &#8594; <code>Rebuild project</code>.)</em></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>After starting, the console will display the following information:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">2020-02-02 20:14:11.707 [INFO] io.rxmicro.rest.server.netty.internal.component.NettyServer :
+Server started at 0.0.0.0:8080 using NETTY transport in 500 millis <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>Server started in &#8230;&#8203; millis</code> message means that the RxMicro HTTP server has been successfully started.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If an error occurs during the starting process, the console will display a stack trace of this error.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="using_the_terminal_2"><a class="anchor" href="#using_the_terminal_2"></a><a class="link" href="#using_the_terminal_2">5.2. Using the Terminal:</a></h3>
+<div class="paragraph">
+<p>Go to the <code>target</code> folder of the microservice project, open the terminal in this folder and run the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text"><strong>java</strong> -Dfile.encoding=UTF-8 -p ./classes:$M2_REPO/io/rxmicro/rxmicro-rest-server-netty/0.11/rxmicro-rest-server-netty-0.11.jar:$M2_REPO/io/rxmicro/rxmicro-rest-server/0.11/rxmicro-rest-server-0.11.jar:$M2_REPO/io/rxmicro/rxmicro-rest/0.11/rxmicro-rest-0.11.jar:$M2_REPO/io/rxmicro/rxmicro-model/0.11/rxmicro-model-0.11.jar:$M2_REPO/io/rxmicro/rxmicro-http/0.11/rxmicro-http-0.11.jar:$M2_REPO/io/rxmicro/rxmicro-logger/0.11/rxmicro-logger-0.11.jar:$M2_REPO/io/rxmicro/rxmicro-common/0.11/rxmicro-common-0.11.jar:$M2_REPO/io/rxmicro/rxmicro-config/0.11/rxmicro-config-0.11.jar:$M2_REPO/io/rxmicro/rxmicro-runtime/0.11/rxmicro-runtime-0.11.jar:$M2_REPO/io/rxmicro/rxmicro-files/0.11/rxmicro-files-0.11.jar:$M2_REPO/io/netty/netty-codec-http/4.1.85.Final/netty-codec-http-4.1.85.Final.jar:$M2_REPO/io/netty/netty-common/4.1.85.Final/netty-common-4.1.85.Final.jar:$M2_REPO/io/netty/netty-buffer/4.1.85.Final/netty-buffer-4.1.85.Final.jar:$M2_REPO/io/netty/netty-codec/4.1.85.Final/netty-codec-4.1.85.Final.jar:$M2_REPO/io/netty/netty-handler/4.1.85.Final/netty-handler-4.1.85.Final.jar:$M2_REPO/io/netty/netty-transport/4.1.85.Final/netty-transport-4.1.85.Final.jar:$M2_REPO/io/netty/netty-resolver/4.1.85.Final/netty-resolver-4.1.85.Final.jar:$M2_REPO/io/rxmicro/rxmicro-rest-server-exchange-json/0.11/rxmicro-rest-server-exchange-json-0.11.jar:$M2_REPO/io/rxmicro/rxmicro-exchange-json/0.11/rxmicro-exchange-json-0.11.jar:$M2_REPO/io/rxmicro/rxmicro-json/0.11/rxmicro-json-0.11.jar -m <strong>examples.quick.start/io.rxmicro.examples.quick.start.HelloWorldMicroService</strong></code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>It is assumed that the <code>M2_REPO</code> environment variable is set on Your computer.
+This variable must contain a path to the maven local repository.</p>
+</div>
+<div class="paragraph">
+<p>By default, the local repository is located in the <code>$HOME/.m2/repository</code>
+folder, where <code>$HOME</code> is the home directory <em>(i.e. <code>System.getProperty("user.home")</code>)</em>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>for Linux platform the <code>$HOME</code> directory is <code>/home/$USERNAME</code>;</p>
+</li>
+<li>
+<p>for MacOS platform the <code>$HOME</code> directory is <code>/Users/$USERNAME</code>;</p>
+</li>
+<li>
+<p>for Windows platform the <code>$HOME</code> directory is <code>C:\Documents and Settings\%USERNAME%</code> or <code>C:\Users\%USERNAME%</code>.</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The above example of launching a microservice project using a terminal won&#8217;t work on <code>Windows</code> OS.</p>
+</div>
+<div class="paragraph">
+<p>Inoperability is caused by the use of different special symbols on Unix (Linux and MacOS) and Windows platforms:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/File.html#pathSeparatorChar" target="_blank" rel="noopener"><code>Path separator</code></a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Unix uses the <code>:</code> symbol.</p>
+</li>
+<li>
+<p>Windows uses the <code>;</code> symbol.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/File.html#separatorChar" target="_blank" rel="noopener"><code>Path name separator</code></a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Unix uses the <code>/</code> symbol.</p>
+</li>
+<li>
+<p>Windows uses the <code>\</code> symbol.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Address to <a href="https://en.wikipedia.org/wiki/PATH_(variable)" target="_blank" rel="noopener">environment variable with the <code>M2_REPO</code> name</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Unix uses the <code>$M2_REPO</code> expression.</p>
+</li>
+<li>
+<p>Windows uses the <code>%M2_REPO%</code> expression.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Therefore, in order to launch a microservice project on the <code>Windows</code> OS, it is necessary to replace all special symbols.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>After starting, the console will display the following information:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text"><strong>java</strong> -p ./classes: \
+        $M2_REPO/io/rxmicro/rxmicro-rest-server-netty/0.11/rxmicro-rest-server-netty-0.11.jar: \
+        $M2_REPO/io/rxmicro/rxmicro-rest-server/0.11/rxmicro-rest-server-0.11.jar: \
+        $M2_REPO/io/rxmicro/rxmicro-rest/0.11/rxmicro-rest-0.11.jar: \
+        $M2_REPO/io/rxmicro/rxmicro-model/0.11/rxmicro-model-0.11.jar: \
+        $M2_REPO/io/rxmicro/rxmicro-http/0.11/rxmicro-http-0.11.jar: \
+        $M2_REPO/io/rxmicro/rxmicro-logger/0.11/rxmicro-logger-0.11.jar: \
+        $M2_REPO/io/rxmicro/rxmicro-common/0.11/rxmicro-common-0.11.jar: \
+        $M2_REPO/io/rxmicro/rxmicro-config/0.11/rxmicro-config-0.11.jar: \
+        $M2_REPO/io/rxmicro/rxmicro-runtime/0.11/rxmicro-runtime-0.11.jar: \
+        $M2_REPO/io/rxmicro/rxmicro-files/0.11/rxmicro-files-0.11.jar: \
+        $M2_REPO/io/rxmicro/rxmicro-rest-server-exchange-json/0.11/rxmicro-rest-server-exchange-json-0.11.jar: \
+        $M2_REPO/io/rxmicro/rxmicro-exchange-json/0.11/rxmicro-exchange-json-0.11.jar: \
+        $M2_REPO/io/rxmicro/rxmicro-json/0.11/rxmicro-json-0.11.jar: \
+        $M2_REPO/io/netty/netty-codec-http/4.1.85.Final/netty-codec-http-4.1.85.Final.jar: \
+        $M2_REPO/io/netty/netty-common/4.1.85.Final/netty-common-4.1.85.Final.jar: \
+        $M2_REPO/io/netty/netty-buffer/4.1.85.Final/netty-buffer-4.1.85.Final.jar: \
+        $M2_REPO/io/netty/netty-codec/4.1.85.Final/netty-codec-4.1.85.Final.jar: \
+        $M2_REPO/io/netty/netty-handler/4.1.85.Final/netty-handler-4.1.85.Final.jar: \
+        $M2_REPO/io/netty/netty-transport/4.1.85.Final/netty-transport-4.1.85.Final.jar: \
+        $M2_REPO/io/netty/netty-resolver/4.1.85.Final/netty-resolver-4.1.85.Final.jar \
+    -m <strong>examples.quick.start/io.rxmicro.examples.quick.start.HelloWorldMicroService</strong>
+
+2020-02-02 20:14:11.707 [INFO] io.rxmicro.rest.server.netty.internal.component.NettyServer :
+Server started at 0.0.0.0:8080 using NETTY transport in 500 millis <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>Server started in &#8230;&#8203; millis</code> message means that the RxMicro HTTP server has been successfully started.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>When starting the microservice via the terminal, it&#8217;s quite inconvenient to list all dependencies and their versions.
+To solve this problem, You can use the <code>maven-dependency-plugin</code>, which can copy all project dependencies.
+To activate the <code>maven-dependency-plugin</code>, You must add it to <code>pom.xml</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;plugin&gt;
+    &lt;artifactId&gt;maven-dependency-plugin&lt;/artifactId&gt;
+    &lt;version&gt;${maven-dependency-plugin.version}&lt;/version&gt;<i class="conum" data-value="1"></i><b>(1)</b>
+    &lt;executions&gt;
+        &lt;execution&gt;
+            &lt;id&gt;copy-dependencies&lt;/id&gt;
+            &lt;phase&gt;package&lt;/phase&gt;<i class="conum" data-value="2"></i><b>(2)</b>
+            &lt;goals&gt;
+                &lt;goal&gt;copy-dependencies&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+                &lt;outputDirectory&gt;${project.build.directory}/lib&lt;/outputDirectory&gt;<i class="conum" data-value="3"></i><b>(3)</b>
+                &lt;includeScope&gt;compile&lt;/includeScope&gt;<i class="conum" data-value="4"></i><b>(4)</b>
+            &lt;/configuration&gt;
+        &lt;/execution&gt;
+    &lt;/executions&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><a href="https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-dependency-plugin" target="_blank" rel="noopener">The latest stable version of the <code>maven-dependency-plugin</code></a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The plugin is invoked during the <code>package</code> phase.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Target folder all dependencies should be copied to.<br>
+<em>(In the example above, this is the <code>target/lib</code> folder.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>This setting specifies what scope of dependencies should be copied.<br>
+<em>(This option allows excluding libraries required for testing or libraries, those already present on the client&#8217;s computer.)</em></td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>After adding the plugin, You need to execute the command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text"><strong>mvn</strong> clean package</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As a result of running the command, the <code>maven-dependency-plugin</code> will copy all the dependencies to the <code>target/lib</code> folder:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/quick-start/maven-dependency-plugin-results.jpg" alt="maven dependency plugin results">
+</div>
+<div class="title">Figure 8. The required dependencies for the simplest REST-based micro service.</div>
+</div>
+<div class="paragraph">
+<p>Now You can simplify the start command<br>
+<em>(Instead of listing all the libraries, specify the <code>lib</code> folder)</em>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text"><strong>java</strong> -p ./classes:lib -m <strong>examples.quick.start/io.rxmicro.examples.quick.start.HelloWorldMicroService</strong></code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The above example of launching a microservice project using a terminal won&#8217;t work on <code>Windows</code> OS.</p>
+</div>
+<div class="paragraph">
+<p>Inoperability is caused by the use of different special symbols on Unix (Linux and MacOS) and Windows platforms:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/File.html#pathSeparatorChar" target="_blank" rel="noopener"><code>Path separator</code></a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Unix uses the <code>:</code> symbol.</p>
+</li>
+<li>
+<p>Windows uses the <code>;</code> symbol.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/File.html#separatorChar" target="_blank" rel="noopener"><code>Path name separator</code></a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Unix uses the <code>/</code> symbol.</p>
+</li>
+<li>
+<p>Windows uses the <code>\</code> symbol.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Address to <a href="https://en.wikipedia.org/wiki/PATH_(variable)" target="_blank" rel="noopener">environment variable with the <code>M2_REPO</code> name</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Unix uses the <code>$M2_REPO</code> expression.</p>
+</li>
+<li>
+<p>Windows uses the <code>%M2_REPO%</code> expression.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Therefore, in order to launch a microservice project on the <code>Windows</code> OS, it is necessary to replace all special symbols.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="verifying_the_microservice"><a class="anchor" href="#verifying_the_microservice"></a><a class="link" href="#verifying_the_microservice">6. Verifying the Microservice</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To receive the <code>"Hello World!"</code> message from the created REST-based microservice, execute <code>GET</code> request to <code>localhost:8080</code> endpoint:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">:$ <strong>curl</strong> -v localhost:8080
+
+* Rebuilt URL to: localhost:8080/
+*   Trying 127.0.0.1...
+* TCP_NODELAY set
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+
+&gt; GET / HTTP/1.1 <i class="conum" data-value="1"></i><b>(1)</b>
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.58.0
+&gt; Accept: <strong>/</strong>
+&gt;
+
+&lt; HTTP/1.1 200 OK <i class="conum" data-value="2"></i><b>(2)</b>
+&lt; Server: RxMicro-NettyServer/0.11
+&lt; Date: Thu, 2 Jan 2020 11:48:13 GMT
+&lt; Content-Type: application/json
+&lt; Content-Length: 25
+&lt; Request-Id: 62jJeu8x1310662
+&lt;
+* Connection #0 to host localhost left intact
+<strong>{"message":"Hello World!"}</strong> <i class="conum" data-value="3"></i><b>(3)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><strong>curl</strong> sends a GET request.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>HTTP server successfully returns a response.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The HTTP body contains a JSON response with the <code>"Hello World!"</code> message.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Therefore, the created REST-based microservice works correctly!</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>You can also use Your favorite browser instead of <code>curl</code> to verify if the REST-based microservice is working correctly.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="automated_test"><a class="anchor" href="#automated_test"></a><a class="link" href="#automated_test">7. Automated Test</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework provides modules for effective writing of <a href="testing.html#tesing-section">any type of tests</a>.
+Among all supported test types, a REST-based microservice test is required for the current project.</p>
+</div>
+<div class="sect2">
+<h3 id="configuring_the_project_2"><a class="anchor" href="#configuring_the_project_2"></a><a class="link" href="#configuring_the_project_2">7.1. Configuring the Project</a></h3>
+<div class="paragraph">
+<p>Before writing a REST-based microservice test, You need to configure <code>pom.xml</code> of Your project by performing the following steps:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Add the required dependencies to <code>pom.xml</code>.</p>
+</li>
+<li>
+<p>Configure the <code>maven-compiler-plugin</code>.</p>
+</li>
+<li>
+<p>Configure the <code>maven-surefire-plugin</code>.</p>
+</li>
+</ol>
+</div>
+<div class="sect3">
+<h4 id="adding_the_required_dependencies_2"><a class="anchor" href="#adding_the_required_dependencies_2"></a><a class="link" href="#adding_the_required_dependencies_2">7.1.1. Adding the Required Dependencies</a></h4>
+<div class="paragraph">
+<p>Before using RxMicro modules for testing, You need to add the following dependencies to the project:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;io.rxmicro&lt;/groupId&gt;
+        &lt;artifactId&gt;rxmicro-test-junit&lt;/artifactId&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+        &lt;version&gt;${rxmicro.version}&lt;/version&gt;
+        &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;io.rxmicro&lt;/groupId&gt;
+        &lt;artifactId&gt;rxmicro-rest-client-exchange-json&lt;/artifactId&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+        &lt;version&gt;${rxmicro.version}&lt;/version&gt;
+        &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Unit testing library based on the <a href="https://junit.org/junit5/" target="_blank" rel="noopener">JUnit 5</a> framework</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Library for Java model conversion to <a href="https://www.json.org/" target="_blank" rel="noopener">JSON</a> format and vice versa on the HTTP client side;</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The REST-based microservice testing process consists in launching the REST-based microservice and sending a request to the microservice via HTTP client.<br>
+<em>(Therefore, in <code>maven</code> dependencies it&#8217;s necessary to add the library supporting the <a href="https://www.json.org/" target="_blank" rel="noopener">JSON</a>
+format on the HTTP client side (<code>rxmicro-rest-client-exchange-json</code>))</em>.<br>
+After receiving a response from the microservice, the response is compared to the expected one.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="configuring_the_maven_compiler_plugin"><a class="anchor" href="#configuring_the_maven_compiler_plugin"></a><a class="link" href="#configuring_the_maven_compiler_plugin">7.1.2. Configuring the <code>maven-compiler-plugin</code></a></h4>
+<div class="paragraph">
+<p>Since the RxMicro framework uses the <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.compiler/javax/annotation/processing/Processor.html" target="_blank" rel="noopener">Java annotation processors</a>, You need to configure <code>maven-compiler-plugin</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;plugin&gt;
+    &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+    &lt;version&gt;${maven-compiler-plugin.version}&lt;/version&gt;
+    &lt;configuration&gt;
+        &lt;release&gt;11&lt;/release&gt;
+        &lt;annotationProcessorPaths&gt;
+            &lt;annotationProcessorPath&gt;
+                &lt;groupId&gt;io.rxmicro&lt;/groupId&gt;
+                &lt;artifactId&gt;rxmicro-annotation-processor&lt;/artifactId&gt;
+                &lt;version&gt;${rxmicro.version}&lt;/version&gt;
+            &lt;/annotationProcessorPath&gt;
+        &lt;/annotationProcessorPaths&gt;
+    &lt;/configuration&gt;
+    &lt;executions&gt;
+        &lt;execution&gt;
+            &lt;id&gt;source-compile&lt;/id&gt;
+            &lt;goals&gt;
+                &lt;goal&gt;compile&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+                &lt;annotationProcessors&gt;
+                    &lt;annotationProcessor&gt;
+            io.rxmicro.annotation.processor.RxMicroAnnotationProcessor
+                    &lt;/annotationProcessor&gt;
+                &lt;/annotationProcessors&gt;
+                &lt;generatedSourcesDirectory&gt;
+                    ${project.build.directory}/generated-sources/
+                &lt;/generatedSourcesDirectory&gt;
+            &lt;/configuration&gt;
+        &lt;/execution&gt;
+        &lt;execution&gt;
+            &lt;id&gt;test-compile&lt;/id&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+            &lt;goals&gt;
+                &lt;goal&gt;testCompile&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+                &lt;annotationProcessors&gt;
+                    &lt;annotationProcessor&gt;
+            io.rxmicro.annotation.processor.RxMicroTestsAnnotationProcessor <i class="conum" data-value="2"></i><b>(2)</b>
+                    &lt;/annotationProcessor&gt;
+                &lt;/annotationProcessors&gt;
+                &lt;generatedTestSourcesDirectory&gt;
+                    ${project.build.directory}/generated-test-sources/ <i class="conum" data-value="3"></i><b>(3)</b>
+                &lt;/generatedTestSourcesDirectory&gt;
+            &lt;/configuration&gt;
+        &lt;/execution&gt;
+    &lt;/executions&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The tests require a separate configuration, so a new <code>execution</code> must be added.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The annotation processor class that handles test configuration.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Location of Java-generated classes by the test annotation processor.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>To learn more about how the <code>RxMicro Annotation Processor</code> works in the test environment, please go to the following section: <a href="testing.html#testing-how-it-works-section">testing.html</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="configuring_the_maven_surefire_plugin"><a class="anchor" href="#configuring_the_maven_surefire_plugin"></a><a class="link" href="#configuring_the_maven_surefire_plugin">7.1.3. Configuring the <code>maven-surefire-plugin</code></a></h4>
+<div class="paragraph">
+<p>For a successful tests launch while building a project with <code>maven</code> it is necessary to update <code>maven-surefire-plugin</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;plugin&gt;
+    &lt;artifactId&gt;maven-surefire-plugin&lt;/artifactId&gt;
+    &lt;version&gt;${maven-surefire-plugin.version}&lt;/version&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+    &lt;configuration&gt;
+        &lt;properties&gt;
+            &lt;!-- https://junit.org/junit5/docs/5.5.1/api/org/junit/jupiter/api/Timeout.html --&gt;
+            &lt;configurationParameters&gt;
+                junit.jupiter.execution.timeout.default = 60                <i class="conum" data-value="2"></i><b>(2)</b>
+                junit.jupiter.execution.timeout.mode = disabled_on_debug    <i class="conum" data-value="3"></i><b>(3)</b>
+                junit.jupiter.execution.parallel.enabled = false            <i class="conum" data-value="4"></i><b>(4)</b>
+            &lt;/configurationParameters&gt;
+        &lt;/properties&gt;
+    &lt;/configuration&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><a href="https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin" target="_blank" rel="noopener">Last stable version of <code>maven-surefire-plugin</code></a>.<br>
+<em>(The plugin version must be <code>2.22.1</code> or higher, otherwise <code>maven</code> will ignore the tests!.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>In case of an error in the code which uses reactive programming, an infinite function execution may occur.
+In order to detect such cases, it is necessary to set a global timeout for all methods in the tests.
+<em>(By default, timeout is set in seconds.
+More detailed information on timeouts configuration is available <a href="https://junit.org/junit5/docs/current/user-guide/user-guide/#writing-tests-declarative-timeouts" target="_blank" rel="noopener">in official JUnit5 documentation</a>.)</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>While debugging, timeouts can be turned off.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>This property is useful for the tests debugging from IDE or <code>maven</code>.<br>
+<em>(By setting this property the speed of test performance will decrease, so use this property for debugging only!)</em></td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="creating_a_test_class"><a class="anchor" href="#creating_a_test_class"></a><a class="link" href="#creating_a_test_class">7.2. Creating a Test Class</a></h3>
+<div class="paragraph">
+<p>REST-based microservice test is a one class containing one test method:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">package io.rxmicro.examples.quick.start;
+
+import io.rxmicro.test.BlockingHttpClient;
+import io.rxmicro.test.ClientHttpResponse;
+import io.rxmicro.test.junit.RxMicroRestBasedMicroServiceTest;
+import org.junit.jupiter.api.Test;
+
+import static io.rxmicro.test.json.JsonFactory.jsonObject;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@RxMicroRestBasedMicroServiceTest(HelloWorldMicroService.class) <i class="conum" data-value="1"></i><b>(1)</b>
+final class HelloWorldMicroServiceTest {
+
+    private BlockingHttpClient blockingHttpClient; <i class="conum" data-value="2"></i><b>(2)</b>
+
+    @Test
+    void Should_return_Hello_World_message() {
+        final ClientHttpResponse response = blockingHttpClient.get("/"); <i class="conum" data-value="3"></i><b>(3)</b>
+        assertEquals(
+                jsonObject("message", "Hello World!"), <i class="conum" data-value="4"></i><b>(4)</b>
+                response.getBody()
+        );
+        assertEquals(200, response.getStatusCode()); <i class="conum" data-value="5"></i><b>(5)</b>
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>RxMicro Test Annotation</code> indicating which microservice should be run for testing.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-test/src/main/java/io/rxmicro/test/BlockingHttpClient.java" target="_blank" rel="noopener"><code>BlockingHttpClient</code></a> is a basic HTTP client interface designed for use in tests.
+This interface allows executing <strong>blocking</strong> requests to the microservice via the <code>HTTP</code> protocol.
+This field is initialized automatically when running the test with <code>reflection</code>.
+Upon initialization it refers to the test HTTP server that was automatically started for the test.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Blocking request to the microservice.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Comparing the contents of an HTTP body with an expected value.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Comparing the HTTP status code with an expected value.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For low-level and effective work with JSON format, the RxMicro framework provides a separate <code>rxmicro.json</code> module.</p>
+</div>
+<div class="paragraph">
+<p>To get a common idea of the capabilities of this module, which are required when writing tests, go to the following section: <a href="core.html#core-rx-micro-json-section">core.html</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><strong>In microservice tests it is recommended to compare the HTTP request body before comparing the HTTP status, when the microservice constantly returns a text error message!
+(This will make it easier to understand the error in case it occurred during the testing.)</strong></p>
+</div>
+<div class="paragraph">
+<p><strong>If the microservice returns ONLY the status when an error occurs, the HTTP body comparison should be skipped!</strong></p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For further information on how to test REST-based microservices, go to the following section: <a href="testing.html#testing-rest-based-microservice-tests-section">testing.html</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="starting_the_test_class"><a class="anchor" href="#starting_the_test_class"></a><a class="link" href="#starting_the_test_class">7.3. Starting the Test Class</a></h3>
+<div class="paragraph">
+<p>To start the tests, You need to run the command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt"><strong>mvn</strong> clean test</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After starting, the console will display the following information:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">...
+[INFO] ------------------------------------------------------------------------
+[INFO]  <strong>RX-MICRO ANNOTATIONS PROCESSING</strong> <i class="conum" data-value="1"></i><b>(1)</b>
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] Current environment context is:
+  RxMicro version: 0.11
+  Current module:
+    <code>examples.quick.start</code>
+  Available RxMicro modules:
+    ...
+  Include packages: &lt;none&gt;
+  Exclude packages: &lt;none&gt;
+[INFO] Found the following REST controllers:
+  io.rxmicro.examples.quick.start.HelloWorldMicroService:
+    'GET /' -&gt; sayHelloWorld();
+[INFO] Generating java classes...
+[INFO] All java classes generated successful in 0.030 seconds. <i class="conum" data-value="2"></i><b>(2)</b>
+[INFO] ------------------------------------------------------------------------
+[INFO] Annotations processing completed successful.
+[INFO] ------------------------------------------------------------------------
+...
+[INFO] ------------------------------------------------------------------------
+[INFO]  <strong>RX-MICRO TEST ANNOTATIONS PROCESSING</strong> <i class="conum" data-value="3"></i><b>(3)</b>
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] Current environment context is:
+  RxMicro version: 0.11
+  Current module:
+    <code>examples.quick.start</code>
+  Available RxMicro modules:
+    ...
+  Include packages: &lt;none&gt;
+  Exclude packages: &lt;none&gt;
+[INFO] Generating java classes...
+[INFO] Test fixer class generated successfully: rxmicro.$$RestBasedMicroServiceTestFixer <i class="conum" data-value="4"></i><b>(4)</b>
+[INFO] All java classes generated successful in 0.009 seconds. <i class="conum" data-value="4"></i><b>(4)</b>
+[INFO] ------------------------------------------------------------------------
+[INFO] Annotations processing completed successful.
+[INFO] ------------------------------------------------------------------------
+...
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+...
+[INFO] <strong>Fix the environment for REST based microservice test(s)...</strong> <i class="conum" data-value="5"></i><b>(5)</b>
+[INFO] <strong>opens</strong> examples.quick.start/rxmicro to ALL-UNNAMED <i class="conum" data-value="5"></i><b>(5)</b>
+[INFO] <strong>opens</strong> examples.quick.start/io.rxmicro.examples.quick.start to ALL-UNNAMED <i class="conum" data-value="5"></i><b>(5)</b>
+[INFO] <strong>opens</strong> examples.quick.start/rxmicro to rxmicro.reflection <i class="conum" data-value="5"></i><b>(5)</b>
+[INFO] <strong>opens</strong> examples.quick.start/io.rxmicro.examples.quick.start to rxmicro.reflection <i class="conum" data-value="5"></i><b>(5)</b>
+[INFO] <strong>opens</strong> rxmicro.rest.server.netty/io.rxmicro.rest.server.netty.local to ALL-UNNAMED <i class="conum" data-value="5"></i><b>(5)</b>
+[INFO] <strong>opens</strong> rxmicro.runtime/io.rxmicro.runtime.local to ALL-UNNAMED <i class="conum" data-value="5"></i><b>(5)</b>
+[INFO] <strong>opens</strong> rxmicro.runtime/io.rxmicro.runtime.local.error to ALL-UNNAMED <i class="conum" data-value="5"></i><b>(5)</b>
+[INFO] <strong>opens</strong> rxmicro.runtime/io.rxmicro.runtime.local.provider to ALL-UNNAMED <i class="conum" data-value="5"></i><b>(5)</b>
+[INFO] <strong>opens</strong> rxmicro.config/io.rxmicro.config.local to ALL-UNNAMED <i class="conum" data-value="5"></i><b>(5)</b>
+[INFO] <strong>opens</strong> rxmicro.rest.server/io.rxmicro.rest.server.local.model to ALL-UNNAMED <i class="conum" data-value="5"></i><b>(5)</b>
+[INFO] <strong>opens</strong> rxmicro.rest.server/io.rxmicro.rest.server.local.component to ALL-UNNAMED <i class="conum" data-value="5"></i><b>(5)</b>
+[INFO] <strong>opens</strong> rxmicro.common/io.rxmicro.common.local to ALL-UNNAMED <i class="conum" data-value="5"></i><b>(5)</b>
+[INFO] <strong>opens</strong> rxmicro.http/io.rxmicro.http.local to ALL-UNNAMED <i class="conum" data-value="5"></i><b>(5)</b>
+[INFO] Running io.rxmicro.examples.quick.start.HelloWorldMicroServiceTest <i class="conum" data-value="6"></i><b>(6)</b>
+[INFO] ...NettyServer: Server started at 0.0.0.0:38751 using NETTY transport. <i class="conum" data-value="7"></i><b>(7)</b>
+[INFO] ...Router: Mapped "GET '/'  onto ...HelloWorldMicroService.sayHelloWorld()
+[INFO] ...Router: Mapped "GET '/bad-request'  onto ...BadHttpRequestRestController.handle(...)
+[INFO] ...HelloWorldMicroServiceTest: JdkHttpClient released <i class="conum" data-value="8"></i><b>(8)</b>
+[INFO] ...NettyServer: Retrieved shutdown request ...
+[INFO] ...NettyServer: Server stopped <i class="conum" data-value="9"></i><b>(9)</b>
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0 <i class="conum" data-value="10"></i><b>(10)</b>
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] <strong>BUILD SUCCESS</strong>
+[INFO] ------------------------------------------------------------------------</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Starting of the <code>RxMicro Annotation Processor</code>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td><code>RxMicro Annotation Processor</code> has successfully completed its work.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Starting of the <code>RxMicro Tests Annotation Processor</code>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td><code>RxMicro Tests Annotation Processor</code> has successfully completed its work.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>For the test configuration, missing exports were automatically added using the capabilities of the <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Module.html" target="_blank" rel="noopener"><code>java.lang.Module</code></a> class.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>REST-based microservice test starting.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>HTTP server has started automatically on random free port.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>The resources of the <code>BlockingHttpClient</code> component have been released.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>HTTP server has stopped successfully.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For further information on how the <code>RxMicro Annotation Processor</code> works for the test environment, go to the following section: <a href="testing.html#testing-how-it-works-section">testing.html</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="the_project_at_the_github"><a class="anchor" href="#the_project_at_the_github"></a><a class="link" href="#the_project_at_the_github">8. The Project at the Github</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The REST-based <code>HelloWorldMicroService</code> microservice project is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/quick-start" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/quick-start</code></a>.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The <code>pom.xml</code> configuration file is a reference configuration and can be copied to Your next project using the RxMicro framework.</p>
+</div>
+<div class="paragraph">
+<p><strong>DON&#8217;T FORGET to remove the link to the parent project</strong>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;parent&gt;
+    &lt;artifactId&gt;examples&lt;/artifactId&gt;
+    &lt;groupId&gt;io.rxmicro&lt;/groupId&gt;
+    &lt;version&gt;0.11&lt;/version&gt;
+&lt;/parent&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>and add the <code>properties</code> section describing the versions of the libraries used</strong>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;properties&gt;
+    &lt;rxmicro.version&gt;0.11&lt;/rxmicro.version&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+
+    &lt;maven-compiler-plugin.version&gt;3.10.1&lt;/maven-compiler-plugin.version&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+    &lt;maven-surefire-plugin.version&gt;3.0.0-M7&lt;/maven-surefire-plugin.version&gt; <i class="conum" data-value="3"></i><b>(3)</b>
+    &lt;maven-dependency-plugin.version&gt;3.2.0&lt;/maven-dependency-plugin.version&gt; <i class="conum" data-value="4"></i><b>(4)</b>
+&lt;/properties&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><a href="https://mvnrepository.com/artifact/io.rxmicro" target="_blank" rel="noopener">The latest stable version of the RxMicro framework</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td><a href="https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin" target="_blank" rel="noopener">The latest stable version of the <code>maven-compiler-plugin</code></a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td><a href="https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin" target="_blank" rel="noopener">The latest stable version of the <code>maven-surefire-plugin</code></a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td><a href="https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-dependency-plugin" target="_blank" rel="noopener">The latest stable version of the <code>maven-dependency-plugin</code></a>.</td>
+</tr>
+</table>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="microservice.html#microservice-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> What are microservices?</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="core.html#core-section"><strong>Core Concepts  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-166298262-2"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-166298262-2');
+</script>
+</div>
+</div>
+</div>
+</body>
+</html>

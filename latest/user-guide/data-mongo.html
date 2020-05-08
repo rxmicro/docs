@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.15">
+<meta name="description" content="A modern, JVM-based, full stack framework designed to develop distributed reactive applications that use a microservice architecture.">
+<meta name="keywords" content="rx, rxmicro, reactive java, reactive jvm, microservice java, reactive microservice, micro service java, reactive micro service">
+<meta name="author" content="nedis">
+<title>Mongo Data Repositories</title>
+<link rel="stylesheet" href="../styles/rxmicro-doc.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body id="data-mongo-section" class="article toc2 toc-left">
+<div id="header">
+<h1>Mongo Data Repositories</h1>
+<div class="details">
+<span id="author" class="author">nedis</span><br>
+<span id="email" class="email"><a href="mailto:rxmicro.io@gmail.com">rxmicro.io@gmail.com</a></span><br>
+<span id="revnumber">version 0.11,</span>
+<span id="revdate">2022-12-14 20:00:09 UTC</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#data-mongo-basic-section">1. Basic Usage</a></li>
+<li><a href="#data-mongo-annotations-section">2. <code>RxMicro Annotations</code></a></li>
+<li><a href="#data-mongo-testing-section">3. Repositories Testing</a>
+<ul class="sectlevel2">
+<li><a href="#data-mongo-test-database-section">3.1. Test Database</a></li>
+<li><a href="#data-mongo-test-templates-section">3.2. Test Templates</a></li>
+</ul>
+</li>
+<li><a href="#data-mongo-universal-placeholder-section">4. Universal Placeholder</a></li>
+<li><a href="#data-mongo-repeat-parameter-section">5. <code>@RepeatParameter</code> Annotation</a></li>
+<li><a href="#data-mongo-operations-section">6. Mongo Operations</a>
+<ul class="sectlevel2">
+<li><a href="#data-mongo-find-section">6.1. <code>@Find</code></a></li>
+<li><a href="#data-mongo-aggregate-section">6.2. <code>@Aggregate</code></a></li>
+<li><a href="#data-mongo-distinct-section">6.3. <code>@Distinct</code></a></li>
+<li><a href="#data-mongo-countDocuments-section">6.4. <code>@CountDocuments</code></a></li>
+<li><a href="#data-mongo-estimatedDocumentCount-section">6.5. <code>@EstimatedDocumentCount</code></a></li>
+<li><a href="#data-mongo-insert-section">6.6. <code>@Insert</code></a></li>
+<li><a href="#data-mongo-update-section">6.7. <code>@Update</code></a></li>
+<li><a href="#data-mongo-delete-section">6.8. <code>@Delete</code></a></li>
+</ul>
+</li>
+<li><a href="#data-mongo-partial-implementation-section">7. Partial Implementation</a></li>
+<li><a href="#data-mongo-logging-section">8. Logging</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="data-postgresql.html#data-postgresql-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> Postgre SQL Data Repositories</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="cdi.html#cdi-section"><strong>Contexts and Dependency Injection  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<div class="paragraph">
+<p>&#169; 2019-2022 rxmicro.io.
+Free use of this software is granted under the terms of the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/LICENSE" target="_blank" rel="noopener"><code>Apache License 2.0</code></a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Copies of this entity may be made for Your own use and for distribution to others, provided that You do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.</p>
+</div>
+<div class="paragraph">
+<p>If You find errors or omissions in this entity, please don’t hesitate to submit an
+<a href="https://github.com/rxmicro/rxmicro-usage/issues" target="_blank" rel="noopener"><strong>issue</strong></a> or open <a href="https://github.com/rxmicro/rxmicro-usage/pulls" target="_blank" rel="noopener"><strong>a pull request</strong></a> with a fix.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The RxMicro framework supports creation of dynamic repositories for interaction with databases.</p>
+</div>
+<div class="paragraph">
+<p>To interact with <a href="https://www.mongodb.com/" target="_blank" rel="noopener"><code>Mongo DB</code></a>, the RxMicro framework provides the <code>rxmicro.data.mongo</code> module.</p>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-mongo-basic-section"><a class="anchor" href="#data-mongo-basic-section"></a><a class="link" href="#data-mongo-basic-section">1. Basic Usage</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To use the <code>rxmicro.data.mongo</code> module in the project, the following two steps must be taken:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Inject the <code>rxmicro.data.mongo</code> dependency to the <code>pom.xml</code> file:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;io.rxmicro&lt;/groupId&gt;
+    &lt;artifactId&gt;rxmicro-data-mongo&lt;/artifactId&gt;
+    &lt;version&gt;${rxmicro.version}&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.projectreactor&lt;/groupId&gt;
+    &lt;artifactId&gt;reactor-core&lt;/artifactId&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+    &lt;version&gt;${projectreactor.version}&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Besides the <code>rxmicro.data.mongo</code> dependency, it is also recommended to add the reactive programming library.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Instead of adding a third-party reactive programming library, You can also use the
+<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/package-summary.html" target="_blank" rel="noopener"><strong>java.util.concurrent</strong></a> library built into the JDK, but often in practice the
+<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/package-summary.html" target="_blank" rel="noopener"><strong>java.util.concurrent</strong></a> library&#8217;s features are not enough.</p>
+</div>
+<div class="paragraph">
+<p>Therefore, it is recommended to use the <a href="https://projectreactor.io/docs/core/release/reference/index.html" target="_blank" rel="noopener"><strong>Project Reactor</strong></a> or the <a href="https://github.com/ReactiveX/RxJava/blob/3.x/README.md" target="_blank" rel="noopener"><strong>RxJava</strong></a> library!</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Add the <code>rxmicro.data.mongo</code> module to the <code>module-info.java</code> descriptor:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">module examples.data.mongo.basic {
+    requires rxmicro.data.mongo;
+    requires reactor.core;       <i class="conum" data-value="1"></i><b>(1)</b>
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>When using a third-party reactive programming library, do not forget to add the corresponding module.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Once the <code>rxmicro.data.mongo</code> module is added, You can create a data model class and a dynamic repository:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class Account {
+
+    String firstName;
+
+    String lastName;
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java"><i class="conum" data-value="1"></i><b>(1)</b>
+@MongoRepository(collection = "account")
+public interface DataRepository {
+
+    <i class="conum" data-value="2"></i><b>(2)</b>
+    @Find(query = "{email: ?}")
+    Mono&lt;Account&gt; findByEmail(String email);
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>In order for a standard interface to be recognized by the RxMicro framework as a dynamic repository for interaction with <a href="https://www.mongodb.com/" target="_blank" rel="noopener"><code>Mongo DB</code></a>, this interface should be annotated with the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-mongo/src/main/java/io/rxmicro/data/mongo/MongoRepository.java" target="_blank" rel="noopener"><code>@MongoRepository</code></a> annotation.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The dynamic repository may contain methods that form a query to the <a href="https://www.mongodb.com/" target="_blank" rel="noopener"><code>Mongo DB</code></a>.
+<em>(The query that used for a request for data uses the JSON format (Specialized request format for <a href="https://www.mongodb.com/" target="_blank" rel="noopener"><code>Mongo DB</code></a>) and is specified in the annotation parameters.
+For each operation supported by <a href="https://www.mongodb.com/" target="_blank" rel="noopener"><code>Mongo DB</code></a>, the RxMicro framework defines a separate annotation:
+The <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-mongo/src/main/java/io/rxmicro/data/mongo/operation/Find.java" target="_blank" rel="noopener"><code>@Find</code></a> annotation describes the
+<a href="https://docs.mongodb.com/manual/reference/method/db.collection.find/" target="_blank" rel="noopener"><code>db.collection.find()</code></a>operation.)</em></td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Since the dynamic repository is a RxMicro component, for its testing You need to use <a href="testing.html#testing-component-tests-section">the microservice component testing approach</a>:</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The common approach recommended for testing dynamic repositories, that interact with <a href="https://www.mongodb.com/" target="_blank" rel="noopener"><code>Mongo DB</code></a>, is described in the <a href="#data-mongo-test-templates-section">Section 3.2, &#8220;Test Templates&#8221;</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Testcontainers
+@RxMicroComponentTest(DataRepository.class)
+final class DataRepositoryTest {
+
+    @Container
+    private final GenericContainer&lt;?&gt; mongoTestDb =
+            new GenericContainer&lt;&gt;("rxmicro/mongo-test-db")
+                    .withExposedPorts(27017);
+
+    @WithConfig
+    private final MongoConfig mongoConfig = new MongoConfig()
+            .setDatabase("rxmicro");
+
+    private DataRepository dataRepository;
+
+    @BeforeEach
+    void beforeEach() {
+        mongoConfig
+                .setHost(mongoTestDb.getHost())
+                .setPort(mongoTestDb.getFirstMappedPort());
+    }
+
+    @Test
+    void Should_find_account() {
+        final Account account =
+                dataRepository.findByEmail("richard.hendricks@piedpiper.com")
+                        .blockOptional()
+                        .orElseThrow();
+
+        assertEquals("Richard", account.getFirstName());
+        assertEquals("Hendricks", account.getLastName());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-basic" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-basic</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-mongo-annotations-section"><a class="anchor" href="#data-mongo-annotations-section"></a><a class="link" href="#data-mongo-annotations-section">2. <code>RxMicro Annotations</code></a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework supports the following <code>RxMicro Annotations</code>:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Supported <code>RxMicro Annotations</code>.</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Annotation</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data/src/main/java/io/rxmicro/data/Column.java" target="_blank" rel="noopener"><code>@Column</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets mapping between the field name in the <code>Mongo DB</code> document and the Java model class field name.</p>
+<p class="tableblock"><em>(By default, the RxMicro framework uses the Java model class field name as the field name in the <code>Mongo DB</code> document.
+If the name should differ for some reason, (for example, as a field name in the <code>Mongo DB</code> document the keyword Java is used), it should be specified using this annotation!)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data/src/main/java/io/rxmicro/data/ColumnMappingStrategy.java" target="_blank" rel="noopener"><code>@ColumnMappingStrategy</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets the strategy of field name formation in the <code>Mongo DB</code> document, based on the analysis of the Java model class field names.</p>
+<p class="tableblock"><em>(If this annotation annotates the Java model class, then the set strategy will be used for <strong>all</strong> fields in this class.
+For example, if You set the default <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-model/src/main/java/io/rxmicro/model/MappingStrategy.java#L41" target="_blank" rel="noopener"><code>LOWERCASE_WITH_UNDERSCORED</code></a> strategy,
+then the <code>parentId</code> field in the Java class will correspond to the <code>parent_id</code> field in the <code>Mongo DB</code> document.)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data/src/main/java/io/rxmicro/data/DataRepositoryGeneratorConfig.java" target="_blank" rel="noopener"><code>@DataRepositoryGeneratorConfig</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allows You to configure the repository generation process.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data/src/main/java/io/rxmicro/data/RepeatParameter.java" target="_blank" rel="noopener"><code>@RepeatParameter</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allows setting <a href="#data-mongo-repeat-parameter-section">mapping between one method parameter marked with this annotation and several universal placeholders that are used in the request to <code>Mongo DB</code></a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-mongo/src/main/java/io/rxmicro/data/mongo/operation/Find.java" target="_blank" rel="noopener"><code>@Find</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a repository method that must execute <a href="#data-mongo-find-section">a <code>db.collection.find()</code> operation</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-mongo/src/main/java/io/rxmicro/data/mongo/operation/Aggregate.java" target="_blank" rel="noopener"><code>@Aggregate</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a repository method that must execute <a href="#data-mongo-aggregate-section">a <code>db.collection.aggregate()</code> operation</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-mongo/src/main/java/io/rxmicro/data/mongo/operation/Distinct.java" target="_blank" rel="noopener"><code>@Distinct</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a repository method that must execute <a href="#data-mongo-distinct-section">a <code>db.collection.distinct()</code> operation</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-mongo/src/main/java/io/rxmicro/data/mongo/operation/CountDocuments.java" target="_blank" rel="noopener"><code>@CountDocuments</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a repository method that must execute <a href="#data-mongo-countDocuments-section">a <code>db.collection.countDocuments()</code> operation</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-mongo/src/main/java/io/rxmicro/data/mongo/operation/EstimatedDocumentCount.java" target="_blank" rel="noopener"><code>@EstimatedDocumentCount</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a repository method that must execute <a href="#data-mongo-estimatedDocumentCount-section">a <code>db.collection.estimatedDocumentCount()</code> operation</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-mongo/src/main/java/io/rxmicro/data/mongo/operation/Insert.java" target="_blank" rel="noopener"><code>@Insert</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a repository method that must execute <a href="#data-mongo-insert-section">a <code>db.collection.insertOne()</code> operation</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-mongo/src/main/java/io/rxmicro/data/mongo/operation/Update.java" target="_blank" rel="noopener"><code>@Update</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a repository method that must execute <a href="#data-mongo-update-section">a <code>db.collection.updateOne()</code> operation</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-mongo/src/main/java/io/rxmicro/data/mongo/operation/Delete.java" target="_blank" rel="noopener"><code>@Delete</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a repository method that must execute <a href="#data-mongo-delete-section">a <code>db.collection.deleteOne()</code> operation</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-mongo/src/main/java/io/rxmicro/data/mongo/DocumentId.java" target="_blank" rel="noopener"><code>@DocumentId</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes a model field that must be used as <a href="https://docs.mongodb.com/manual/core/data-modeling-introduction/" target="_blank" rel="noopener">document unique identifier</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-mongo/src/main/java/io/rxmicro/data/mongo/MongoRepository.java" target="_blank" rel="noopener"><code>@MongoRepository</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes that an interface is a dynamic generated Mongo data repository.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-mongo/src/main/java/io/rxmicro/data/mongo/PartialImplementation.java" target="_blank" rel="noopener"><code>@PartialImplementation</code></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Denotes an abstract class that contains <a href="#data-mongo-partial-implementation-section">a partial implementation of the annotated by this annotation a Mongo Data Repository interface</a>.</p></td>
+</tr>
+</tbody>
+</table>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-mongo-testing-section"><a class="anchor" href="#data-mongo-testing-section"></a><a class="link" href="#data-mongo-testing-section">3. Repositories Testing</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For successful functional testing of dynamic repositories, that interact with <a href="https://www.mongodb.com/" target="_blank" rel="noopener"><code>Mongo DB</code></a>, it is required:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Presence of a script that creates a test database.</p>
+</li>
+<li>
+<p>Mechanism for preparing a database for testing: creating a database before starting the test and deleting a database after completing the test.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="data-mongo-test-database-section"><a class="anchor" href="#data-mongo-test-database-section"></a><a class="link" href="#data-mongo-test-database-section">3.1. Test Database</a></h3>
+<div class="paragraph">
+<p>A test database was created for testing the <code>rxmicro.data.mongo</code>, module features, which are described in this section.</p>
+</div>
+<div class="paragraph">
+<p>The test database consists of one <code>account</code> collection, which contains 6 documents describing the accounts of the test users:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/data-mongo/mongo-test-db.jpg" alt="mongo test db">
+</div>
+<div class="title">Figure 1. Mongo Test Database</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Scripts for creating a test database are available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/docker-image-mongo-test-db/src/main/js" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/blob/master/examples/docker-image-mongo-test-db/src/main/js/</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The following classes of Java models correspond to the documents created in the test database:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public class Account {
+    @DocumentId
+    Long id;
+
+    String email;
+
+    String firstName;
+
+    String lastName;
+
+    BigDecimal balance;
+
+    Role role;
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public enum Role {
+
+    CEO,
+
+    Systems_Architect,
+
+    Lead_Engineer,
+
+    Engineer
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For ease of studying the <code>rxmicro.data.mongo</code> module, You can use the ready-made <a href="https://www.mongodb.com/" target="_blank" rel="noopener"><code>Mongo DB</code></a> image with the <a href="https://hub.docker.com/r/rxmicro/mongo-test-db" target="_blank" rel="noopener"><code>rxmicro/mongo-test-db</code></a> test database.</p>
+</div>
+<div class="paragraph">
+<p>The source code of the project used as a base for building this <code>docker</code> image, is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/docker-image-mongo-test-db" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/docker-image-mongo-test-db</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="data-mongo-test-templates-section"><a class="anchor" href="#data-mongo-test-templates-section"></a><a class="link" href="#data-mongo-test-templates-section">3.2. Test Templates</a></h3>
+<div class="paragraph">
+<p>As a mechanism for preparing a database for testing (creating a database before starting the test and deleting a database after completing the test), it is most convenient to use <a href="https://www.docker.com/" target="_blank" rel="noopener"><code>docker</code></a>.</p>
+</div>
+<div class="paragraph">
+<p>To start <code>docker</code> containers in the functional test it is convenient to use the <a href="https://www.testcontainers.org/" target="_blank" rel="noopener"><code>Testcontainers</code></a> Java library:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java"><i class="conum" data-value="1"></i><b>(1)</b>
+@Testcontainers
+<i class="conum" data-value="2"></i><b>(2)</b>
+@RxMicroComponentTest(DataRepository.class)
+final class DataRepositoryTestTemplate1 {
+
+    <i class="conum" data-value="3"></i><b>(3)</b>
+    @Container
+    private static final GenericContainer&lt;?&gt; MONGO_TEST_DB =
+            new GenericContainer&lt;&gt;("rxmicro/mongo-test-db")
+                    .withExposedPorts(27017); <i class="conum" data-value="4"></i><b>(4)</b>
+
+    <i class="conum" data-value="5"></i><b>(5)</b>
+    @WithConfig
+    private static final MongoConfig MONGO_CONFIG = new MongoConfig()
+            .setDatabase("rxmicro"); <i class="conum" data-value="6"></i><b>(6)</b>
+
+    @BeforeAll
+    static void beforeAll() {
+        MONGO_TEST_DB.start(); <i class="conum" data-value="7"></i><b>(7)</b>
+        MONGO_CONFIG
+                .setHost(MONGO_TEST_DB.getHost()) <i class="conum" data-value="8"></i><b>(8)</b>
+                .setPort(MONGO_TEST_DB.getFirstMappedPort());
+    }
+
+    private DataRepository dataRepository; <i class="conum" data-value="9"></i><b>(9)</b>
+
+    // ... test methods must be here
+
+    @AfterAll
+    static void afterAll() {
+        MONGO_TEST_DB.stop(); <i class="conum" data-value="10"></i><b>(10)</b>
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <a href="https://github.com/testcontainers/testcontainers-java/blob/main/modules/junit-jupiter/src/main/java/org/testcontainers/junit/jupiter/Testcontainers.java" target="_blank" rel="noopener"><code>@Testcontainers</code></a>
+annotation activates the start and stop of the <code>docker</code> containers to be used in this test.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Since the dynamic repository is a RxMicro component, for its testing You need to use <a href="testing.html#testing-component-tests-section">the microservice component testing approach</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The <a href="https://github.com/testcontainers/testcontainers-java/blob/main/modules/junit-jupiter/src/main/java/org/testcontainers/junit/jupiter/Container.java" target="_blank" rel="noopener"><code>@Container</code></a>
+annotation indicates the <code>docker</code> container that will be used in this test.
+As an image on the basis of which it is necessary to create the <code>docker</code> container, the <a href="https://www.mongodb.com/" target="_blank" rel="noopener"><code>Mongo DB</code></a> ready-made image with the
+<a href="https://hub.docker.com/r/rxmicro/mongo-test-db" target="_blank" rel="noopener"><code>rxmicro/mongo-test-db</code></a> test database is used.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>When starting the <code>docker</code> container, You need to open the standard port for <a href="https://www.mongodb.com/" target="_blank" rel="noopener"><code>Mongo DB</code></a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Using the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-test/src/main/java/io/rxmicro/test/WithConfig.java" target="_blank" rel="noopener"><code>@WithConfig</code></a>
+annotation, the configuration available only during the test is declared.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Setting up the configuration to interact with the test database.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Before running all tests, You must start the <code>docker</code> container.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>After starting the <code>docker</code> container, You need to read the random IP address and port that will be used when connecting to the running <code>docker</code> container.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>When testing <a href="testing.html#testing-component-tests-section">microservice components</a>, it is necessary to specify a reference to the component in which the RxMicro framework will inject the tested component.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="10"></i><b>10</b></td>
+<td>After completing all the tests, You must stop the <code>docker</code> container.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The main advantage of this template is the speed of testing.
+Since the <code>docker</code> container is created once before starting <strong>all</strong> test methods, the total runtime of all test methods is reduced.
+The main disadvantage of this template is that if any test method changes the <a href="https://www.mongodb.com/" target="_blank" rel="noopener"><code>Mongo DB</code></a> state, the following test method may end with an error.</p>
+</div>
+<div class="paragraph">
+<p><strong>Therefore, this functional test template should be used for queries to <a href="https://www.mongodb.com/" target="_blank" rel="noopener"><code>Mongo DB</code></a> that do not change the database state!</strong></p>
+</div>
+<div class="paragraph">
+<p>If You need to test methods that change the <a href="https://www.mongodb.com/" target="_blank" rel="noopener"><code>Mongo DB</code></a> state, You should use another template:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java"><i class="conum" data-value="1"></i><b>(1)</b>
+@Testcontainers
+<i class="conum" data-value="2"></i><b>(2)</b>
+@RxMicroComponentTest(DataRepository.class)
+final class DataRepositoryTestTemplate2 {
+
+    <i class="conum" data-value="3"></i><b>(3)</b>
+    @Container
+    private final GenericContainer&lt;?&gt; mongoTestDb =
+            new GenericContainer&lt;&gt;("rxmicro/mongo-test-db")
+                    .withExposedPorts(27017); <i class="conum" data-value="4"></i><b>(4)</b>
+
+    <i class="conum" data-value="5"></i><b>(5)</b>
+    @WithConfig
+    private final MongoConfig mongoConfig = new MongoConfig()
+            .setDatabase("rxmicro"); <i class="conum" data-value="6"></i><b>(6)</b>
+
+    private DataRepository dataRepository; <i class="conum" data-value="7"></i><b>(7)</b>
+
+    @BeforeEach
+    void beforeEach() {
+        mongoConfig
+                .setHost(mongoTestDb.getHost()) <i class="conum" data-value="8"></i><b>(8)</b>
+                .setPort(mongoTestDb.getFirstMappedPort());
+    }
+
+    // ... test methods must be here
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <a href="https://github.com/testcontainers/testcontainers-java/blob/main/modules/junit-jupiter/src/main/java/org/testcontainers/junit/jupiter/Testcontainers.java" target="_blank" rel="noopener"><code>@Testcontainers</code></a>
+annotation activates the start and stop of the <code>docker</code> containers to be used in this test.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Since the dynamic repository is a RxMicro component, for its testing You need to use <a href="testing.html#testing-component-tests-section">the microservice component testing approach</a></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The <a href="https://github.com/testcontainers/testcontainers-java/blob/main/modules/junit-jupiter/src/main/java/org/testcontainers/junit/jupiter/Container.java" target="_blank" rel="noopener"><code>@Container</code></a>
+annotation indicates the <code>docker</code> container that will be used in this test.
+As an image on the basis of which it is necessary to create the <code>docker</code> container, the <a href="https://www.mongodb.com/" target="_blank" rel="noopener"><code>Mongo DB</code></a> ready-made image with the
+<a href="https://hub.docker.com/r/rxmicro/mongo-test-db" target="_blank" rel="noopener"><code>rxmicro/mongo-test-db</code></a> test database is used.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>When starting the <code>docker</code> container, You need to open the standard port for <a href="https://www.mongodb.com/" target="_blank" rel="noopener"><code>Mongo DB</code></a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Using the <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-test/src/main/java/io/rxmicro/test/WithConfig.java" target="_blank" rel="noopener"><code>@WithConfig</code></a>
+annotation, the configuration available only during the test is declared.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Setting up the configuration to interact with the test database.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>When testing <a href="testing.html#testing-component-tests-section">microservice components</a>, it is necessary to specify a reference to the component in which the RxMicro framework will inject the tested component.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>After starting the <code>docker</code> container, You need to read the random IP address and port that will be used when connecting to the running <code>docker</code> container.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This template <strong>for each test method</strong> will create and drop the <code>docker</code> container, which may increase the total runtime of all test methods.</p>
+</div>
+<div class="paragraph">
+<p><strong>Therefore, select the most appropriate functional test template based on the requirements of the tested functionality!</strong></p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The <a href="https://www.testcontainers.org/" target="_blank" rel="noopener"><code>Testcontainers</code></a> library starts the <code>docker</code> container before running the test and stops the <code>docker</code> container automatically after completing the test!</p>
+</div>
+<div class="paragraph">
+<p>So You should start and stop the <code>docker</code> container manually only if You want to use one <code>docker</code> container for <strong>all</strong> test methods!</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-mongo-universal-placeholder-section"><a class="anchor" href="#data-mongo-universal-placeholder-section"></a><a class="link" href="#data-mongo-universal-placeholder-section">4. Universal Placeholder</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The RxMicro framework recommends using the universal placeholder (<code>?</code>) as parameter value placeholder in the <code>Mongo DB</code> queries:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Find(query = "{email: ?}")
+Mono&lt;Account&gt; findByEmail(String email);</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If this method invoked with the following parameter:<br>
+<code>repository.findByEmail("<a href="mailto:welcome@rxmicro.io">welcome@rxmicro.io</a>");</code>,</p>
+</div>
+<div class="paragraph">
+<p>the RxMicro framework will generate the following <code>Mongo DB</code> query:<br>
+<code>{email: "<a href="mailto:welcome@rxmicro.io">welcome@rxmicro.io</a>"}</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-mongo-repeat-parameter-section"><a class="anchor" href="#data-mongo-repeat-parameter-section"></a><a class="link" href="#data-mongo-repeat-parameter-section">5. <code>@RepeatParameter</code> Annotation</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The universal placeholder (<code>?</code>) is the simplest type of placeholders.</p>
+</div>
+<div class="paragraph">
+<p>But unfortunately, it has one disadvantage: if a query parameter must be repeated, a developer must define a copy of this parameter:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Find(query = "{$or: [{firstName: ?}, {lastName: ?}]}")
+Mono&lt;Account&gt; findByFirstOrLastNames(String name1, String name2);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data/src/main/java/io/rxmicro/data/RepeatParameter.java" target="_blank" rel="noopener"><code>@RepeatParameter</code></a> annotation fixes this disadvantage.</p>
+</div>
+<div class="paragraph">
+<p>The following code is an equivalent to the code with a copy of the <code>name</code> parameter:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Find(query = "{$or: [{firstName: ?}, {lastName: ?}]}")
+Mono&lt;Account&gt; findByFirstOrLastNames(@RepeatParameter(2) String name);</code></pre>
+</div>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-mongo-operations-section"><a class="anchor" href="#data-mongo-operations-section"></a><a class="link" href="#data-mongo-operations-section">6. Mongo Operations</a></h2>
+<div class="sectionbody">
+<div style="page-break-after: always;"></div>
+<div class="sect2">
+<h3 id="data-mongo-find-section"><a class="anchor" href="#data-mongo-find-section"></a><a class="link" href="#data-mongo-find-section">6.1. <code>@Find</code></a></h3>
+<div class="paragraph">
+<p>The <code>rxmicro.data.mongo</code> module supports the <a href="https://docs.mongodb.com/manual/reference/method/db.collection.find/" target="_blank" rel="noopener"><code>db.collection.find()</code></a> operation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Find(query = "{_id: ?}")
+Mono&lt;Account&gt; findById(long id);
+
+@Find(query = "{_id: ?}", projection = "{firstName: 1, lastName: 1}")
+Mono&lt;Account&gt; findWithProjectionById(long id);
+
+@Find(query = "{role: ?}", sort = "{role: 1, balance: 1}")
+Flux&lt;Account&gt; findByRole(Role role, Pageable pageable);
+
+@Find(query = "{role: ?}", sort = "{role: ?, balance: ?}")
+Flux&lt;Account&gt; findByRole(Role role, @RepeatParameter(2) SortOrder sortOrder, Pageable pageable);</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For more information, we recommend that You familiarize yourself with the following examples:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-data-mongo/data-mongo-all-operations/src/main/java/io/rxmicro/examples/data/mongo/all/operations/FindDataRepository.java" target="_blank" rel="noopener">All Supported Return Types</a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-data-mongo/data-mongo-supported-types/src/main/java/io/rxmicro/examples/data/mongo/supported/types/GetDataRepository.java#L130" target="_blank" rel="noopener">All Supported Parameter Types</a>.</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-find" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-find</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="data-mongo-aggregate-section"><a class="anchor" href="#data-mongo-aggregate-section"></a><a class="link" href="#data-mongo-aggregate-section">6.2. <code>@Aggregate</code></a></h3>
+<div class="paragraph">
+<p>The <code>rxmicro.data.mongo</code> module supports the <a href="https://docs.mongodb.com/manual/reference/method/db.collection.aggregate/" target="_blank" rel="noopener"><code>db.collection.aggregate()</code></a> operation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public final class Report {
+
+    @DocumentId
+    Role id;
+
+    BigDecimal total;
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Aggregate(pipeline = {
+        "{ $group : { _id: '$role', total : { $sum: '$balance'}} }",
+        "{ $sort: {total: -1, _id: -1} }"
+})
+Flux&lt;Report&gt; aggregate();</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For more information, we recommend that You familiarize yourself with the following examples:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-data-mongo/data-mongo-all-operations/src/main/java/io/rxmicro/examples/data/mongo/all/operations/AggregateDataRepository.java" target="_blank" rel="noopener">All Supported Return Types</a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-data-mongo/data-mongo-supported-types/src/main/java/io/rxmicro/examples/data/mongo/supported/types/GetDataRepository.java#L41" target="_blank" rel="noopener">All Supported Parameter Types</a>.</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-aggregate" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-aggregate</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="data-mongo-distinct-section"><a class="anchor" href="#data-mongo-distinct-section"></a><a class="link" href="#data-mongo-distinct-section">6.3. <code>@Distinct</code></a></h3>
+<div class="paragraph">
+<p>The <code>rxmicro.data.mongo</code> module supports the <a href="https://docs.mongodb.com/manual/reference/method/db.collection.distinct/" target="_blank" rel="noopener"><code>db.collection.distinct()</code></a> operation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Distinct(field = "email", query = "{_id: ?}")
+Mono&lt;String&gt; getEmailById(long id);
+
+@Distinct(field = "role")
+Flux&lt;Role&gt; getAllUsedRoles();</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For more information, we recommend that You familiarize yourself with the following examples:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-data-mongo/data-mongo-all-operations/src/main/java/io/rxmicro/examples/data/mongo/all/operations/DistinctDataRepository.java" target="_blank" rel="noopener">All Supported Return Types</a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-data-mongo/data-mongo-supported-types/src/main/java/io/rxmicro/examples/data/mongo/supported/types/GetDataRepository.java#L354" target="_blank" rel="noopener">All Supported Parameter Types</a>.</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-distinct" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-distinct</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="data-mongo-countDocuments-section"><a class="anchor" href="#data-mongo-countDocuments-section"></a><a class="link" href="#data-mongo-countDocuments-section">6.4. <code>@CountDocuments</code></a></h3>
+<div class="paragraph">
+<p>The <code>rxmicro.data.mongo</code> module supports the <a href="https://docs.mongodb.com/manual/reference/method/db.collection.countDocuments/" target="_blank" rel="noopener"><code>db.collection.countDocuments()</code></a> operation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@CountDocuments
+Mono&lt;Long&gt; countDocuments();
+
+@CountDocuments(query = "{role:?}", skip = 0, limit = 100)
+Mono&lt;Long&gt; countDocuments(Role role);</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For more information, we recommend that You familiarize yourself with the following examples:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-data-mongo/data-mongo-all-operations/src/main/java/io/rxmicro/examples/data/mongo/all/operations/CountDocumentsDataRepository.java" target="_blank" rel="noopener">All Supported Return Types</a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-data-mongo/data-mongo-supported-types/src/main/java/io/rxmicro/examples/data/mongo/supported/types/GetDataRepository.java#L266" target="_blank" rel="noopener">All Supported Parameter Types</a>.</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-count-documents" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-count-documents</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="data-mongo-estimatedDocumentCount-section"><a class="anchor" href="#data-mongo-estimatedDocumentCount-section"></a><a class="link" href="#data-mongo-estimatedDocumentCount-section">6.5. <code>@EstimatedDocumentCount</code></a></h3>
+<div class="paragraph">
+<p>The <code>rxmicro.data.mongo</code> module supports the <a href="https://docs.mongodb.com/manual/reference/method/db.collection.estimatedDocumentCount/" target="_blank" rel="noopener"><code>db.collection.estimatedDocumentCount()</code></a> operation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@EstimatedDocumentCount
+Mono&lt;Long&gt; estimatedDocumentCount();</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For more information, we recommend that You familiarize yourself with the following examples:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-data-mongo/data-mongo-all-operations/src/main/java/io/rxmicro/examples/data/mongo/all/operations/EstimatedDocumentCountDataRepository.java" target="_blank" rel="noopener">All Supported Return Types</a>.</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-estimated-document-count" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-estimated-document-count</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="data-mongo-insert-section"><a class="anchor" href="#data-mongo-insert-section"></a><a class="link" href="#data-mongo-insert-section">6.6. <code>@Insert</code></a></h3>
+<div class="paragraph">
+<p>The <code>rxmicro.data.mongo</code> module supports the <a href="https://docs.mongodb.com/manual/reference/method/db.collection.insertOne/" target="_blank" rel="noopener"><code>db.collection.insertOne()</code></a> operation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Insert
+Mono&lt;Void&gt; insert(Account account);</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For more information, we recommend that You familiarize yourself with the following examples:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-data-mongo/data-mongo-all-operations/src/main/java/io/rxmicro/examples/data/mongo/all/operations/InsertDataRepository.java" target="_blank" rel="noopener">All Supported Return Types</a>.</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-insert" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-insert</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="data-mongo-update-section"><a class="anchor" href="#data-mongo-update-section"></a><a class="link" href="#data-mongo-update-section">6.7. <code>@Update</code></a></h3>
+<div class="paragraph">
+<p>The <code>rxmicro.data.mongo</code> module supports the <a href="https://docs.mongodb.com/manual/reference/method/db.collection.updateOne/" target="_blank" rel="noopener"><code>db.collection.updateOne()</code></a> operation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Update
+Mono&lt;Boolean&gt; updateEntity(AccountEntity accountEntity);
+
+@Update(filter = "{_id: ?}")
+Mono&lt;Void&gt; updateDocument(AccountDocument accountDocument, long id);
+
+@Update(update = "{$set: {balance: ?}}", filter = "{_id: ?}")
+Mono&lt;Long&gt; updateById(BigDecimal balance, long id);
+
+@Update(update = "{$set: {balance: ?}}", filter = "{role: ?}")
+Mono&lt;UpdateResult&gt; updateByRole(BigDecimal balance, Role role);
+
+@Update(update = "{$set: {balance: ?}}")
+Mono&lt;UpdateResult&gt; updateAll(BigDecimal balance);</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For more information, we recommend that You familiarize yourself with the following examples:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-data-mongo/data-mongo-all-operations/src/main/java/io/rxmicro/examples/data/mongo/all/operations/UpdateDataRepository.java" target="_blank" rel="noopener">All Supported Return Types</a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-data-mongo/data-mongo-supported-types/src/main/java/io/rxmicro/examples/data/mongo/supported/types/UpdateDataRepository.java" target="_blank" rel="noopener">All Supported Parameter Types</a>.</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-update" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-update</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="data-mongo-delete-section"><a class="anchor" href="#data-mongo-delete-section"></a><a class="link" href="#data-mongo-delete-section">6.8. <code>@Delete</code></a></h3>
+<div class="paragraph">
+<p>The <code>rxmicro.data.mongo</code> module supports the <a href="https://docs.mongodb.com/manual/reference/method/db.collection.deleteOne/" target="_blank" rel="noopener"><code>db.collection.deleteOne()</code></a>
+and <a href="https://docs.mongodb.com/manual/reference/method/db.collection.deleteMany/"><code>db.collection.deleteMany()</code></a> operations:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Delete
+Mono&lt;Boolean&gt; deleteById(Long id);
+
+@Delete(filter = "{role: ?}")
+Mono&lt;Long&gt; deleteByRole(Role role);</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For more information, we recommend that You familiarize yourself with the following examples:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-data-mongo/data-mongo-all-operations/src/main/java/io/rxmicro/examples/data/mongo/all/operations/DeleteDataRepository.java" target="_blank" rel="noopener">All Supported Return Types</a>;</p>
+</li>
+<li>
+<p><a href="https://github.com/rxmicro/rxmicro-usage/blob/master/examples/group-data-mongo/data-mongo-supported-types/src/main/java/io/rxmicro/examples/data/mongo/supported/types/DeleteDataRepository.java" target="_blank" rel="noopener">All Supported Parameter Types</a>.</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-delete" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-delete</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-mongo-partial-implementation-section"><a class="anchor" href="#data-mongo-partial-implementation-section"></a><a class="link" href="#data-mongo-partial-implementation-section">7. Partial Implementation</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If the Mongo data repository generated by the <code>RxMicro Annotation Processor</code> contains errors, incorrect or non-optimized logic, the developer can use the <code>Partial Implementation</code> feature.</p>
+</div>
+<div class="paragraph">
+<p>This feature allows You to implement methods for the Mongo data repository on Your own, instead of generating them by the RxMicro framework.</p>
+</div>
+<div class="paragraph">
+<p>To activate this feature, You need to use the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-mongo/src/main/java/io/rxmicro/data/mongo/PartialImplementation.java" target="_blank" rel="noopener"><code>@PartialImplementation</code></a>
+annotation, and specify an abstract class that contains a partial implementation of method(s) for Mongo data repository:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@MongoRepository(collection = DataRepository.COLLECTION_NAME)
+<i class="conum" data-value="1"></i><b>(1)</b>
+@PartialImplementation(AbstractDataRepository.class)
+public interface DataRepository {
+
+    String COLLECTION_NAME = "account";
+
+    @CountDocuments
+    CompletableFuture&lt;Long&gt; generatedMethod();
+
+    CompletableFuture&lt;Long&gt; userDefinedMethod();
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Using the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-mongo/src/main/java/io/rxmicro/data/mongo/PartialImplementation.java" target="_blank" rel="noopener"><code>@PartialImplementation</code></a>
+annotation, the <code>AbstractDataRepository</code> class is specified.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>An <code>AbstractDataRepository</code> contains the following content:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public abstract class AbstractDataRepository extends AbstractMongoRepository
+        implements DataRepository {
+
+    protected AbstractDataRepository(final Class&lt;?&gt; repositoryClass,
+                                     final MongoCollection&lt;Document&gt; collection) {
+        super(repositoryClass, collection);
+    }
+
+    @Override
+    public CompletableFuture&lt;Long&gt; userDefinedMethod() {
+        return CompletableFuture.completedFuture(100L);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>An abstract class that contains a partial implementation must meet the following requirements:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The class must be an <code>abstract</code> one.</p>
+</li>
+<li>
+<p>The class must extend the
+<a href="https://github.com/rxmicro/rxmicro/blob/v0.11/rxmicro-data-mongo/src/main/java/io/rxmicro/data/mongo/detail/AbstractMongoRepository.java" target="_blank" rel="noopener"><code>AbstractMongoRepository</code></a> one.</p>
+</li>
+<li>
+<p>The class must implement the Mongo data repository interface.</p>
+</li>
+<li>
+<p>The class must contain an implementation of all methods that are not generated automatically.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>In terms of infrastructure, the repository methods generated and defined by the developer for Mongo data repository do not differ:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Test
+void generatedMethod() {
+    assertEquals(6L, dataRepository.generatedMethod().join());
+}
+
+@Test
+void userDefinedMethod() {
+    assertEquals(100L, dataRepository.userDefinedMethod().join());
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The project source code used in the current subsection is available at the following link:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-partial-implementation" target="_blank" rel="noopener"><code>https://github.com/rxmicro/rxmicro-usage/tree/master/examples/group-data-mongo/data-mongo-partial-implementation</code></a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When compiling, the RxMicro framework searches for <code>RxMicro Annotations</code> in the source code and generates additional classes necessary for the integral work of the microservice.</p>
+</div>
+<div class="paragraph">
+<p><strong>When changing the <code>RxMicro Annotations</code> in the source code, DON&#8217;T FORGET to recompile the ALL source code, not just the changed file, for the changes to take effect:</strong> <code>mvn clean compile</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-mongo-logging-section"><a class="anchor" href="#data-mongo-logging-section"></a><a class="link" href="#data-mongo-logging-section">8. Logging</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Mongo Data Repositories use the <a href="http://mongodb.github.io/mongo-java-driver/4.0/driver/" target="_blank" rel="noopener"><strong>MongoDB Async Driver</strong></a>, so in order to activate database request logging to the Mongo DB, You must configure the <strong>MongoDB Async Driver Logger</strong>:</p>
+</div>
+<div class="paragraph example-code-link">
+<p><a href="http://mongodb.github.io/mongo-java-driver/4.0/driver/reference/logging/" target="_blank" rel="noopener"><code>http://mongodb.github.io/mongo-java-driver/4.0/driver/reference/logging/</code></a>.</p>
+</div>
+<div class="paragraph">
+<p>For example, if to the <code>classpath</code> of the current project add the <a href="core.html#core-logger-config-file-inline"><code>jul.properties</code></a> resource:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-properties" data-lang="properties">org.mongodb.driver.protocol.level=TRACE</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>,then Mongo Data Repositories will generate request logs to the Mongo DB while working:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">2020-03-08 13:15:03.912 [DEBUG] org.mongodb.driver.protocol.command : Sending command <strong>'{"find": "account", "filter": {"_id": 1}, "batchSize": 2147483647, "$db": "rxmicro"}'</strong> with request <strong>id 6</strong> to database rxmicro on connection [<strong>connectionId{localValue:2, serverValue:4}</strong>] to server <strong>localhost:27017</strong>
+
+2020-03-08 13:15:03.914 [DEBUG] org.mongodb.driver.protocol.command : Execution of command with request <strong>id 6</strong> completed successfully <strong>in 3.11 ms</strong> on connection [<strong>connectionId{localValue:2, serverValue:4}</strong>] to server <strong>localhost:27017</strong></code></pre>
+</div>
+</div>
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="data-postgresql.html#data-postgresql-section"><strong><span class="icon"><i class="fa fa-angle-double-left"></i></span> Postgre SQL Data Repositories</strong></a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="index.html#index-section"><strong><span class="icon"><i class="fa fa-angle-double-up"></i></span> Home</strong></a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="cdi.html#cdi-section"><strong>Contexts and Dependency Injection  <span class="icon"><i class="fa fa-angle-double-right"></i></span></strong></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-166298262-2"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-166298262-2');
+</script>
+</div>
+</div>
+</div>
+</body>
+</html>
